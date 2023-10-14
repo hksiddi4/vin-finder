@@ -46,7 +46,7 @@ def processVin(urlIdent, checkDig, vinChanging, endVIN):
             while retries < max_retries:
                 try:
                     # Get Request
-                    contents = requests.get(newUrl, headers = {'User-Agent': 'camaro ce finder version 0.08 probably', 'Accept-Language': 'en-US'}, timeout=10)
+                    contents = requests.get(newUrl, headers = {'User-Agent': 'camaro ce finder version 0.08 probably', 'Accept-Language': 'en-US'}, timeout=30)
                     contents = contents.text
                     time.sleep(1)
 
