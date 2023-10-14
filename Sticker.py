@@ -56,7 +56,7 @@ def processVin(urlIdent, checkDig, vinChanging, endVIN):
                         jsonCont = json.loads(contents)
                         print(jsonCont["errorMessage"])
                     # If request returns not a json content = window sticker found
-                    except json.decoder.JSONDecodeError as e:
+                    except json.decoder.JSONDecodeError:
                         # Write VIN to ceVin.txt file
                         matchedVIN = newUrl[-17:]
                         with open("ceVin.txt", "a") as f:
