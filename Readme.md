@@ -11,6 +11,7 @@ Example (#001 Collector's Edition used)
 ```
 1G1FJ1R6XR0100021
 ```
+1G1F = All 6th generation Camaro VINs start with these same four characters
 
 J1R6 = Manual, Coupe, LT4 Engine
 
