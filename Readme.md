@@ -3,7 +3,7 @@
 Made this to find all 350 of the collector's edition cars.
 
 The only input is:
-* Get the starting and ending 6 numbers of VINs you want to search through
+* Get the starting and ending 6 sequence numbers of VINs you want to search through
 
 ## 2024 Camaro VIN breakdown
 ![Camaro VIN breakdown](https://www.camaro6.com/forums/attachment.php?attachmentid=1022448&stc=1&d=1583377227)
