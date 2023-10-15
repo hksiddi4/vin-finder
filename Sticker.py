@@ -135,12 +135,14 @@ for urlIdent in urlIdent_list:
     processVin(urlIdent, vinChanging, endVIN)
     print("")
 
-
+t = time.localtime()
+currentTime = time.strftime("%H:%M:%S", t)
+print("Ended:", currentTime)
 # https://www.camaro6.com/forums/showthread.php?t=426194 - VIN Breakdown
 # 2024 model year = R
 
 # Unchanged VIN Variants
-# 1G1FJ1R60R0 - Done (105000 - 108519) - In Progress (108520 - 111000) - 108520 Stopped (too many requests sorry GM :( -raised sleep to 5)
+# 1G1FJ1R60R0 - Done (105000 - 108519) - In Progress (108520 - 111000) - 108520 Stopped (-raised sleep to 5)
 # 1G1FJ3D64R0
 
 # 1G1FK1R60R0
