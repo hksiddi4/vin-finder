@@ -1,5 +1,5 @@
 # 2024 Camaro ZL1 Collector's Edition Finder
-![List and Excel Sheet of Known VINs](https://www.camaro6.com/forums/showthread.php?t=619436)
+[List and Excel Sheet of Known VINs](https://www.camaro6.com/forums/showthread.php?t=619436)
 Made this to find all 350 of the collector's edition cars.
 
 The only input is:
