@@ -1,7 +1,7 @@
 # 2024 Camaro ZL1 Collector's Edition Finder
-[List and Excel Sheet of Known VINs](https://www.camaro6.com/forums/showthread.php?t=619436)
+Made this script to find all 350 of the collector's edition cars.
 
-Made this to find all 350 of the collector's edition cars.
+[List and Excel Sheet of Known VINs](https://www.camaro6.com/forums/showthread.php?t=619436)
 
 The only input is:
 * Get the starting and ending 6 sequence numbers of VINs you want to search through
