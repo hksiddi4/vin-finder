@@ -1,6 +1,7 @@
 # 2024 Camaro ZL1 Collector's Edition Finder
+Made this script to find all 350 of the collector's edition cars.
 
-Made this to find all 350 of the collector's edition cars.
+[List and Excel Sheet of Known VINs](https://www.camaro6.com/forums/showthread.php?t=619436)
 
 The only input is:
 * Get the starting and ending 6 sequence numbers of VINs you want to search through
@@ -15,7 +16,7 @@ Example (#001 Collector's Edition used)
 
 J1R6 = Manual, Coupe, LT4 Engine
 
-Check digit can be anything including "X" and 0~9
+The check digit can be anything including "X" and 0~9 - Edit: The script will now calculate the correct check digit per VIN instead of iterating 40 times for one sequence
 
 R = 2024 Model Year
 
@@ -26,7 +27,7 @@ Add any 2020+ GM vehicle's VIN to the end of this URL and you should get a windo
 ```
 https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=
 ```
-Sticker.py takes the input of starting and ending sequence numbers and (specifically for ZL1's only) runs against every iteration including all 10 check digits as well as all 4 bodystyle/transmission combos for a total of 40 tests per one VIN.
+Sticker.py takes the input of starting and ending sequence numbers and (specifically for ZL1's only) runs against all 4 bodystyle/transmission combos for a total of 4 tests per VIN.
 
 Each VIN has an API call sent to the link created and if the window sticker returns then an error is sent as a JSONDecodeError (since it's a PDF). If there isn't a VIN then a JSON object is returned with one item being 'errorMessage'.
 
@@ -48,4 +49,6 @@ The greatest issue is false positives, for some reason, the API requests will re
 
 This caused me to create the (aptly named) 'Test.py' script.
 
-You paste the VINs from 'ceVin.txt' in the same format in this file and run the script. It will open each VIN individually in a tab for me to manually check through. I have to do this anyway to check if the VIN is a CE as all 2024 VINs are included not solely CE. But this us a lot of 'Error failed to load pdf' tabs that pop up, unfortunately. Not sure how to fix this since GM returns the PDF but literally nothing else in the request :(
+You paste the VINs from 'ceVin.txt' in the same format in this file and run the script. It will open each VIN individually in a tab for me to manually check through. I have to do this anyway to check if the VIN is a CE as all 2024 VINs are included not solely CE. But this is a lot of 'Error failed to load pdf' tabs that pop up, unfortunately. Not sure how to fix this since GM returns the PDF but literally nothing else in the request :( - Edit: After changing to a calculated check digit there are significantly fewer of these errors popping up. Occasionally one does come through.
+
+I have reached a point where I've gone through all sequences between specific numbers but some sequences are not showing up. Some window stickers are not uploaded as of yet so may have to wait a while to complete.
