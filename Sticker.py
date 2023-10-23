@@ -3,8 +3,13 @@ import requests
 import time
 import http.client, urllib
 
-vinChanging = int(input('Enter last 6 numbers of the VIN to start at: \n'))
+startTime = time.time()
+
+vinChanging = int(input('Enter last 6 numbers of the VIN to start at:\n'))
 endVIN = int(input('Enter last 6 numbers of the VIN to stop at:\n'))
+print("")
+totalVIN = endVIN - vinChanging + 1
+foundVIN = 0
 
 # Working Check Digit Calculator
 # Step 1: Assign values to letters
@@ -55,6 +60,7 @@ def sendNotif(matchedVIN):
     conn.getresponse()
 
 def processVin(urlIdent, vinChanging, endVIN):
+    global foundVIN
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G1F"
     urlSecond = "R0"
 
@@ -98,6 +104,7 @@ def processVin(urlIdent, vinChanging, endVIN):
                         print("Match Found For VIN: [" + updated_vin + "].")
                         # Send notification to phone
                         sendNotif(updated_vin)
+                        foundVIN += 1
 
                     # Increment VIN by 1
                     vinChanging += 1
@@ -135,9 +142,15 @@ for urlIdent in urlIdent_list:
     processVin(urlIdent, vinChanging, endVIN)
     print("")
 
+endTime = time.time()
+elapsedTime = endTime - startTime
+
+minutes = int(elapsedTime // 60)
+seconds = int(elapsedTime % 60)
+
 t = time.localtime()
 currentTime = time.strftime("%H:%M:%S", t)
-print("Ended:", currentTime)
+print("Ended:", currentTime, " - Elapsed time: {} minutes, {} seconds\nTested {} VIN(s) - Found {} matche(s)".format(minutes, seconds, totalVIN, foundVIN))
 # https://www.camaro6.com/forums/showthread.php?t=426194 - VIN Breakdown
 # 2024 model year = R
 
