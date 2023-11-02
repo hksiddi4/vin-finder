@@ -115,7 +115,20 @@ def processVin(urlIdent, vinChanging, endVIN):
                     print("Timed out, retrying...")
                     retries += 1
                     time.sleep(120)
-            
+
+        except requests.exceptions.RequestException as e:
+            print(f"An error occurred: {e}")
+            if isinstance(e, requests.exceptions.ConnectionError) and isinstance(e.__cause__, ConnectionResetError):
+                print("ConnectionResetError occurred. Retrying...")
+                continue  # Continue with the next VIN
+            else:
+                print("Unknown error occurred. Skipping this VIN.")
+                # Write VIN to ceVin.txt file
+                with open("ceVin.txt", "a") as f:
+                    f.write(str("\n" + updated_vin + " - ERROR, RETRY THIS VIN"))
+                vinChanging += 1  # Move to the next VIN
+                continue  # Continue with the next VIN
+
         # When canceled in console, record last checked VIN to lastVin.txt
         except KeyboardInterrupt:
             #with open("lastVin.txt", "w") as f:
