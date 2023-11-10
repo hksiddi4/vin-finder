@@ -5,13 +5,33 @@ import http.client, urllib
 
 startTime = time.time()
 
+# Year digit --------------------------------------------------------------------------
+years = {
+    '2024': 'R',
+    '2023': 'P',
+    '2022': 'N',
+    '2021': 'M',
+    '2020': 'L',
+    '2019': 'K',
+}
+
+while True:
+    year = input('Enter year to test:\n')
+
+    if year in years:
+        yearDig = years[year]
+        print(f"{year}'s digit is {yearDig}")
+        break
+    else:
+        print("Invalid year (enter 2019-2024).")
+
 vinChanging = int(input('Enter last 6 numbers of the VIN to start at:\n'))
 endVIN = int(input('Enter last 6 numbers of the VIN to stop at:\n'))
 print("")
 totalVIN = endVIN - vinChanging + 1
 foundVIN = 0
 
-# Working Check Digit Calculator
+# Working Check Digit Calculator --------------------------------------------------------
 # Step 1: Assign values to letters
 alpha_numeric_conversion = {
     'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6, 'G': 7, 'H': 8,
@@ -43,6 +63,7 @@ def calculate_check_digit(matchedVIN):
     updated_vin = matchedVIN[:8] + check_digit + matchedVIN[9:]
     return updated_vin
 
+# Send mobile notification -----------------------------------------------------------------
 def sendNotif(matchedVIN):
     url = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=" + matchedVIN
 
@@ -59,10 +80,10 @@ def sendNotif(matchedVIN):
         }), { "Content-type": "application/x-www-form-urlencoded" })
     conn.getresponse()
 
-def processVin(urlIdent, vinChanging, endVIN):
+# Main vin processing ---------------------------------------------------------------------------
+def processVin(urlIdent, vinChanging, endVIN, yearDig):
     global foundVIN
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G1F"
-    urlSecond = "R0"
 
     # Read last recorded VIN checked from lastVin.txt
     #with open("lastVin.txt", "r") as f:
@@ -76,9 +97,9 @@ def processVin(urlIdent, vinChanging, endVIN):
     while vinChanging <= endVIN:
         try:
             # Build the URL (first half + identify trim/gear + check digit + second half + incrementing VIN)
-            matchedVIN = "1G1F" + urlIdent + "XR0" + str(vinChanging)
+            matchedVIN = "1G1F" + urlIdent + "X" + yearDig + "0" + str(vinChanging)
             updated_vin = calculate_check_digit(matchedVIN)
-            newUrl = urlFirst + urlIdent + updated_vin[8:11] + str(vinChanging)
+            newUrl = urlFirst + urlIdent + updated_vin[8:11] + str(vinChanging).zfill(6)
 
             max_retries = 3
             retries = 0
@@ -86,7 +107,7 @@ def processVin(urlIdent, vinChanging, endVIN):
             while retries < max_retries:
                 try:
                     # Get Request
-                    contents = requests.get(newUrl, headers = {'User-Agent': 'camaro ce finder version 0.08 probably', 'Accept-Language': 'en-US'}, timeout=120)
+                    contents = requests.get(newUrl, headers = {'User-Agent': 'camaro count finder version', 'Accept-Language': 'en-US'}, timeout=120)
                     contents = contents.text
                     time.sleep(1)
 
@@ -98,12 +119,12 @@ def processVin(urlIdent, vinChanging, endVIN):
                     # If request returns not a json content = window sticker found
                     except json.decoder.JSONDecodeError:
                         # Write VIN to ceVin.txt file
-                        with open("ceVin.txt", "a") as f:
+                        with open(f"{year}.txt", "a") as f:
                             f.write(str("\n" + updated_vin))
                         # Inform console
                         print("Match Found For VIN: [" + updated_vin + "].")
                         # Send notification to phone
-                        sendNotif(updated_vin)
+                        #sendNotif(updated_vin)
                         foundVIN += 1
 
                     # Increment VIN by 1
@@ -152,7 +173,7 @@ urlIdent_list = [
 for urlIdent in urlIdent_list:
 #    for checkDig in checkDig_list:
     print("Testing configuration: " + urlIdent)
-    processVin(urlIdent, vinChanging, endVIN)
+    processVin(urlIdent, vinChanging, endVIN, yearDig)
     print("")
 
 endTime = time.time()

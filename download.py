@@ -38,14 +38,16 @@ pdfs_directory = download_folder  # Use the same download folder for reading PDF
 # Specify the page number you want to extract (0 for the first page)
 page_number = 0
 
-search_phrases = ["PANTHER", "GARAGE 56"]
-output_folders = ["CE", "G56"]
+search_phrases = ["PANTHER", "GARAGE 56", "EXTREME"]
+output_folders = ["CE", "G56", "1LE"]
+# search_phrases = ["PANTHER", "GARAGE 56", "EXTREME", "MANUAL", "AUTOMATIC", "MANUELLE", "AUTOMATIQUE"]
+# output_folders = ["CE", "G56", "1LE", "M6", "A10", "M6", "A10"]
 
 for filename in os.listdir(pdfs_directory):
     if filename.endswith('.pdf'):
         pdf_file_path = os.path.join(pdfs_directory, filename)
         vin = filename.replace(".pdf", "")
-        if os.path.getsize(pdf_file_path) > 0:
+        if os.path.getsize(pdf_file_path) > 2:
             pdf_text = read_pdf(pdf_file_path, page_number)
         else:
             print(f"Incomplete download: {filename} --------------- RETRY DOWNLOAD")
@@ -56,6 +58,7 @@ for filename in os.listdir(pdfs_directory):
                 output_folder = output_folders[i]
                 output_path = os.path.join(download_folder, output_folder, filename)  # Updated output path
                 os.makedirs(os.path.dirname(output_path), exist_ok=True)  # Ensure output directory exists
+                print(f"Matched {filename} to {search_phrase}")
                 shutil.copy(pdf_file_path, output_path)
                 break
         else:
