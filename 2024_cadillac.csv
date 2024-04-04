@@ -1,1 +1,1 @@
-model,exterior_color,interior_color,transmission,engine,total_vehicle_price,ordernum,vin,dealer,location,json,rpos
+vin,year,model,engine,transmission,exterior_color,msrp,dealer,location,ordernum,json,all_rpos

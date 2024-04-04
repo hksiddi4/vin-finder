@@ -98,9 +98,8 @@ def extractInfo(text):
     info = {}
     
     # Define the order of fields
-    field_order = ["model", "exterior_color", "interior color", "transmission", 
-                   "engine", "total_vehicle_price", "ordernum", "vin", "dealer", 
-                   "location", "json", "all_rpos"]
+    field_order = ["vin", "year", "model", "engine", "transmission", "exterior_color",
+                   "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
     
     for i, line in enumerate(lines):
         if line.startswith("VIN "):
@@ -108,24 +107,10 @@ def extractInfo(text):
         if "2024 CT4 " in line or "2024 CT5 " in line:
             model_info = ' '.join(line.strip().split())
             model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY")
-            info["model"] = model_info
-        if "TRANSMISSION," in line:
-            info["transmission"] = "temp"
-            info["engine"] = "temp"
-        if "EXTERIOR" in line:
-            info["exterior_color"] = "temp"
-        if "INTERIOR:" in line or "INTERIEUR:" in line:
-            interior_line = line
-            if "INTERIOR:" in line:
-                interior_line += " " + lines[i + 1].strip()
-                info["interior_color"] = interior_line.split("INTERIOR:")[1].strip()
-            else:
-                interior_line += " " + lines[i + 1].strip()
-                info["interior_color"] = interior_line.split("INTERIEUR:")[1].strip()
+            info["year"] = model_info[:4].strip()
+            info["model"] = model_info[4:].strip()
         if "PRICE*" in line:
-            info["total_vehicle_price"] = lines[i + 1].strip()
-        elif "ORDER" in line:
-            info["ordernum"] = "temp"
+            info["msrp"] = lines[i + 1].strip()
         if "DELIVERED" in line:
             info["dealer"] = lines[i + 1].strip()
             info["location"] = lines[i + 3].strip()
@@ -149,8 +134,6 @@ def extractInfo(text):
 
             if "order_number" in all_json:
                 info["ordernum"] = all_json["order_number"]
-            else:
-                info["ordernum"] = "Error"
     
     # Reorder the fields
     info_ordered = {field: info.get(field, None) for field in field_order}
