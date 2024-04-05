@@ -73,7 +73,7 @@ def extractInfo(text):
     info = {}
     
     # Define the order of fields
-    field_order = ["vin", "year", "model", "engine", "transmission", "exterior_color",
+    field_order = ["vin", "year", "model", "engine", "transmission", "drivetrain", "exterior_color",
                    "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
     
     for i, line in enumerate(lines):
@@ -105,6 +105,9 @@ def extractInfo(text):
                     continue
                 if item in trans_dict:
                     info["transmission"] = trans_dict[item]
+                    continue
+                if item in ext_dict:
+                    info["drivetrain"] = ext_dict[item]
                     continue
 
             if "order_number" in all_json:
