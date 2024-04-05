@@ -134,12 +134,12 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
     # Keep going until a specific stopping point
     while vinChanging <= endVIN:
         if vinChanging in skip_camaro or vinChanging in skip_cadillac:
-            print("\033[30mExisting VIN, skipping\033[0m")
+            print("\033[30mExisting sequence, skipping\033[0m")
             vinChanging += 1
             continue
         else:
             try:
-                # Build the URL (first half + identify trim/gear + check digit + second half + incrementing VIN)
+                # Build the URL (first half + identify trim/gear + check digit + year digit + 0 + incrementing VIN)
                 matchedVIN = "1G6D" + urlIdent + "X" + yearDig + "0" + str(vinChanging)
                 updated_vin = calculate_check_digit(matchedVIN)
                 newUrl = urlFirst + urlIdent + updated_vin[8:11] + str(vinChanging).zfill(6)
@@ -170,7 +170,10 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                             pdf_text = extractPDF(newUrl)
                             pdf_info = extractInfo(pdf_text)
                             writeCSV(pdf_info)
+                            # Append only the last 6 digits of the VIN to the list and file
                             skip_cadillac.append(vinChanging)
+                            with open("skip_cadillac.txt", "a") as file:
+                                file.write("    " + str(vinChanging).zfill(6) + ",\n")
 
                         # Increment VIN by 1
                         vinChanging += 1
