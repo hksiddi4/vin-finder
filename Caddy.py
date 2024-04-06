@@ -222,5 +222,5 @@ seconds = int(elapsedTime % 60)
 
 t = time.localtime()
 currentTime = time.strftime("%H:%M:%S", t)
-print("Ended:", currentTime, " - Elapsed time: {} minutes, {} seconds\nTested {} VIN(s) - Found {} matche(s)".format(minutes, seconds, totalVIN, foundVIN))
+print("Ended:", currentTime, " - Elapsed time: {} minutes, {} seconds\nTested {} VIN(s) - Found {} match(es)".format(minutes, seconds, totalVIN, foundVIN))
 # https://www.camaro6.com/forums/showthread.php?t=426194 - VIN Breakdown
