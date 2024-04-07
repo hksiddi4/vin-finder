@@ -81,7 +81,7 @@ def extractInfo(text):
             info["vin"] = line.split("VIN ")[1].strip()
         if "2024 CT4 " in line or "2024 CT5 " in line:
             model_info = ' '.join(line.strip().split())
-            model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY")
+            model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE HAUT DE GAMME", "PREMIUM LUXURY")
             info["year"] = model_info[:4].strip()
             info["model"] = model_info[4:].strip()
         if "PRICE*" in line:
