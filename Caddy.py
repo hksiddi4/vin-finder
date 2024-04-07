@@ -73,8 +73,8 @@ def extractInfo(text):
     info = {}
     
     # Define the order of fields
-    field_order = ["vin", "year", "model", "engine", "transmission", "drivetrain", "exterior_color",
-                   "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
+    field_order = ["vin", "year", "model", "trim", "engine", "transmission", "drivetrain",
+                   "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
     
     for i, line in enumerate(lines):
         if line.startswith("VIN "):
