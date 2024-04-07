@@ -83,11 +83,13 @@ def extractInfo(text):
             model_info = ' '.join(line.strip().split())
             model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE HAUT DE GAMME", "PREMIUM LUXURY")
             info["year"] = model_info[:4].strip()
-            info["model"] = model_info[4:].strip()
+            modeltrim = model_info[4:].strip().split()
+            info["model"] = modeltrim[0]
+            info["trim"] = ' '.join(modeltrim[1:])
         if "PRICE*" in line:
             info["msrp"] = lines[i + 1].strip()
         if "DELIVERED" in line:
-            info["dealer"] = lines[i + 1].strip()
+            info["dealer"] = lines[i + 1].strip().replace("�", "-")
             info["location"] = lines[i + 3].strip()
             json_data = lines[i + 7:i + 11]
             all_json = json.loads(' '.join(json_data))
