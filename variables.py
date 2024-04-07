@@ -71,6 +71,14 @@ years = {
     '2020': 'L',
 }
 
+urlIdent_blackwing_list = [
+    "L5RP", # V-Series Blackwing, LF4 | (610000-611000, 410000-411000): Checked | (460000-461000): Ongoing https://www.cadillac.com/sedans/ct4-v-blackwing/mondrian-editions#
+    "75RP", # V-Series Blackwing, LF4 | (410000-411000): Checked | https://www.cadillac.com/sedans/ct4-v-blackwing/mondrian-editions#
+    "65RP", # V-Series Blackwing, LF4 | (410000-411000): Ongoing | https://www.cadillac.com/sedans/ct4-v-blackwing/mondrian-editions#
+    "25R6", # V-Series Blackwing, LT4 | 
+    "Y5R6"  # V-Series Blackwing, LT4 | 
+]
+
 # Manual/Auto/Coupe/Conv. Differentiations
 urlIdent_list = [
     "J5RK", # Luxery/RWD, LSY (w/o 8speaker)
@@ -85,9 +93,6 @@ urlIdent_list = [
     "G5RK", # Sport/AWD, LSY
     "D5RL", # V-Series/RWD, L3B
     "H5RL", # V-Series/AWD, L3B
-    "L5RP", # V-Series Blackwing, LF4 | (610000-611000, 410000-411000): Checked | (460000-461000): Ongoing https://www.cadillac.com/sedans/ct4-v-blackwing/mondrian-editions#
-    "75RP", # V-Series Blackwing, LF4 | (410000-411000): Checked | https://www.cadillac.com/sedans/ct4-v-blackwing/mondrian-editions#
-    "65RP", # V-Series Blackwing, LF4 | (410000-411000): Ongoing | https://www.cadillac.com/sedans/ct4-v-blackwing/mondrian-editions#
     "M5RK", # Luxery/RWD, LSY
     "W5RK", # Luxery/RWD, LSY
     "X5RK", # Luxery/AWD, LSY
@@ -102,9 +107,7 @@ urlIdent_list = [
     "P5RK", # Sport/RWD, LSY
     "U5RK", # Sport/AWD, LSY
     "R5RW", # V-Series/RWD, LGY
-    "V5RW", # V-Series/AWD, LGY
-    "25R6", # V-Series Blackwing, LT4 | 
-    "Y5R6"  # V-Series Blackwing, LT4 | 
+    "V5RW" # V-Series/AWD, LGY
 ]
 
 skip_camaro = [
