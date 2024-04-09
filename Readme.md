@@ -1,3 +1,5 @@
+# Currently expanding to other brands
+
 # 2024 Camaro ZL1 Collector's Edition Finder
 Made this script to find all 350 of the collector's edition cars.
 
