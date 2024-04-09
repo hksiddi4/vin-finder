@@ -1,5 +1,5 @@
 # Currently expanding to other brands
-
+Other API's found thanks to https://windowstickerlookup.com/
 # 2024 Camaro ZL1 Collector's Edition Finder
 Made this script to find all 350 of the collector's edition cars.
 
