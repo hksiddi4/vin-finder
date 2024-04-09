@@ -78,9 +78,13 @@ def extractInfo(text, newUrl):
                     "Interior_Color", "Interior", "MSRP", "Order #", "URL"]
     
     for i, line in enumerate(lines):
-        if line.startswith("VIN: "):
-            info["VIN"] = line.split("VIN: ")[1].strip().replace("–", "")
         info["Year"] = year
+        if line.startswith("VIN: ") or line.startswith("NIV: "):
+            key = "VIN"
+            if line.startswith("VIN: "):
+                info[key] = line.split("VIN: ")[1].strip().replace("–", "")
+            elif line.startswith("NIV: "):
+                info[key] = line.split("NIV: ")[1].strip().replace("–", "")
         if "CHALLENGER" in line:
             info["Model"] = "CHALLENGER"
             info["Trim"] = line.split("CHALLENGER")[1].strip()
@@ -88,20 +92,52 @@ def extractInfo(text, newUrl):
                 info["Drivetrain"] = "AWD"
             else:
                 info["Drivetrain"] = "RWD"
-        if "Engine: " in line:
-            info["Engine"] = line.split("Engine: ")[1].strip().replace(" Engine", "").replace("\u00AE","")
+        if "Engine: " in line or "Moteur : " in line:
+            key = "Engine"
+            if "Engine: " in line:
+                value = line.split("Engine: ")[1].strip().replace(" Engine", "").replace(" engine", "").replace("\u00AE","")
+            elif "Moteur : " in line:
+                value = line.split("Moteur : ")[1].strip().replace(" Moteur", "").replace("\u00AE","")
+            value = value.replace("MOTEUR V8 HR SURALIMENTE DE 6,2 L", "6.2L V8 Supercharged HO")
+            info[key] = value
         if "Transmission: " in line:
-            info["Trans."] = line.split("Transmission: ")[1].strip().replace("\u00AE","").replace("\u2013","-")
-        if "TOTAL PRICE: * " in line:
-            info["MSRP"] = line.split("TOTAL PRICE: * ")[1].strip()
-        if "VON: " in line:
-            info["Order #"] = line.split("VON: ")[1].strip()
-        if "Exterior Color: " in line:
-            info["Exterior_Color"] = line.split("Exterior Color: ")[1].replace("Exterior Paint","").replace("\u2013","-").strip()
-        if "Interior Color: " in line:
-            info["Interior_Color"] = line.split("Interior Color: ")[1].replace("Interior Colors","").replace("\u2013","-").strip()
-        if "Interior: " in line:
-            info["Interior"] = line.split("Interior: ")[1].replace("\u00AE","").strip()
+            info["Trans."] = line.split("Transmission: ")[1].strip().replace("\u00AE","").replace("\u2013","-").replace("TRANS AUTO 8 VIT TORQUEFLITE H PERF","TorqueFlite 8-Speed Automatic Transmission").replace("8-speed TorqueFlite high performance automatic","TorqueFlite 8-Speed Automatic Transmission")
+        if "TOTAL PRICE: * " in line or "PRIX TOTAL : * " in line:
+            key = "MSRP"
+            if "TOTAL PRICE: * " in line:
+                value = line.split("TOTAL PRICE: * ")[1].strip()
+            elif "PRIX TOTAL : * " in line:
+                value = line.split("PRIX TOTAL : * ")[1].strip()
+                value = value.replace(" ", "").replace("$", "")
+            info[key] = value
+        if "VON: " in line or "NCV: " in line:
+            key = "Order_Number"
+            if "VON: " in line:
+                value = line.split("VON: ")[1].strip()
+            elif "NCV: " in line:
+                value = line.split("NCV: ")[1].strip()
+            info[key] = value
+        if "Exterior Color: " in line or "Couleur extérieure : " in line:
+            key = "Exterior_Color"
+            if "Exterior Color: " in line:
+                value = line.split("Exterior Color: ")[1].replace("Exterior Paint","").replace("\u2013","-").strip()
+            elif "Couleur extérieure : " in line:
+                value = line.split("Couleur extérieure : ")[1].strip()
+            info[key] = value
+        if "Interior Color: " in line or "Couleur intérieure: " in line:
+            key = "Interior_Color"
+            if "Interior Color: " in line:
+                value = line.split("Interior Color: ")[1].replace("Interior Colors","").replace("\u2013","-").strip()
+            elif "Couleur intérieure: " in line:
+                value = line.split("Couleur intérieure: ")[1].strip()
+            info[key] = value
+        if "Interior: " in line or "Intérieur : " in line:
+            key = "Interior"
+            if "Interior: " in line:
+                value = line.split("Interior: ")[1].replace("\u00AE","").strip()
+            elif "Intérieur : " in line:
+                value = line.split("Intérieur : ")[1].strip()
+            info[key] = value
     
     info["URL"] = newUrl
     # Reorder the fields
@@ -144,9 +180,9 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                 while retries < max_retries:
                     try:
                         # Get Request
-                        contents = requests.get(newUrl, headers = {'User-Agent': 'challenger count finder version', 'Accept-Language': 'en-US'}, timeout=120)
+                        contents = requests.get(newUrl, headers = {'User-Agent': 'challenger  count finder version', 'Accept-Language': 'en-US'}, timeout=120)
                         contents = contents.text
-                        time.sleep(1)                        
+                        time.sleep(1)
                         
                         try:
                             jsonCont = json.loads(contents)
