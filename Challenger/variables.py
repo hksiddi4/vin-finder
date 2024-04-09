@@ -9,59 +9,6 @@ alpha_numeric_conversion = {
 # Step 2: Position and Weight Factor
 weight_factors = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2]
 
-colors_dict = {
-    "G1W": "CRYSTAL WHITE TRICOAT",
-    "G7C": "VELOCITY RED",
-    "G7E": "RED OBSESSION TINTCOAT",
-    "G7W": "DARK EMERALD FROST",
-    "G9G": "DIAMOND SKY METALLIC",
-    "G9K": "SATIN STEEL METALLIC",
-    "GAZ": "SUMMIT WHITE",
-    "GBA": "BLACK RAVEN",
-    "GCF": "BLAZE METALLIC",
-    "GJ0": "EVERGREEN METALLIC",
-    "GJI": "SHADOW METALLIC",
-    "GJV": "COASTAL BLUE METALLIC",
-    "GKK": "WAVE METALLIC",
-    "GLK": "BLACK DIAMOND TRICOAT",
-    "GLL": "ROYAL SPICE METALLIC",
-    "GLR": "GARNET METALLIC",
-    "GLU": "DARK MOON METALLIC",
-    "GMO": "ELECTRIC BLUE",
-    "GNT": "RADIANT RED TINTCOAT",
-    "GRW": "RIFT METALLIC",
-    "GSK": "INFRARED TINTCOAT",
-    "GXD": "ARGENT SILVER METALLIC",
-    "GXF": "MIDNIGHT SKY METALLIC",
-    "GCP": "CYBER YELLOW METALLIC",
-    "GXU": "MIDNIGHT STEEL METALLIC",
-    "GKA": "MERCURY SILVER METALLIC"
-}
-
-engines_dict = {
-    "LSY": "2.0L TURBO, 4-CYL, SIDI",
-    "L3B": "2.7L TURBO",
-    "LGY": "3.0L TWIN TURBO V6, SIDI",
-    "LF4": "3.6L V6 TWIN TURBO SIDI, DOHC, VVT",
-    "LT4": "6.2L SUPERCHARGED V8"
-}
-
-trans_dict = {
-    "MG9": "M6",
-    "MJK": "M6",
-    "MHA": "A8",
-    "MHU": "A10",
-    "MQA": "A10",
-    "MHS": "A10",
-    "MQ2": "A10",
-    "MHX": "A10"
-}
-
-ext_dict = {
-    "F46": "AWD",
-    "RWL": "RWD"
-}
-
 # Year digit --------------------------------------------------------------------------
 years = {
     '2024': 'R',
@@ -69,48 +16,130 @@ years = {
     '2022': 'N',
     '2021': 'M',
     '2020': 'L',
+    '2019': 'K',
+    '2018': 'J',
+    '2017': 'H',
+    '2016': 'G',
+    '2015': 'F',
+    '2014': 'E',
+    '2013': 'D',
 }
-
-urlIdent_blackwing_list = [
-    "L5RP", # V-Series Blackwing, LF4 | not 2024?
-    "75RP", # V-Series Blackwing, LF4 | (410000-411000): Checked | https://www.cadillac.com/sedans/ct4-v-blackwing/mondrian-editions#
-    "65RP", # V-Series Blackwing, LF4 | (410000-411000): Ongoing | https://www.cadillac.com/sedans/ct4-v-blackwing/mondrian-editions#
-    "25R6", # V-Series Blackwing, LT4 | 
-    "35R6",
-    "Y5R6"  # V-Series Blackwing, LT4 | not 2024?
-]
 
 # Manual/Auto/Coupe/Conv. Differentiations
 urlIdent_list = [
-    "J5RK", # Luxery/RWD, LSY (w/o 8speaker)
-    "A5RK", # Luxery/RWD, LSY (w/ 8 speaker)
-    "K5RK", # Luxery/AWD, LSY
-    "E5RK", # Luxery/AWD, LSY
-    "B5RK", # Premium Luxery/RWD, LSY
-    "F5RK", # Premium Luxery/AWD, LSY
-    "B5RL", # Premium Luxery/RWD, L3B
-    "F5RL", # Premium Luxery/AWD, L3B
-    "C5RK", # Sport/RWD, LSY
-    "G5RK", # Sport/AWD, LSY
-    "D5RL", # V-Series/RWD, L3B
-    "H5RL", # V-Series/AWD, L3B
-    "M5RK", # Luxery/RWD, LSY
-    "W5RK", # Luxery/RWD, LSY
-    "X5RK", # Luxery/AWD, LSY
-    "N5RK", # Premium Luxery/RWD, LSY
-    "Z5RK", # Premium Luxery/RWD, LSY
-    "T5RK", # Premium Luxery/AWD, LSY
-    "S5RK", # Premium Luxery/AWD, LSY
-    "N5RW", # Premium Luxery/RWD, LGY
-    "Z5RW", # Premium Luxery/RWD, LGY
-    "T5RW", # Premium Luxery/AWD, LGY
-    "S5RW", # Premium Luxery/AWD, LGY
-    "P5RK", # Sport/RWD, LSY
-    "U5RK", # Sport/AWD, LSY
-    "R5RW", # V-Series/RWD, LGY
-    "V5RW" # V-Series/AWD, LGY
+    "ZL9",
+    "ZC9",
+    "ZFJ",
+    "ZJG",
+    "ZBT",
+    "ZAG",
+    "ZKG",
+    "ZGG",
+    "YCJ",
+    "YBT",
+    "YAG"
 ]
 
 skip_challenger = [
-    
+    100001,
+    100002,
+    100003,
+    100004,
+    100005,
+    100006,
+    100007,
+    100008,
+    100009,
+    100010,
+    100011,
+    100012,
+    100013,
+    100014,
+    100015,
+    100016,
+    100017,
+    100019,
+    100021,
+    100022,
+    100023,
+    100024,
+    100025,
+    100026,
+    100027,
+    100028,
+    100029,
+    100030,
+    100031,
+    100032,
+    100033,
+    100034,
+    100035,
+    100036,
+    100037,
+    100038,
+    100039,
+    100040,
+    100041,
+    100042,
+    100043,
+    100044,
+    100046,
+    100047,
+    100048,
+    100049,
+    100051,
+    100052,
+    100053,
+    100054,
+    100055,
+    100056,
+    100057,
+    100058,
+    100059,
+    100060,
+    100061,
+    100062,
+    100063,
+    100064,
+    100065,
+    100066,
+    100067,
+    100068,
+    100069,
+    100070,
+    100071,
+    100072,
+    100074,
+    100076,
+    100077,
+    100078,
+    100079,
+    100080,
+    100081,
+    100082,
+    100083,
+    100084,
+    100085,
+    100086,
+    100087,
+    100088,
+    100089,
+    100090,
+    100091,
+    100092,
+    100093,
+    100094,
+    100095,
+    100096,
+    100097,
+    100098,
+    100102,
+    100103,
+    100105,
+    100106,
+    100107,
+    100108,
+    100109,
+    100110,
+    100111
 ]

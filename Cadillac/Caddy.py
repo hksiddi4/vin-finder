@@ -89,7 +89,7 @@ def extractInfo(text):
         if "PRICE*" in line:
             info["msrp"] = lines[i + 1].strip()
         if "DELIVERED" in line:
-            info["dealer"] = lines[i + 1].strip().replace("�", "-")
+            info["dealer"] = lines[i + 1].strip().replace("\u2013", "-")
             info["location"] = lines[i + 3].strip()
             json_data = lines[i + 7:i + 11]
             all_json = json.loads(' '.join(json_data))
@@ -219,10 +219,12 @@ for urlIdent in urlIdent_list:
 endTime = time.time()
 elapsedTime = endTime - startTime
 
-minutes = int(elapsedTime // 60)
-seconds = int(elapsedTime % 60)
+hours = int(elapsedTime // 3600)
+remainder = elapsedTime % 3600
+minutes = int(remainder // 60)
+seconds = int(remainder  % 60)
 
 t = time.localtime()
 currentTime = time.strftime("%H:%M:%S", t)
-print("Ended:", currentTime, " - Elapsed time: {} minutes, {} seconds\nTested {} VIN(s) - Found {} match(es)".format(minutes, seconds, totalVIN, foundVIN))
+print("Ended:", currentTime, " - Elapsed time: {} hour(s), {} minute(s), {} second(s)\nTested {} VIN(s) - Found {} match(es)".format(hours, minutes, seconds, totalVIN, foundVIN))
 # https://www.camaro6.com/forums/showthread.php?t=426194 - VIN Breakdown
