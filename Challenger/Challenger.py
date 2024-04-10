@@ -57,37 +57,41 @@ def calculate_check_digit(matchedVIN):
     return updated_vin
 
 # Extract text from PDF -------------------------------------------------------------------------
-def extractPDF(pdf_url):
-    response = requests.get(pdf_url)
-    with open("temp.pdf", "wb") as f:
-        f.write(response.content)
-    doc = fitz.open("temp.pdf")
-    text = ""
-    for page in doc:
-        text += page.get_text()
-    doc.close()
-    return text
+def extractPDF(pdf_url, updated_vin):
+    try:
+        response = requests.get(pdf_url)
+        with open("temp.pdf", "wb") as f:
+            f.write(response.content)
+        doc = fitz.open("temp.pdf")
+        text = ""
+        for page in doc:
+            text += page.get_text()
+        doc.close()
+        return text
+    except Exception as e:
+        with open("RETRY.txt", "a") as f:
+            f.write(str("\n" + updated_vin))
 
 def extractInfo(text, newUrl):
     lines = text.split('\n')
     info = {}
-    
-    # Define the order of fields ["VIN", "Year", "Model", "Trim", "engine", "transmission", "drivetrain",
-                   #"exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
+
     field_order = ["VIN", "Year", "Model", "Trim", "Engine", "Trans.", "Drivetrain", "Exterior_Color",
                     "Interior_Color", "Interior", "MSRP", "Order #", "URL"]
+    line_counter = 0
     
     for i, line in enumerate(lines):
+        line_counter += 1
         info["Year"] = year
+        info["Model"] = "CHALLENGER"
         if line.startswith("VIN: ") or line.startswith("NIV: "):
             key = "VIN"
             if line.startswith("VIN: "):
                 info[key] = line.split("VIN: ")[1].strip().replace("–", "")
             elif line.startswith("NIV: "):
                 info[key] = line.split("NIV: ")[1].strip().replace("–", "")
-        if "CHALLENGER" in line:
-            info["Model"] = "CHALLENGER"
-            info["Trim"] = line.split("CHALLENGER")[1].strip()
+        if "CHALLENGER" in line and line_counter <= 7:
+            info["Trim"] = line.split("CHALLENGER ")[1].strip()
             if "ALL-WHEEL Drive" in info["Trim"]:
                 info["Drivetrain"] = "AWD"
             else:
@@ -95,7 +99,7 @@ def extractInfo(text, newUrl):
         if "Engine: " in line or "Moteur : " in line:
             key = "Engine"
             if "Engine: " in line:
-                value = line.split("Engine: ")[1].strip().replace(" Engine", "").replace(" engine", "").replace("\u00AE","")
+                value = line.split("Engine: ")[1].strip().replace(" Engine", "").replace(" engine", "").replace("\u00AE","").replace("HO supercharged","Supercharged HO")
             elif "Moteur : " in line:
                 value = line.split("Moteur : ")[1].strip().replace(" Moteur", "").replace("\u00AE","")
             value = value.replace("MOTEUR V8 HR SURALIMENTE DE 6,2 L", "6.2L V8 Supercharged HO")
@@ -111,7 +115,7 @@ def extractInfo(text, newUrl):
                 value = value.replace(" ", "").replace("$", "")
             info[key] = value
         if "VON: " in line or "NCV: " in line:
-            key = "Order_Number"
+            key = "Order #"
             if "VON: " in line:
                 value = line.split("VON: ")[1].strip()
             elif "NCV: " in line:
@@ -127,7 +131,7 @@ def extractInfo(text, newUrl):
         if "Interior Color: " in line or "Couleur intérieure: " in line:
             key = "Interior_Color"
             if "Interior Color: " in line:
-                value = line.split("Interior Color: ")[1].replace("Interior Colors","").replace("\u2013","-").strip()
+                value = line.split("Interior Color: ")[1].replace("Interior Colors","").replace("Interior Color","").replace("\u2013","-").strip()
             elif "Couleur intérieure: " in line:
                 value = line.split("Couleur intérieure: ")[1].strip()
             info[key] = value
@@ -186,9 +190,8 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                         
                         try:
                             jsonCont = json.loads(contents)
-#                            print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
                         except json.decoder.JSONDecodeError:
-                            pdf_text = extractPDF(newUrl)
+                            pdf_text = extractPDF(newUrl, updated_vin)
                             if pdf_text.strip() == "Sorry, a Window Sticker is unavailable for this VIN":
                                 print("\033[30mNo Window Sticker Found For VIN: " + matchedVIN + "\033[0m")
                             else:

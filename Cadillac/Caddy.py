@@ -57,16 +57,21 @@ def calculate_check_digit(matchedVIN):
     return updated_vin
 
 # Extract text from PDF -------------------------------------------------------------------------
-def extractPDF(pdf_url):
-    response = requests.get(pdf_url)
-    with open("temp.pdf", "wb") as f:
-        f.write(response.content)
-    doc = fitz.open("temp.pdf")
-    text = ""
-    for page in doc:
-        text += page.get_text()
-    doc.close()
-    return text
+def extractPDF(pdf_url, updated_vin):
+    try:
+        response = requests.get(pdf_url)
+        with open("temp.pdf", "wb") as f:
+            f.write(response.content)
+        doc = fitz.open("temp.pdf")
+        text = ""
+        for page in doc:
+            text += page.get_text()
+        doc.close()
+        return text
+    except Exception as e:
+        with open("RETRY.txt", "a") as f:
+            f.write(str("\n" + updated_vin))
+        
 
 def extractInfo(text):
     lines = text.split('\n')
@@ -81,7 +86,7 @@ def extractInfo(text):
             info["vin"] = line.split("VIN ")[1].strip()
         if "2024 CT4 " in line or "2024 CT5 " in line:
             model_info = ' '.join(line.strip().split())
-            model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE HAUT DE GAMME", "PREMIUM LUXURY")
+            model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE", "LUXERY")
             info["year"] = model_info[:4].strip()
             modeltrim = model_info[4:].strip().split()
             info["model"] = modeltrim[0].replace("SERIE V", "V-SERIES")
@@ -172,7 +177,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                             # Inform console
                             print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
                             foundVIN += 1
-                            pdf_text = extractPDF(newUrl)
+                            pdf_text = extractPDF(newUrl, updated_vin)
                             pdf_info = extractInfo(pdf_text)
                             writeCSV(pdf_info)
                             # Append only the last 6 digits of the VIN to the list and file
