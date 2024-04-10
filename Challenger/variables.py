@@ -40,7 +40,10 @@ urlIdent_list = [
     "YAG"
 ]
 
-skip_challenger = [
+with open('skip_challenger.txt', 'r') as file:
+    skip_challenger = [int(line.strip()) for line in file]
+
+OLDskip_challenger = [
     100001,
     100002,
     100003,

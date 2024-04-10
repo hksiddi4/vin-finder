@@ -12289,7 +12289,10 @@ skip_camaro = [
     123643,
 ]
 
-skip_cadillac = [
+with open('skip_cadillac.txt', 'r') as file:
+    skip_cadillac = [int(line.strip()) for line in file]
+
+OLDskip_cadillac = [
     100002,
     100003,
     100010,

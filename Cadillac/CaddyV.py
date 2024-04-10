@@ -178,7 +178,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                             # Append only the last 6 digits of the VIN to the list and file
                             skip_cadillac.append(vinChanging)
                             with open("skip_cadillac.txt", "a") as file:
-                                file.write("    " + str(vinChanging).zfill(6) + ",\n")
+                                file.write(str(vinChanging).zfill(6) + "\n")
 
                         # Increment VIN by 1
                         vinChanging += 1

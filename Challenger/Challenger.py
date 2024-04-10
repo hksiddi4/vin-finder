@@ -192,7 +192,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                             jsonCont = json.loads(contents)
                         except json.decoder.JSONDecodeError:
                             pdf_text = extractPDF(newUrl, updated_vin)
-                            if pdf_text.strip() == "Sorry, a Window Sticker is unavailable for this VIN":
+                            if "CHALLENGER" not in pdf_text.strip():
                                 print("\033[30mNo Window Sticker Found For VIN: " + matchedVIN + "\033[0m")
                             else:
                                 # Write VIN to txt file
@@ -205,7 +205,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                                 # Append only the last 6 digits of the VIN to the list and file
                                 skip_challenger.append(vinChanging)
                                 with open("skip_challenger.txt", "a") as file:
-                                    file.write("    " + str(vinChanging).zfill(6) + ",\n")
+                                    file.write(str(vinChanging).zfill(6) + "\n")
                                 foundVIN += 1
 
                         # Increment VIN by 1
