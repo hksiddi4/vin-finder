@@ -57,11 +57,10 @@ def calculate_check_digit(matchedVIN):
     return updated_vin
 
 # Extract text from PDF -------------------------------------------------------------------------
-def extractPDF(pdf_url, updated_vin):
+def extractPDF(contentsGet, updated_vin):
     try:
-        response = requests.get(pdf_url)
         with open("temp.pdf", "wb") as f:
-            f.write(response.content)
+            f.write(contentsGet.content)
         doc = fitz.open("temp.pdf")
         text = ""
         for page in doc:
@@ -184,14 +183,14 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                 while retries < max_retries:
                     try:
                         # Get Request
-                        contents = requests.get(newUrl, headers = {'User-Agent': 'challenger  count finder version', 'Accept-Language': 'en-US'}, timeout=120)
-                        contents = contents.text
+                        contentsGet = requests.get(newUrl, headers = {'User-Agent': 'challenger  count finder version', 'Accept-Language': 'en-US'}, timeout=120)
+                        contents = contentsGet.text
                         time.sleep(1)
                         
                         try:
                             jsonCont = json.loads(contents)
                         except json.decoder.JSONDecodeError:
-                            pdf_text = extractPDF(newUrl, updated_vin)
+                            pdf_text = extractPDF(contentsGet, updated_vin)
                             if "CHALLENGER" not in pdf_text.strip():
                                 print("\033[30mNo Window Sticker Found For VIN: " + matchedVIN + "\033[0m")
                             else:

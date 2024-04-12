@@ -15,7 +15,7 @@ while True:
         yearDig = years[year]
         break
     else:
-        print("Invalid year (enter 2020-2024).")
+        print("Invalid year.")
 
 while True:
     vinChanging_input = input('Enter last 6 numbers of the VIN to start at:\n')
@@ -57,11 +57,10 @@ def calculate_check_digit(matchedVIN):
     return updated_vin
 
 # Extract text from PDF -------------------------------------------------------------------------
-def extractPDF(pdf_url, updated_vin):
+def extractPDF(contentsGet, updated_vin):
     try:
-        response = requests.get(pdf_url)
         with open("temp.pdf", "wb") as f:
-            f.write(response.content)
+            f.write(contentsGet.content)
         doc = fitz.open("temp.pdf")
         text = ""
         for page in doc:
@@ -88,8 +87,9 @@ def extractInfo(text):
             model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE", "LUXERY")
             info["year"] = model_info[:4].strip()
             modeltrim = model_info[4:].strip().split()
-            info["model"] = modeltrim[0].replace("SERIE V", "V-SERIES")
-            info["trim"] = ' '.join(modeltrim[1:])
+            info["model"] = modeltrim[0]
+            trim = ' '.join(modeltrim[1:])
+            info["trim"] = trim.replace("SERIE V", "V-SERIES")
         if "PRICE*" in line:
             info["msrp"] = lines[i + 1].strip()
         if "DELIVERED" in line:
@@ -159,8 +159,8 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                 while retries < max_retries:
                     try:
                         # Get Request
-                        contents = requests.get(newUrl, headers = {'User-Agent': 'caddy count finder version', 'Accept-Language': 'en-US'}, timeout=120)
-                        contents = contents.text
+                        contentsGet = requests.get(newUrl, headers = {'User-Agent': 'caddy count finder version', 'Accept-Language': 'en-US'}, timeout=120)
+                        contents = contentsGet.text
                         time.sleep(1)
 
                         # Check if request returns errorMessage or actual content (meaning a window sticker was found)
@@ -176,7 +176,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                             # Inform console
                             print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
                             foundVIN += 1
-                            pdf_text = extractPDF(newUrl, updated_vin)
+                            pdf_text = extractPDF(contentsGet, updated_vin)
                             pdf_info = extractInfo(pdf_text)
                             writeCSV(pdf_info)
                             # Append only the last 6 digits of the VIN to the list and file
