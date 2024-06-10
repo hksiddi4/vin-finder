@@ -71,12 +71,18 @@ def extractPDF(contentsGet, updated_vin):
         with open("RETRY.txt", "a") as f:
             f.write(str("\n" + updated_vin))
 
-def extractInfo(text):
+def extractInfo(text, updated_vin):
+    if text is None:
+        print("Received None text. Skipping this VIN.")
+        # Write VIN to RETRY.txt file
+        with open("RETRY.txt", "a") as f:
+            f.write(str("\n" + updated_vin))
+        return None
     lines = text.split('\n')
     info = {}
     
     # Define the order of fields
-    field_order = ["vin", "year", "model", "trim", "engine", "trans", "drivetrain",
+    field_order = ["vin", "year", "model", "trim", "engine", "transmission", "drivetrain",
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
     
     for i, line in enumerate(lines):
@@ -124,6 +130,8 @@ def extractInfo(text):
     return info_ordered
 
 def writeCSV(pdf_info):
+    if pdf_info is None:
+        return
     # Define the field names based on the keys of pdf_info
     fieldnames = pdf_info.keys()
     
@@ -176,7 +184,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                             print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
                             foundVIN += 1
                             pdf_text = extractPDF(contentsGet, updated_vin)
-                            pdf_info = extractInfo(pdf_text)
+                            pdf_info = extractInfo(pdf_text, updated_vin)
                             writeCSV(pdf_info)
                             # Append only the last 6 digits of the VIN to the list and file
                             skip_cadillac.append(vinChanging)
@@ -212,12 +220,16 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                 #    f.write(str(vinChanging))
                     break
 
+i = 1
+
 # Process request through all variations of trim/gears
 for urlIdent in urlIdent_list:
+    urlList = len(urlIdent_list)
 #    for checkDig in checkDig_list:
-    print("Testing configuration: " + urlIdent)
+    print("Testing configuration (" + str(i) + "/" + str(urlList) + "): " + urlIdent)
     processVin(urlIdent, vinChanging, endVIN, yearDig)
     print("")
+    i += 1
 
 endTime = time.time()
 elapsedTime = endTime - startTime
