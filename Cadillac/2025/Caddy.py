@@ -6,72 +6,8 @@ import time
 import http.client, urllib
 from variables import *
 
-startTime = time.time()
-
-while True:
-    year = input('Enter year to test:\n')
-
-    if year in years:
-        yearDig = years[year]
-        break
-    else:
-        print("Invalid year.")
-
-while True:
-    vinChanging_input = input('Enter last 6 numbers of the VIN to start at:\n')
-    if vinChanging_input.isdigit() and len(vinChanging_input) == 6:
-        vinChanging = int(vinChanging_input)
-        break
-    else:
-        print("Please enter a valid 6-digit number.")
-while True:
-    endVIN_input = input('Enter last 6 numbers of the VIN to stop at:\n')
-    if endVIN_input.isdigit() and len(endVIN_input) == 6:
-        endVIN = int(endVIN_input)
-        break
-    else:
-        print("Please enter a valid 6-digit number.")
-print("")
-totalVIN = endVIN - vinChanging + 1
-foundVIN = 0
-
-# Function to calculate check digit
-def calculate_check_digit(matchedVIN):
-    total = 0
-    for i, char in enumerate(matchedVIN):
-        if char.isdigit():
-            total += int(char) * weight_factors[i]
-        elif char in alpha_numeric_conversion:
-            total += alpha_numeric_conversion[char] * weight_factors[i]
-        else:
-            raise ValueError(f"Invalid character in VIN: {char}")
-    
-    # Step 3: Divide the total by 11 and find the remainder
-    remainder = total % 11
-    
-    # Step 4: Calculate the check digit or use 'X' if remainder is 10
-    check_digit = str(remainder) if remainder < 10 else 'X'
-    
-    # Insert the check digit at the ninth position and return the updated VIN
-    updated_vin = matchedVIN[:8] + check_digit + matchedVIN[9:]
-    return updated_vin
-
-# Extract text from PDF -------------------------------------------------------------------------
-def extractPDF(contentsGet, updated_vin):
-    try:
-        with open("temp.pdf", "wb") as f:
-            f.write(contentsGet.content)
-        doc = fitz.open("temp.pdf")
-        text = ""
-        for page in doc:
-            text += page.get_text()
-        doc.close()
-        return text
-    except Exception as e:
-        with open("RETRY.txt", "a") as f:
-            f.write(str("\n" + updated_vin))
-
 def extractInfo(text, updated_vin):
+    global year
     if text is None:
         print("Received None text. Skipping this VIN.")
         # Write VIN to RETRY.txt file
@@ -88,7 +24,7 @@ def extractInfo(text, updated_vin):
     for i, line in enumerate(lines):
         if line.startswith("VIN "):
             info["vin"] = line.split("VIN ")[1].strip()
-        if "2025 CT4 " in line or "2025 CT5 " in line:
+        if f"{year} CT4 " in line or f"{year} CT5 " in line:
             model_info = ' '.join(line.strip().split())
             model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE", "LUXURY").replace("SERIE V", "V-SERIES")
             info["year"] = model_info[:4].strip()
@@ -130,13 +66,14 @@ def extractInfo(text, updated_vin):
     return info_ordered
 
 def writeCSV(pdf_info):
+    global year
     if pdf_info is None:
         return
     # Define the field names based on the keys of pdf_info
     fieldnames = pdf_info.keys()
     
     # Open the CSV file in append mode with newline='' to avoid extra newline characters
-    with open("2025_cadillac.csv", "a", newline='') as csvfile:
+    with open(f"{year}_cadillac.csv", "a", newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         
         # Write the pdf_info to the CSV file
@@ -144,6 +81,7 @@ def writeCSV(pdf_info):
 
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
+    global totalVIN
     global foundVIN
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G6D"
 
@@ -193,6 +131,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
 
                         # Increment VIN by 1
                         vinChanging += 1
+                        totalVIN += 1
                         break
 
                     except requests.exceptions.ReadTimeout:
@@ -216,17 +155,54 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
 
             # When canceled in console, record last checked VIN to lastVin.txt
             except KeyboardInterrupt:
-                #with open("lastVin.txt", "w") as f:
-                #    f.write(str(vinChanging))
-                    break
+                break
 
+while True:
+    year = input('Enter year to test:\n')
+
+    if year in years:
+        yearDig = years[year]
+        break
+    else:
+        print("Invalid year.")
+
+while True:
+    vinChanging_input = input('Enter last 6 numbers of the VIN to start at:\n')
+    if vinChanging_input.isdigit() and len(vinChanging_input) == 6:
+        vinChanging = int(vinChanging_input)
+        break
+    else:
+        print("Please enter a valid 6-digit number.")
+while True:
+    endVIN_input = input('Enter last 6 numbers of the VIN to stop at:\n')
+    if endVIN_input.isdigit() and len(endVIN_input) == 6:
+        endVIN = int(endVIN_input)
+        break
+    else:
+        print("Please enter a valid 6-digit number.")
+
+totalVIN = 0
+foundVIN = 0
 i = 1
 
+while True:
+    blackwing = input('Run as Blackwing? (Y/N)\n').strip().lower()
+
+    if blackwing == "y":
+        urlChosenList = urlIdent_blackwing_list
+        break
+    elif blackwing == "n":
+        urlChosenList = urlIdent_list
+        break
+    else:
+        print("Please enter Y or N.")
+
+startTime = time.time()
+
 # Process request through all variations of trim/gears
-for urlIdent in urlIdent_list:
-    urlList = len(urlIdent_list)
-#    for checkDig in checkDig_list:
-    print("Testing configuration (" + str(i) + "/" + str(urlList) + "): " + urlIdent)
+for urlIdent in urlChosenList:
+    urlList = len(urlChosenList)
+    print("Testing configuration (" + str(i) + "/" + str(urlList) + "): " + urlIdent + " -------------------------------")
     processVin(urlIdent, vinChanging, endVIN, yearDig)
     print("")
     i += 1
@@ -241,5 +217,5 @@ seconds = int(remainder  % 60)
 
 t = time.localtime()
 currentTime = time.strftime("%H:%M:%S", t)
-print("Ended:", currentTime, " - Elapsed time: {} hour(s), {} minute(s), {} second(s)\nTested {} VIN(s) - Found {} match(es)".format(hours, minutes, seconds, totalVIN, foundVIN))
-# https://www.camaro6.com/forums/showthread.php?t=426194 - VIN Breakdown
+print("Ended:", currentTime, " - Elapsed time: {} hour(s), {} minute(s), {} second(s)".format(hours, minutes, seconds))
+print("Tested {} VIN(s) - Found {} match(es)".format(totalVIN, foundVIN))

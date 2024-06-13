@@ -1,3 +1,16 @@
+apiURL = {
+    "Buick": "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=",
+    "Cadillac": "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=",
+    "Chevrolet": "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=",
+    "Chrysler": "https://www.chrysler.com/hostd/windowsticker/getWindowStickerPdf.do?vin=",
+    "Dodge": "https://www.dodge.com/hostd/windowsticker/getWindowStickerPdf.do?vin=",
+    "Fiat": "https://www.fiatusa.com/hostd/windowsticker/getWindowStickerPdf.do?vin=",
+    "Genesis": "https://prevapp.hyundaiusa.com/DealerExternalService.svc/Monroney/pdf/GetMonroneyLabelPDF?VIN=",
+    "Hyundai": "https://prevapp.hyundaiusa.com/DealerExternalService.svc/Monroney/pdf/GetMonroneyLabelPDF?VIN=",
+    "Jeep": "https://www.jeep.com/hostd/windowsticker/getWindowStickerPdf.do?vin=",
+    "RAM": "https://www.ramtrucks.com/hostd/windowsticker/getWindowStickerPdf.do?vin="
+}
+
 # Working Check Digit Calculator --------------------------------------------------------
 # Step 1: Assign values to letters
 alpha_numeric_conversion = {
@@ -10,8 +23,7 @@ alpha_numeric_conversion = {
 weight_factors = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2]
 
 models = [
-    "Cadillac",
-    "Challenger"
+    "Cadillac"
 ]
 
 colors_dict = {
@@ -77,7 +89,7 @@ years = {
     '2023': 'P',
     '2022': 'N',
     '2021': 'M',
-    '2020': 'L',
+    '2020': 'L'
 }
 
 urlIdent_blackwing_list = [
@@ -89,21 +101,18 @@ urlIdent_blackwing_list = [
 
 # Manual/Auto/Coupe/Conv. Differentiations
 urlIdent_list = [
-    "J5RK", # Luxery/RWD, LSY (w/o 8speaker)
-    "A5RK", # Luxery/RWD, LSY (w/ 8 speaker)
-    "K5RK", # Luxery/AWD, LSY
-    "E5RK", # Luxery/AWD, LSY
-    "B5RK", # Premium Luxery/RWD, LSY
-    "F5RK", # Premium Luxery/AWD, LSY
-    "B5RL", # Premium Luxery/RWD, L3B
-    "F5RL", # Premium Luxery/AWD, L3B
-    "C5RK", # Sport/RWD, LSY
-    "G5RK", # Sport/AWD, LSY
-    "D5RL", # V-Series/RWD, L3B
-    "H5RL", # V-Series/AWD, L3B
-    "M5RK", # Luxery/RWD, LSY
-    "W5RK", # Luxery/RWD, LSY
-    "X5RK", # Luxery/AWD, LSY
+    # "J5RK", # Luxery/RWD, LSY (w/o 8speaker)
+    # "A5RK", # Luxery/RWD, LSY (w/ 8 speaker)
+    # "K5RK", # Luxery/AWD, LSY
+    # "E5RK", # Luxery/AWD, LSY
+    # "B5RK", # Premium Luxery/RWD, LSY
+    # "F5RK", # Premium Luxery/AWD, LSY
+    # "B5RL", # Premium Luxery/RWD, L3B
+    # "F5RL", # Premium Luxery/AWD, L3B
+    # "C5RK", # Sport/RWD, LSY
+    # "G5RK", # Sport/AWD, LSY
+    # "D5RL", # V-Series/RWD, L3B
+    # "H5RL", # V-Series/AWD, L3B
     "N5RK", # Premium Luxery/RWD, LSY
     "T5RK", # Premium Luxery/AWD, LSY
     "S5RK", # Premium Luxery/AWD, LSY
@@ -112,16 +121,52 @@ urlIdent_list = [
     "S5RW", # Premium Luxery/AWD, LGY
     "P5RK", # Sport/RWD, LSY
     "U5RK", # Sport/AWD, LSY
-    "R5RW", # V-Series/RWD, LGY
-    "V5RW" # V-Series/AWD, LGY
+    # "R5RW", # V-Series/RWD, LGY
+    # "V5RW" # V-Series/AWD, LGY
 ]
 
 ct5Ident_list = [
     "N5RW", # PREMIUM LUXURY/AWD LGY
     "P5RK", # Sport/RWD, LSY
     "N5RK", # Premium Luxery/RWD, LSY
-    "S5RW", # Premium Luxery/AWD, LGY
+    "S5RW" # Premium Luxery/AWD, LGY
 ]
 
 with open('skip_cadillac.txt', 'r') as file:
     skip_cadillac = [int(line.strip()) for line in file]
+
+# Function to calculate check digit
+def calculate_check_digit(matchedVIN):
+    total = 0
+    for i, char in enumerate(matchedVIN):
+        if char.isdigit():
+            total += int(char) * weight_factors[i]
+        elif char in alpha_numeric_conversion:
+            total += alpha_numeric_conversion[char] * weight_factors[i]
+        else:
+            raise ValueError(f"Invalid character in VIN: {char}")
+    
+    # Step 3: Divide the total by 11 and find the remainder
+    remainder = total % 11
+    
+    # Step 4: Calculate the check digit or use 'X' if remainder is 10
+    check_digit = str(remainder) if remainder < 10 else 'X'
+    
+    # Insert the check digit at the ninth position and return the updated VIN
+    updated_vin = matchedVIN[:8] + check_digit + matchedVIN[9:]
+    return updated_vin
+
+# Extract text from PDF -------------------------------------------------------------------------
+def extractPDF(contentsGet, updated_vin):
+    try:
+        with open("temp.pdf", "wb") as f:
+            f.write(contentsGet.content)
+        doc = fitz.open("temp.pdf")
+        text = ""
+        for page in doc:
+            text += page.get_text()
+        doc.close()
+        return text
+    except Exception as e:
+        with open("RETRY.txt", "a") as f:
+            f.write(str("\n" + updated_vin))
