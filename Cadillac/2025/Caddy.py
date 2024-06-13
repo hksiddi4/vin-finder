@@ -6,6 +6,21 @@ import time
 import http.client, urllib
 from variables import *
 
+# Extract text from PDF -------------------------------------------------------------------------
+def extractPDF(contentsGet, updated_vin):
+    try:
+        with open("temp.pdf", "wb") as f:
+            f.write(contentsGet.content)
+        doc = fitz.open("temp.pdf")
+        text = ""
+        for page in doc:
+            text += page.get_text()
+        doc.close()
+        return text
+    except Exception as e:
+        with open("RETRY.txt", "a") as f:
+            f.write(str("\n" + updated_vin))
+
 def extractInfo(text, updated_vin):
     global year
     if text is None:
@@ -165,7 +180,6 @@ while True:
         break
     else:
         print("Invalid year.")
-
 while True:
     vinChanging_input = input('Enter last 6 numbers of the VIN to start at:\n')
     if vinChanging_input.isdigit() and len(vinChanging_input) == 6:
@@ -180,11 +194,6 @@ while True:
         break
     else:
         print("Please enter a valid 6-digit number.")
-
-totalVIN = 0
-foundVIN = 0
-i = 1
-
 while True:
     blackwing = input('Run as Blackwing? (Y/N)\n').strip().lower()
 
@@ -196,6 +205,10 @@ while True:
         break
     else:
         print("Please enter Y or N.")
+
+totalVIN = 0
+foundVIN = 0
+i = 1
 
 startTime = time.time()
 

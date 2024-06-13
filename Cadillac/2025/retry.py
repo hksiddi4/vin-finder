@@ -159,7 +159,7 @@ def processVin(vin):
 
     # When canceled in console, record last checked VIN to lastVin.txt
     except KeyboardInterrupt:
-        print(f"Exited Process - Last Unfinished VIN: " + vin)
+        print("Exited Process")
         sys.exit(0)
 
 # Open the file RETRY.txt and read lines

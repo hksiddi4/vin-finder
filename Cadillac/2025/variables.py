@@ -155,18 +155,3 @@ def calculate_check_digit(matchedVIN):
     # Insert the check digit at the ninth position and return the updated VIN
     updated_vin = matchedVIN[:8] + check_digit + matchedVIN[9:]
     return updated_vin
-
-# Extract text from PDF -------------------------------------------------------------------------
-def extractPDF(contentsGet, updated_vin):
-    try:
-        with open("temp.pdf", "wb") as f:
-            f.write(contentsGet.content)
-        doc = fitz.open("temp.pdf")
-        text = ""
-        for page in doc:
-            text += page.get_text()
-        doc.close()
-        return text
-    except Exception as e:
-        with open("RETRY.txt", "a") as f:
-            f.write(str("\n" + updated_vin))
