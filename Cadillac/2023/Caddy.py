@@ -6,26 +6,7 @@ import time
 import http.client, urllib
 from variables import *
 
-# Function to calculate check digit
-def calculate_check_digit(matchedVIN):
-    total = 0
-    for i, char in enumerate(matchedVIN):
-        if char.isdigit():
-            total += int(char) * weight_factors[i]
-        elif char in alpha_numeric_conversion:
-            total += alpha_numeric_conversion[char] * weight_factors[i]
-        else:
-            raise ValueError(f"Invalid character in VIN: {char}")
-    
-    # Step 3: Divide the total by 11 and find the remainder
-    remainder = total % 11
-    
-    # Step 4: Calculate the check digit or use 'X' if remainder is 10
-    check_digit = str(remainder) if remainder < 10 else 'X'
-    
-    # Insert the check digit at the ninth position and return the updated VIN
-    updated_vin = matchedVIN[:8] + check_digit + matchedVIN[9:]
-    return updated_vin
+retry_attempt = False
 
 # Extract text from PDF -------------------------------------------------------------------------
 def extractPDF(contentsGet, updated_vin):
@@ -43,6 +24,9 @@ def extractPDF(contentsGet, updated_vin):
             f.write(str("\n" + updated_vin))
 
 def extractInfo(text, updated_vin):
+    global year
+    global retry_attempt
+
     if text is None:
         print("Received None text. Skipping this VIN.")
         # Write VIN to RETRY.txt file
@@ -59,9 +43,16 @@ def extractInfo(text, updated_vin):
     for i, line in enumerate(lines):
         if line.startswith("VIN "):
             info["vin"] = line.split("VIN ")[1].strip()
-        if "2023 CT4 " in line or "2023 CT5 " in line:
+
+    if "vin" not in info or not info["vin"]:
+        if not retry_attempt:
+            retry_attempt = True
+            return extractInfo(text, updated_vin)
+
+    for i, line in enumerate(lines):
+        if f"{year} CT4 " in line or f"{year} CT5 " in line:
             model_info = ' '.join(line.strip().split())
-            model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE", "LUXURY").replace("SERIE V", "V-SERIES")
+            model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE", "LUXURY").replace("SERIE V", "V-SERIES").replace("SERIE-V", "V-SERIES")
             info["year"] = model_info[:4].strip()
             modeltrim = model_info[4:].strip().split()
             info["model"] = modeltrim[0]
@@ -101,13 +92,14 @@ def extractInfo(text, updated_vin):
     return info_ordered
 
 def writeCSV(pdf_info):
+    global year
     if pdf_info is None:
         return
     # Define the field names based on the keys of pdf_info
     fieldnames = pdf_info.keys()
     
     # Open the CSV file in append mode with newline='' to avoid extra newline characters
-    with open("2023_cadillac.csv", "a", newline='') as csvfile:
+    with open(f"{year}_cadillac.csv", "a", newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         
         # Write the pdf_info to the CSV file
@@ -121,7 +113,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
 
     # Keep going until a specific stopping point
     while vinChanging <= endVIN:
-        if vinChanging in skip_camaro or vinChanging in skip_cadillac:
+        if vinChanging in skip_cadillac:
             print("\033[30mExisting sequence, skipping\033[0m")
             vinChanging += 1
             continue
@@ -199,7 +191,6 @@ while True:
         break
     else:
         print("Invalid year.")
-
 while True:
     vinChanging_input = input('Enter last 6 numbers of the VIN to start at:\n')
     if vinChanging_input.isdigit() and len(vinChanging_input) == 6:
@@ -214,11 +205,6 @@ while True:
         break
     else:
         print("Please enter a valid 6-digit number.")
-
-totalVIN = 0
-foundVIN = 0
-i = 1
-
 while True:
     blackwing = input('Run as Blackwing? (Y/N)\n').strip().lower()
 
@@ -230,6 +216,10 @@ while True:
         break
     else:
         print("Please enter Y or N.")
+
+totalVIN = 0
+foundVIN = 0
+i = 1
 
 startTime = time.time()
 

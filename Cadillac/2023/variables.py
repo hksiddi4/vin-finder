@@ -85,33 +85,33 @@ urlIdent_blackwing_list = [
     "Y5R6", # CT5-V Blackwing
 ]
 
-# Manual/Auto/Coupe/Conv. Differentiations
+# Manual/Auto/Coupe/Conv. Differentiations - Orderd by 2024 Highest-Lowest
 urlIdent_list = [
-    "J5RK", # Luxery/RWD, LSY (w/o 8speaker)
-    "A5RK", # Luxery/RWD, LSY (w/ 8 speaker)
-    "K5RK", # Luxery/AWD, LSY
-    "E5RK", # Luxery/AWD, LSY
-    "B5RK", # Premium Luxery/RWD, LSY
-    "F5RK", # Premium Luxery/AWD, LSY
-    "B5RL", # Premium Luxery/RWD, L3B
-    "F5RL", # Premium Luxery/AWD, L3B
-    "C5RK", # Sport/RWD, LSY
-    "G5RK", # Sport/AWD, LSY
-    "D5RL", # V-Series/RWD, L3B
-    "H5RL", # V-Series/AWD, L3B
-    "M5RK", # Luxery/RWD, LSY
-    "W5RK", # Luxery/RWD, LSY
-    "X5RK", # Luxery/AWD, LSY
-    "N5RK", # Premium Luxery/RWD, LSY
-    "T5RK", # Premium Luxery/AWD, LSY
-    "S5RK", # Premium Luxery/AWD, LSY
-    "N5RW", # Premium Luxery/RWD, LGY
-    "T5RW", # Premium Luxery/AWD, LGY
-    "S5RW", # Premium Luxery/AWD, LGY
-    "P5RK", # Sport/RWD, LSY
-    "U5RK", # Sport/AWD, LSY
-    "R5RW", # V-Series/RWD, LGY
-    "V5RW" # V-Series/AWD, LGY
+    "V5RW", # V-Series/AWD, LGY, CT5
+    "W5RK", # Luxery/RWD, LSY, CT5
+    "T5RW", # Premium Luxery/AWD, LGY, CT5
+    "J5RK", # Luxery/RWD, LSY (w/o 8speaker), CT4
+    "T5RK", # Premium Luxery/AWD, LSY, CT5
+    "U5RK", # Sport/AWD, LSY, CT5
+    "X5RK", # Luxery/AWD, LSY, CT5
+    "R5RW", # V-Series/RWD, LGY, CT5
+    "N5RK", # Premium Luxery/RWD, LSY, CT5
+    "P5RK", # Sport/RWD, LSY, CT5
+    "N5RW", # Premium Luxery/RWD, LGY, CT5
+    "K5RK", # Luxery/AWD, LSY, CT4
+    "A5RK", # Luxery/RWD, LSY (w/ 8 speaker), CT4
+    "B5RK", # Premium Luxery/RWD, LSY, CT4
+    "F5RK", # Premium Luxery/AWD, LSY, CT4
+    "M5RK", # Luxery/RWD, LSY, CT5
+    "G5RK", # Sport/AWD, LSY, CT4
+    "C5RK", # Sport/RWD, LSY, CT4
+    "H5RL", # V-Series/AWD, L3B, CT4
+    "S5RK", # Premium Luxery/AWD, LSY, CT5
+    "E5RK", # Luxery/AWD, LSY, CT4
+    "D5RL", # V-Series/RWD, L3B, CT4
+    "F5RL", # Premium Luxery/AWD, L3B, CT4
+    "B5RL", # Premium Luxery/RWD, L3B, CT4
+    "S5RW" # Premium Luxery/AWD, LGY, CT5
 ]
 
 with open('skip_camaro.txt', 'r') as file:
@@ -119,3 +119,24 @@ with open('skip_camaro.txt', 'r') as file:
 
 with open('skip_cadillac.txt', 'r') as file:
     skip_cadillac = [int(line.strip()) for line in file if line.strip().isdigit()]
+
+# Function to calculate check digit
+def calculate_check_digit(matchedVIN):
+    total = 0
+    for i, char in enumerate(matchedVIN):
+        if char.isdigit():
+            total += int(char) * weight_factors[i]
+        elif char in alpha_numeric_conversion:
+            total += alpha_numeric_conversion[char] * weight_factors[i]
+        else:
+            raise ValueError(f"Invalid character in VIN: {char}")
+    
+    # Step 3: Divide the total by 11 and find the remainder
+    remainder = total % 11
+    
+    # Step 4: Calculate the check digit or use 'X' if remainder is 10
+    check_digit = str(remainder) if remainder < 10 else 'X'
+    
+    # Insert the check digit at the ninth position and return the updated VIN
+    updated_vin = matchedVIN[:8] + check_digit + matchedVIN[9:]
+    return updated_vin
