@@ -13,8 +13,12 @@ def extractPDF(contentsGet, vin):
             f.write(contentsGet.content)
         doc = fitz.open(f"{year}/temp.pdf")
         text = ""
-        for page in doc:
-            text += page.get_text()
+        if len(doc) > 0:
+            if len(doc) > 1:
+                with open(f"{year}/notes.txt", "a") as nf:
+                    nf.write(f"{vin} - Multiple Pages\n")
+            page = doc.load_page(0)
+            text = page.get_text()
         doc.close()
         return text
     except Exception as e:
