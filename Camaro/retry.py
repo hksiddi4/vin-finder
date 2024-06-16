@@ -110,7 +110,8 @@ def processVin(vin):
     lastSix = int(vin[-6:])
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin="
 
-    if lastSix in skip_camaro or lastSix in skip_cadillac:
+    #if lastSix in skip_camaro or lastSix in skip_cadillac:
+    if lastSix in skip_cadillac:
         print("\033[30mExisting sequence, skipping\033[0m")
         return
     else:

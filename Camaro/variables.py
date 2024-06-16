@@ -230,8 +230,7 @@ while True:
     else:
         print("Invalid year.")
 
-# TEMP CHANGE - REMOVE 1 AND FILE AFTER
-with open(f'{year}/skip_camaro1.txt', 'r') as file:
+with open(f'{year}/skip_camaro.txt', 'r') as file:
     skip_camaro = [int(line.strip()) for line in file if line.strip().isdigit()]
 
 with open(f'{year}/skip_cadillac.txt', 'r') as file:
