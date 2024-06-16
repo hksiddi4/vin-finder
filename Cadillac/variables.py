@@ -9,12 +9,6 @@ alpha_numeric_conversion = {
 # Step 2: Position and Weight Factor
 weight_factors = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2]
 
-models = [
-    "Camaro",
-    "Cadillac",
-    "Challenger"
-]
-
 colors_dict = {
     "G1W": "CRYSTAL WHITE TRICOAT",
     "G7C": "VELOCITY RED",
@@ -70,7 +64,6 @@ ext_dict = {
     "RWL": "RWD"
 }
 
-# Year digit --------------------------------------------------------------------------
 years = {
     '2025': 'S',
     '2024': 'R',

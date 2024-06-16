@@ -7,10 +7,6 @@ import http.client, urllib
 import sys
 from variables import *
 
-startTime = time.time()
-
-foundVIN = 0
-
 def extractPDF(contentsGet, vin):
     try:
         with open(f"{year}/temp.pdf", "wb") as f:
@@ -27,7 +23,7 @@ def extractPDF(contentsGet, vin):
         return text
     except Exception as e:
         with open(f"{year}/RETRY.txt", "a") as f:
-            f.write(str("\n" + vin))
+            f.write(f"{vin}\n")
         return None
 
 def extractInfo(text, vin):
@@ -36,26 +32,31 @@ def extractInfo(text, vin):
         print("Received None text. Skipping this VIN.")
         # Write VIN to RETRY.txt file
         with open(f"{year}/RETRY.txt", "a") as f:
-            f.write(str("\n" + vin))
-        return None
+            f.write(f"{vin}\n")
+        return
+
     # Write VIN to txt file
-    with open(f"{year}/caddy_{year}.txt", "a") as f:
-        f.write(str("\n" + vin))
+    with open(f"{year}/cadillac_{year}.txt", "a") as f:
+        f.write(f"{vin}\n")
+    # Append only the last 6 digits of the VIN to the list and file
+    skip_cadillac.append(int(vin[-6:]))
+    with open(f"{year}/skip_cadillac.txt", "a") as file:
+        file.write(f"{vin[-6:]}\n")
+
     foundVIN += 1
     lines = text.split('\n')
     info = {}
     
     # Define the order of fields
-    field_order = ["vin", "year", "model", "trim", "engine", "transmission", "drivetrain",
+    field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
     
+    info["vin"] = vin
+    info["body"] = "SEDAN"
     for i, line in enumerate(lines):
-        if line.startswith("VIN "):
-            info["vin"] = line.split("VIN ")[1].strip()
-        if "2023 CT4 " in line or "2023 CT5 " in line:
+        if f"{year} CT4 " in line or f"{year} CT5 " in line:
             model_info = ' '.join(line.strip().split())
             model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE", "LUXURY").replace("SERIE V", "V-SERIES")
-            info["year"] = model_info[:4].strip()
             modeltrim = model_info[4:].strip().split()
             info["model"] = modeltrim[0]
             info["trim"] = ' '.join(modeltrim[1:])
@@ -87,6 +88,8 @@ def extractInfo(text, vin):
 
             if "order_number" in all_json:
                 info["ordernum"] = all_json["order_number"]
+            if "model_year" in all_json:
+                info["year"] = all_json["model_year"]
     
     # Reorder the fields
     info_ordered = {field: info.get(field, None) for field in field_order}
@@ -109,6 +112,7 @@ def writeCSV(pdf_info):
 def processVin(vin):
     lastSix = int(vin[-6:])
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin="
+    
     if lastSix in skip_camaro or lastSix in skip_cadillac:
         print("\033[30mExisting sequence, skipping\033[0m")
         return
@@ -138,10 +142,6 @@ def processVin(vin):
                         pdf_text = extractPDF(contentsGet, vin)
                         pdf_info = extractInfo(pdf_text, vin)
                         writeCSV(pdf_info)
-                        # Append only the last 6 digits of the VIN to the list and file
-                        skip_cadillac.append(lastSix)
-                        with open(f"{year}/skip_cadillac.txt", "a") as file:
-                            file.write(str(lastSix).zfill(6) + "\n")
                     break
 
                 except requests.exceptions.ReadTimeout:
@@ -163,14 +163,17 @@ def processVin(vin):
                 return
 
         except KeyboardInterrupt:
-            print("Exited Process")
             sys.exit(0)
 
 # Open the file RETRY.txt and read lines
 with open(f"{year}/RETRY.txt", 'r') as file:
     lines = file.readlines()
 
+foundVIN = 0
+
 i = 0
+
+startTime = time.time()
 
 # Process each line
 for vin in lines:

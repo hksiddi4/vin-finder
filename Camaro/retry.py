@@ -23,7 +23,7 @@ def extractPDF(contentsGet, vin):
         return text
     except Exception as e:
         with open(f"{year}/RETRY.txt", "a") as f:
-            f.write(str(vin + "\n"))
+            f.write(f"{vin}\n")
         return None
 
 def extractInfo(text, vin):
@@ -32,16 +32,16 @@ def extractInfo(text, vin):
         print("Received None text. Skipping this VIN.")
         # Write VIN to RETRY.txt file
         with open(f"{year}/RETRY.txt", "a") as f:
-            f.write(str(vin + "\n"))
+            f.write(f"{vin}\n")
         return
 
     # Write VIN to txt file
     with open(f"{year}/camaro_{year}.txt", "a") as f:
-        f.write(str(vin + "\n"))
+        f.write(f"{vin}\n")
     # Append only the last 6 digits of the VIN to the list and file
     skip_camaro.append(int(vin[-6:]))
     with open(f"{year}/skip_camaro.txt", "a") as file:
-        file.write(str(vin[-6:]) + "\n")
+        file.write(f"{vin[-6:]}\n")
 
     foundVIN += 1
     lines = text.split('\n')
@@ -58,7 +58,6 @@ def extractInfo(text, vin):
     for i, line in enumerate(lines):
         if f"{year} CAMARO " in line or f"{year} COUPE CAMARO " in line or f"{year} CABRIOLET CAMARO " in line:
             model_info = ' '.join(line.strip().split())
-            info["year"] = model_info[:4].strip()
             modeltrim = model_info[4:].strip().split()
             info["trim"] = ' '.join(modeltrim[1:]).replace(" CONVERTIBLE", "").replace(" COUPE", "").replace("CAMARO ", "")
         if "PRICE*" in line:
@@ -87,6 +86,8 @@ def extractInfo(text, vin):
 
             if "order_number" in all_json:
                 info["ordernum"] = all_json["order_number"]
+            if "model_year" in all_json:
+                info["year"] = all_json["model_year"]
     
     # Reorder the fields
     info_ordered = {field: info.get(field, None) for field in field_order}
