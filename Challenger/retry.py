@@ -1,5 +1,6 @@
 import fitz
 import csv
+import re
 import json
 import requests
 import time
@@ -27,33 +28,49 @@ def extractPDF(contentsGet, vin):
         return None
 
 def extract_opt_equipment(text):
-    # Extract the section between OPTIONAL EQUIPMENT and TOTAL PRICE: *
-    optional_section = re.search(r'OPTIONAL EQUIPMENT(.*?)TOTAL PRICE: \*', text, re.DOTALL)
-    if not optional_section:
+    # Regular expression patterns for start and end markers
+    if "Prix" in text:
+        start_marker_pattern = r'Peut remplacer l\'équipement de série*'
+        end_marker_pattern = r'PRIX TOTAL*'
+        pattern = r'^\s*(.+?)\s+([\d\s]+)\s*\$\s*$'
+    else:
+        start_marker_pattern = r'May Replace Standard Equipment.*'
+        end_marker_pattern = r'TOTAL PRICE: \*'
+        pattern = r'^\s*(.+?)\s+\$([\d,]+)\s*$'
+
+    # Find start and end indices using regex search
+    start_match = re.search(start_marker_pattern, text, re.IGNORECASE)
+    end_match = re.search(end_marker_pattern, text)
+
+    if not start_match or not end_match:
         return {}
 
-    # Split lines and initialize an empty dictionary
-    lines = optional_section.group(1).split('\n')
+    # Extract the section of text containing optional equipment
+    start_index = start_match.end()  # Use end() to get the end of the match
+    end_index = end_match.start()
+
+    options = text[start_index:end_index].strip()
+
+    # Find all matches of the pattern in the optional_section
+    matches = re.findall(pattern, options, re.MULTILINE)
+
+    # Initialize an empty dictionary for equipment information
     equipment_info = {}
 
-    # Iterate through lines and extract items with prices
-    for line in lines:
-        if '$' in line:
-            # Use regular expression to split item and price
-            item = re.split(r'\s+\$[\d,]+', line)[0].strip()
-            price = re.search(r'\$[\d,]+', line).group(0).replace(',', '')
-            equipment_info[item] = price
+    # Iterate over the matches and populate equipment_info dictionary
+    for match in matches:
+        item = match[0].strip()  # Item title
+        price = match[1].replace(',', '')  # Price, remove commas
+        
+        # Clean up item title: remove double quotes and replace special characters
+        item = item.replace('"', '').replace('–', '-').strip()
+        
+        equipment_info[item] = price
 
-    return equipment_info
+    return json.dumps(equipment_info, separators=(',', ':'))
 
 def extractInfo(text, vin):
     global foundVIN
-    if text is None:
-        print("Received None text. Skipping this VIN.")
-        # Write VIN to RETRY.txt file
-        with open(f"{year}/RETRY.txt", "a") as f:
-            f.write(f"{vin}\n")
-        return
 
     # Write VIN to txt file
     with open(f"{year}/challenger_{year}.txt", "a") as f:
@@ -63,27 +80,24 @@ def extractInfo(text, vin):
     with open(f"{year}/skip_challenger.txt", "a") as file:
         file.write(f"{vin[-6:]}\n")
 
-    foundVIN += 1
     lines = text.split('\n')
     info = {}
     
 
     field_order = ["VIN", "Year", "Model", "Body", "Trim", "Engine", "Trans.", "Drivetrain",
                    "Exterior_Color", "Interior_Color", "Interior", "MSRP", "Order #", "Equipment"]
-    
-    opt_equipment = extract_opt_equipment(text)
-    info["Equipment"] = json.dumps(opt_equipment_info, indent=4)
 
-    info["VIN"] = updated_vin
+    line_counter = 0
+
+    opt_equipment = extract_opt_equipment(text)
+    info["Equipment"] = json.dumps(opt_equipment, indent=4)
+
+    info["VIN"] = vin
     info["Year"] = year
     info["Model"] = "CHALLENGER"
+    info["Body"] = "COUPE"
     for i, line in enumerate(lines):
-        if line.startswith("VIN: ") or line.startswith("NIV: "):
-            key = "VIN"
-            if line.startswith("VIN: "):
-                info[key] = line.split("VIN: ")[1].strip().replace("–", "")
-            elif line.startswith("NIV: "):
-                info[key] = line.split("NIV: ")[1].strip().replace("–", "")
+        line_counter += 1
         if "CHALLENGER" in line and line_counter <= 7:
             info["Trim"] = line.split("CHALLENGER ")[1].strip()
             if "ALL-WHEEL Drive" in info["Trim"]:
@@ -93,9 +107,9 @@ def extractInfo(text, vin):
         if "Engine: " in line or "Moteur : " in line:
             key = "Engine"
             if "Engine: " in line:
-                value = line.split("Engine: ")[1].strip().replace(" Engine", "").replace(" engine", "").replace("\u00AE","").replace("HO supercharged","Supercharged HO")
+                value = line.split("Engine: ")[1].strip().replace(" Engine", "").replace(" engine", "").replace("\u00AE","").replace("\u2013","-").replace("HO supercharged","Supercharged HO")
             elif "Moteur : " in line:
-                value = line.split("Moteur : ")[1].strip().replace(" Moteur", "").replace("\u00AE","")
+                value = line.split("Moteur : ")[1].strip().replace(" Moteur", "").replace("\u00AE","").replace("\u2013","-")
             value = value.replace("MOTEUR V8 HR SURALIMENTE DE 6,2 L", "6.2L V8 Supercharged HO")
             info[key] = value
         if "Transmission: " in line:
@@ -156,11 +170,11 @@ def writeCSV(pdf_info):
         writer.writerow(pdf_info)
 
 def processVin(vin):
+    global foundVIN
     lastSix = int(vin[-6:])
     urlFirst = "https://www.dodge.com/hostd/windowsticker/getWindowStickerPdf.do?vin="
 
-    #if lastSix in skip_challenger or lastSix in skip_cadillac:
-    if lastSix in skip_cadillac:
+    if lastSix in skip_challenger or lastSix in skip_charger:
         print("\033[30mExisting sequence, skipping\033[0m")
         return
     else:
@@ -181,7 +195,12 @@ def processVin(vin):
                         jsonCont = json.loads(contents)
                     except json.decoder.JSONDecodeError:
                         pdf_text = extractPDF(contentsGet, vin)
-                        if "CHALLENGER" not in pdf_text.strip():
+                        if pdf_text is None:
+                            print("Received None text. Skipping this VIN.")
+                            # Write VIN to RETRY.txt file
+                            with open(f'{year}/RETRY.txt', "a") as f:
+                                f.write(f"{vin}\n")
+                        elif "CHALLENGER" not in pdf_text.strip():
                             print("\033[30mNo Window Sticker Found For VIN: [" + vin + "].\033[0m")
                         else:
                             # Inform console
@@ -198,16 +217,28 @@ def processVin(vin):
                     time.sleep(120)
 
         except requests.exceptions.RequestException as e:
-            print(f"An error occurred: {e}")
-            if isinstance(e, requests.exceptions.ConnectionError) and isinstance(e.__cause__, ConnectionResetError):
-                print("ConnectionResetError occurred. Retrying...")
-                return
-            else:
-                print("Unknown error occurred. Skipping this VIN.")
-                # Write VIN to RETRY.txt file
-                with open(f"{year}/RETRY.txt", "a") as f:
-                    f.write(f"{vin}\n")
-                return
+                print(f"Error: {e}")
+                if isinstance(e, requests.exceptions.ConnectionError) and isinstance(e.__cause__, ConnectionResetError):
+                    # Write VIN to RETRY.txt file
+                    with open(f'{year}/RETRY.txt', "a") as f:
+                        f.write(f"{vin}\n")
+                    vinChanging += 1  # Move to the next VIN
+                    print("ConnectionResetError occurred. Retrying...")
+                    return
+                elif e == "('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))":
+                    # Write VIN to RETRY.txt file
+                    with open(f'{year}/RETRY.txt', "a") as f:
+                        f.write(f"{vin}\n")
+                    vinChanging += 1  # Move to the next VIN
+                    print("Connection closed by host, waiting...")
+                    time.sleep(3)
+                else:
+                    print("Skipping this VIN.")
+                    # Write VIN to RETRY.txt file
+                    with open(f'{year}/RETRY.txt', "a") as f:
+                        f.write(f"{vin}\n")
+                    vinChanging += 1  # Move to the next VIN
+                    return
 
         except KeyboardInterrupt:
             sys.exit(0)

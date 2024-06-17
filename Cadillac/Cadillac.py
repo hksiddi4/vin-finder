@@ -171,15 +171,26 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                         time.sleep(120)
 
             except requests.exceptions.RequestException as e:
-                print(f"An error occurred: {e}")
+                print(f"Error: {e}")
                 if isinstance(e, requests.exceptions.ConnectionError) and isinstance(e.__cause__, ConnectionResetError):
-                    print("ConnectionResetError occurred. Retrying...")
-                    continue  # Continue with the next VIN
-                else:
-                    print("Unknown error occurred. Skipping this VIN.")
                     # Write VIN to RETRY.txt file
                     with open(f'{year}/RETRY.txt', "a") as f:
-                        f.write(str("\n" + updated_vin))
+                        f.write(str(updated_vin + "\n"))
+                    vinChanging += 1  # Move to the next VIN
+                    print("ConnectionResetError occurred. Retrying...")
+                    continue  # Continue with the next VIN
+                elif e.errno == 10054:
+                    # Write VIN to RETRY.txt file
+                    with open(f'{year}/RETRY.txt', "a") as f:
+                        f.write(str(updated_vin + "\n"))
+                    vinChanging += 1  # Move to the next VIN
+                    print("Connection closed by host, waiting...")
+                    time.sleep(3)
+                else:
+                    print("Skipping this VIN.")
+                    # Write VIN to RETRY.txt file
+                    with open(f'{year}/RETRY.txt', "a") as f:
+                        f.write(f"{updated_vin}\n")
                     vinChanging += 1  # Move to the next VIN
                     continue  # Continue with the next VIN
 

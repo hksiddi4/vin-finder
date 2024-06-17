@@ -28,8 +28,14 @@ def extractPDF(contentsGet, updated_vin):
 
 def extract_opt_equipment(text):
     # Regular expression patterns for start and end markers
-    start_marker_pattern = r'May Replace Standard Equipment.*'
-    end_marker_pattern = r'TOTAL PRICE: \*'
+    if "Prix" in text:
+        start_marker_pattern = r'Peut remplacer l\'équipement de série*'
+        end_marker_pattern = r'PRIX TOTAL*'
+        pattern = r'^\s*(.+?)\s+([\d\s]+)\s*\$\s*$'
+    else:
+        start_marker_pattern = r'May Replace Standard Equipment.*'
+        end_marker_pattern = r'TOTAL PRICE: \*'
+        pattern = r'^\s*(.+?)\s+\$([\d,]+)\s*$'
 
     # Find start and end indices using regex search
     start_match = re.search(start_marker_pattern, text, re.IGNORECASE)
@@ -42,13 +48,10 @@ def extract_opt_equipment(text):
     start_index = start_match.end()  # Use end() to get the end of the match
     end_index = end_match.start()
 
-    optional_section = text[start_index:end_index].strip()
-
-    # Regular expression pattern for extracting item titles and prices
-    pattern = r'^\s*(.+?)\s+\$([\d,]+)\s*$'
+    options = text[start_index:end_index].strip()
 
     # Find all matches of the pattern in the optional_section
-    matches = re.findall(pattern, optional_section, re.MULTILINE)
+    matches = re.findall(pattern, options, re.MULTILINE)
 
     # Initialize an empty dictionary for equipment information
     equipment_info = {}
@@ -93,12 +96,6 @@ def extractInfo(text, updated_vin):
     info["Body"] = "COUPE"
     for i, line in enumerate(lines):
         line_counter += 1
-        if line.startswith("VIN: ") or line.startswith("NIV: "):
-            key = "VIN"
-            if line.startswith("VIN: "):
-                info[key] = line.split("VIN: ")[1].strip().replace("–", "")
-            elif line.startswith("NIV: "):
-                info[key] = line.split("NIV: ")[1].strip().replace("–", "")
         if "CHALLENGER" in line and line_counter <= 7:
             info["Trim"] = line.split("CHALLENGER ")[1].strip()
             if "ALL-WHEEL Drive" in info["Trim"]:
@@ -108,9 +105,9 @@ def extractInfo(text, updated_vin):
         if "Engine: " in line or "Moteur : " in line:
             key = "Engine"
             if "Engine: " in line:
-                value = line.split("Engine: ")[1].strip().replace(" Engine", "").replace(" engine", "").replace("\u00AE","").replace("HO supercharged","Supercharged HO")
+                value = line.split("Engine: ")[1].strip().replace(" Engine", "").replace(" engine", "").replace("\u00AE","").replace("HO supercharged","Supercharged HO").replace("\u2013","-")
             elif "Moteur : " in line:
-                value = line.split("Moteur : ")[1].strip().replace(" Moteur", "").replace("\u00AE","")
+                value = line.split("Moteur : ")[1].strip().replace(" Moteur", "").replace("\u00AE","").replace("\u2013","-")
             value = value.replace("MOTEUR V8 HR SURALIMENTE DE 6,2 L", "6.2L V8 Supercharged HO")
             info[key] = value
         if "Transmission: " in line:
@@ -147,7 +144,7 @@ def extractInfo(text, updated_vin):
         if "Interior: " in line or "Intérieur : " in line:
             key = "Interior"
             if "Interior: " in line:
-                value = line.split("Interior: ")[1].replace("\u00AE","").strip()
+                value = line.split("Interior: ")[1].replace("\u00AE","").replace("\u2013","-").strip()
             elif "Intérieur : " in line:
                 value = line.split("Intérieur : ")[1].strip()
             info[key] = value
@@ -240,19 +237,19 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                 if isinstance(e, requests.exceptions.ConnectionError) and isinstance(e.__cause__, ConnectionResetError):
                     # Write VIN to RETRY.txt file
                     with open(f'{year}/RETRY.txt', "a") as f:
-                        f.write(str(updated_vin + "\n"))
+                        f.write(f"{updated_vin}\n")
                     vinChanging += 1  # Move to the next VIN
                     print("ConnectionResetError occurred. Retrying...")
                     continue  # Continue with the next VIN
-                elif e.errno == 10054:
+                elif e == "('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))":
                     # Write VIN to RETRY.txt file
                     with open(f'{year}/RETRY.txt', "a") as f:
-                        f.write(str(updated_vin + "\n"))
+                        f.write(f"{updated_vin}\n")
                     vinChanging += 1  # Move to the next VIN
                     print("Connection closed by host, waiting...")
                     time.sleep(3)
                 else:
-                    print("Unknown error occurred. Skipping this VIN.")
+                    print("Skipping this VIN.")
                     # Write VIN to RETRY.txt file
                     with open(f'{year}/RETRY.txt', "a") as f:
                         f.write(f"{updated_vin}\n")
