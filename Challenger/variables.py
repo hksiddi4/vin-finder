@@ -56,6 +56,10 @@ with open(f'{year}/skip_challenger.txt', 'r') as file:
     #skip_challenger = [int(line.strip()) for line in file if line.strip().isdigit()]
     skip_challenger = []
 
+with open(f'{year}/skip_charger.txt', 'r') as file:
+    #skip_charger = [int(line.strip()) for line in file if line.strip().isdigit()]
+    skip_charger = []
+
 # Function to calculate check digit
 def calculate_check_digit(matchedVIN):
     total = 0

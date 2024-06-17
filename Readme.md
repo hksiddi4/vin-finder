@@ -1,59 +1,60 @@
 # Currently expanding to other brands
-Other API's found thanks to https://windowstickerlookup.com/
+Currently finishing up Camaro and then Cadillac, Challenger is always running in the background since they have immensely more sequences than GM (a few hundred thousand vs maybe 50-60k on a good year)
 
+If the Challenger script is a success then any Stellantis model will work with tweaking
 
-# Outdated, all 350 have been found
-# 2024 Camaro ZL1 Collector's Edition Finder
+Any GM model will work with tweaking, there are a few more brands I will look into later.
+
+Currently known API's (thanks to Spork Marketing LLC)
+
+GM - 2020+
+Stellantis - 2013+
+Stellantis EU - 2015+
+Chrysler - 2014+
+Genesis - 2018+
+Hyundai - 2014+
+
+# All 350 ZL1 Collectors Edition cars have been found
+* 2024 Camaro ZL1 Collectors Edition Finder
 Made this script to find all 350 of the collector's edition cars.
 
 [List and Excel Sheet of Known VINs](https://www.camaro6.com/forums/showthread.php?t=619436)
 
-The only input is:
-* Get the starting and ending 6 sequence numbers of VINs you want to search through
-
-## 2024 Camaro VIN breakdown
+## Example script run
 ![Camaro VIN breakdown](https://www.camaro6.com/forums/attachment.php?attachmentid=1022448&stc=1&d=1583377227)
-Example (#001 Collector's Edition used)
+Example (#001 Collectors Edition used)
 ```
 1G1FJ1R6XR0100021
 ```
 1G1F = All 6th generation Camaro VINs start with these same four characters
 
-J1R6 = Manual, Coupe, LT4 Engine
+J1R6 = VIN Identification - Manual, Coupe, LT4 Engine
 
-The check digit can be anything including "X" and 0~9 - Edit: The script will now calculate the correct check digit per VIN instead of iterating 40 times for one sequence
+The check digit can be anything including "X" and 0~9 - The script will calculate the check digit
 
-R = 2024 Model Year
+R = 2024 Model Year - [Each year digit is predetermined](https://www.alldata.com/us/en/support/repair-collision/article/vin-to-year-chart)
 
-The last 6 digits are the sequence of the build.
+The last 6 digits are the sequence of the build. Aka what order it was built.
 
 ## How it works
 Add any 2020+ GM vehicle's VIN to the end of this URL and you should get a window sticker for that vehicle.
 ```
 https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=
 ```
-Sticker.py takes the input of starting and ending sequence numbers and (specifically for ZL1's only) runs against all 4 bodystyle/transmission combos for a total of 4 tests per VIN.
+The start and end inputs define the range of sequences to search through, it will go through the predefined VIN identifications combos for the year specified.
 
-Each VIN has an API call sent to the link created and if the window sticker returns then an error is sent as a JSONDecodeError (since it's a PDF). If there isn't a VIN then a JSON object is returned with one item being 'errorMessage'.
+Each VIN has an API call sent to the link created, if the window sticker is there than an error is sent as a JSONDecodeError (since it's a PDF). If there isn't a VIN then a JSON object is returned with one item being 'errorMessage'. (Dodge returns a PDF no matter what so slightly tweaked to check the returned PDF instead)
 
-If a window sticker is returned, the VIN will be appended to the 'ceVin.txt' file and will be told in the console (along with the mobile notification).
+The returned VIN is then written in a few different files and finally written to the .csv inside the year folder.
 
 This continues until the script finishes the specified ending VIN.
 
-## Notes
-There are commented lines as I changed the approach multiple times.
+# Notes
+Retry.py is meant for the VIN's that were skipped during the main script run, if there's an error or issue it skips the VIN and appends it to RETRY.txt so that this other script when ran will only run the VIN's in that .txt file
 
-def sendNotif is solely for the Pushover iOS app, I have muted it recently due to an issue detailed below.
-
-'lastVin.txt' is unused as it is a part of the commented-out code. Originally I had thought the CEs were all within a few thousand from #001-350 but that is not the case so now I'm going in batches (this is where I added the user input for starting/ending VINs)
+Other API's found thanks to https://windowstickerlookup.com/
 
 ## Issues
-I was having timeout issues but just recently added the timeout=10 to my requests so fingers crossed.
+MuPDF error's out sometimes, unsure how to fix as the only sign is missing fields typically in the .csv. Have implemented a missing_field operation to maybe assist in finding a solution.
 
-The greatest issue is false positives, for some reason, the API requests will return as JSONDecodeError even though they are JSON objects. My guess is the server messing up as I've tested false positives alone and received no error.
-
-This caused me to create the (aptly named) 'Test.py' script.
-
-You paste the VINs from 'ceVin.txt' in the same format in this file and run the script. It will open each VIN individually in a tab for me to manually check through. I have to do this anyway to check if the VIN is a CE as all 2024 VINs are included not solely CE. But this is a lot of 'Error failed to load pdf' tabs that pop up, unfortunately. Not sure how to fix this since GM returns the PDF but literally nothing else in the request :( - Edit: After changing to a calculated check digit there are significantly fewer of these errors popping up. Occasionally one does come through.
-
-I have reached a point where I've gone through all sequences between specific numbers but some sequences are not showing up. Some window stickers are not uploaded as of yet so may have to wait a while to complete.
+Dodge scripts work but I recently returned to trying it as my first attempt broke something after a few thousand successful pulls, crossing fingers it doesn't break again.

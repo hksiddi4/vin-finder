@@ -185,7 +185,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
 
     # Keep going until a specific stopping point
     while vinChanging <= endVIN:
-        if vinChanging in skip_challenger:
+        if vinChanging in skip_challenger or vinChanging in skip_charger:
             print("\033[30mExisting sequence, skipping\033[0m")
             vinChanging += 1
             continue
