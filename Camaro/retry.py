@@ -158,7 +158,7 @@ def processVin(vin):
                 print("Unknown error occurred. Skipping this VIN.")
                 # Write VIN to RETRY.txt file
                 with open(f"{year}/RETRY.txt", "a") as f:
-                    f.write(str(vin + "\n"))
+                    f.write(f"{vin}\n")
                 return
 
         except KeyboardInterrupt:

@@ -31,16 +31,16 @@ def extractInfo(text, updated_vin):
         print("Received None text. Skipping this VIN.")
         # Write VIN to RETRY.txt file
         with open(f'{year}/RETRY.txt', "a") as f:
-            f.write(str(updated_vin + "\n"))
+            f.write(f"{updated_vin}\n")
         return
     
     # Write VIN to txt file
     with open(f"{year}/camaro_{year}.txt", "a") as f:
-        f.write(str(updated_vin + "\n"))
+        f.write(f"{updated_vin}\n")
     # Append only the last 6 digits of the VIN to the list and file
     skip_camaro.append(int(updated_vin[-6:]))
     with open(f"{year}/skip_camaro.txt", "a") as file:
-        file.write(str(updated_vin[-6:]) + "\n")
+        file.write(f"{updated_vin[-6:]}\n")
 
     lines = text.split('\n')
     info = {}
@@ -54,11 +54,6 @@ def extractInfo(text, updated_vin):
     info["drivetrain"] = "RWD"
     info["body"] = "COUPE"
     for i, line in enumerate(lines):
-        if f"{year} CAMARO " in line or f"{year} COUPE CAMARO " in line or f"{year} CABRIOLET CAMARO " in line:
-            model_info = ' '.join(line.strip().split())
-            info["year"] = model_info[:4].strip()
-            modeltrim = model_info[4:].strip().split()
-            info["trim"] = ' '.join(modeltrim[1:]).replace(" CONVERTIBLE", "").replace(" COUPE", "").replace("CAMARO ", "")
         if "PRICE*" in line:
             info["msrp"] = lines[i + 1].strip()
         if "DELIVERED" in line:
@@ -72,6 +67,8 @@ def extractInfo(text, updated_vin):
             info["all_rpos"] = all_rpos_filt
 
             for item in all_rpos_filt:
+                if item in trim_dict:
+                    info["trim"] = trim_dict[item]
                 if item in body_dict:
                     info["body"] = body_dict[item]
                 if item in colors_dict:
@@ -85,9 +82,18 @@ def extractInfo(text, updated_vin):
 
             if "order_number" in all_json:
                 info["ordernum"] = all_json["order_number"]
+
+            if "year" in all_json:
+                info["year"] = all_json["model_year"]
     
     # Reorder the fields
     info_ordered = {field: info.get(field, None) for field in field_order}
+
+    # Check for missing fields
+    missing_fields = [field for field, value in info_ordered.items() if value is None]
+    if missing_fields:
+        with open(f'{year}/missing_info.txt', "a") as f:
+            f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
     
     return info_ordered
 
@@ -143,10 +149,10 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                         except json.decoder.JSONDecodeError:
                             # Inform console
                             print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
-                            foundVIN += 1
                             pdf_text = extractPDF(contentsGet, updated_vin)
                             pdf_info = extractInfo(pdf_text, updated_vin)
                             writeCSV(pdf_info)
+                            foundVIN += 1
 
                         # Increment VIN by 1
                         vinChanging += 1
@@ -179,7 +185,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                     print("Skipping this VIN.")
                     # Write VIN to RETRY.txt file
                     with open(f'{year}/RETRY.txt', "a") as f:
-                        f.write(str(updated_vin + "\n"))
+                        f.write(f"{updated_vin}\n")
                     vinChanging += 1  # Move to the next VIN
                     continue  # Continue with the next VIN
 

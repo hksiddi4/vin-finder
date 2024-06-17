@@ -44,16 +44,15 @@ def extractInfo(text, updated_vin):
     info = {}
     
     # Define the order of fields
-    field_order = ["vin", "year", "model", "trim", "engine", "transmission", "drivetrain",
+    field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
     
+    info["vin"] = updated_vin
+    info["body"] = "SEDAN"
     for i, line in enumerate(lines):
-        if line.startswith("VIN "):
-            info["vin"] = line.split("VIN ")[1].strip()
         if f"{year} CT4 " in line or f"{year} CT5 " in line:
             model_info = ' '.join(line.strip().split())
             model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE", "LUXURY").replace("SERIE V", "V-SERIES").replace("SERIE-V", "V-SERIES")
-            info["year"] = model_info[:4].strip()
             modeltrim = model_info[4:].strip().split()
             info["model"] = modeltrim[0]
             info["trim"] = ' '.join(modeltrim[1:])
@@ -85,9 +84,18 @@ def extractInfo(text, updated_vin):
 
             if "order_number" in all_json:
                 info["ordernum"] = all_json["order_number"]
+
+            if "year" in all_json:
+                info["year"] = all_json["model_year"]
     
     # Reorder the fields
     info_ordered = {field: info.get(field, None) for field in field_order}
+
+    # Check for missing fields
+    missing_fields = [field for field, value in info_ordered.items() if value is None]
+    if missing_fields:
+        with open(f'{year}/missing_info.txt', "a") as f:
+            f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
     
     return info_ordered
 
