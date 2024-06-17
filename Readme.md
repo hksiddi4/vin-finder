@@ -7,19 +7,19 @@ Any GM model will work with tweaking, there are a few more brands I will look in
 
 Currently known API's (thanks to Spork Marketing LLC)
 
-GM - 2020+
+- GM - 2020+
 
-Stellantis - 2013+
+- Stellantis - 2013+
 
-Stellantis EU - 2015+
+- Stellantis EU - 2015+
 
-Chrysler - 2014+
+- Chrysler - 2014+
 
-* Not publicly available
+Not publicly available
 
-Genesis - 2018+
+- Genesis - 2018+
 
-Hyundai - 2014+
+- Hyundai - 2014+
 
 # All 350 ZL1 Collectors Edition cars have been found
 * 2024 Camaro ZL1 Collectors Edition Finder
