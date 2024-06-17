@@ -15,6 +15,8 @@ Stellantis EU - 2015+
 
 Chrysler - 2014+
 
+*Not publicly available
+
 Genesis - 2018+
 
 Hyundai - 2014+
