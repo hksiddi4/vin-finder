@@ -139,7 +139,7 @@ def extractInfo(text, updated_vin):
             if "Interior Color: " in line:
                 value = line.split("Interior Color: ")[1].replace("Interior Colors","").replace("Interior Color","").replace("\u2013","-").strip()
             elif "Couleur intérieure: " in line:
-                value = line.split("Couleur intérieure: ")[1].strip()
+                value = line.split("Couleur intérieure: ")[1].replace("\u2013","-").strip()
             info[key] = value
         if "Interior: " in line or "Intérieur : " in line:
             key = "Interior"
