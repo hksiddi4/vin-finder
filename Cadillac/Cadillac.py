@@ -16,14 +16,13 @@ def extractPDF(contentsGet, updated_vin):
         if len(doc) > 0:
             if len(doc) > 1:
                 with open(f"{year}/notes.txt", "a") as nf:
-                    nf.write(f"{vin} - Multiple Pages\n")
+                    nf.write(f"{updated_vin} - Multiple Pages\n")
             page = doc.load_page(0)
             text = page.get_text()
         doc.close()
         return text
-    except Exception as e:
-        with open(f'{year}/RETRY.txt', "a") as f:
-            f.write(str("\n" + updated_vin))
+    except fitz.FileDataError as e:
+        return None
 
 def extractInfo(text, updated_vin):
     global year
@@ -32,13 +31,13 @@ def extractInfo(text, updated_vin):
         print("Received None text. Skipping this VIN.")
         # Write VIN to RETRY.txt file
         with open(f'{year}/RETRY.txt', "a") as f:
-            f.write(str("\n" + updated_vin))
+            f.write(f"\n{updated_vin}")
         return None
     
     # Append only the last 6 digits of the VIN to the list and file
-    skip_cadillac.append(vinChanging)
+    skip_cadillac.append(updated_vin)
     with open(f"{year}/skip_cadillac.txt", "a") as file:
-        file.write(str(vinChanging).zfill(6) + "\n")
+        file.write(f"{updated_vin[-6:].zfill(6)}\n")
 
     lines = text.split('\n')
     info = {}
@@ -85,7 +84,7 @@ def extractInfo(text, updated_vin):
             if "order_number" in all_json:
                 info["ordernum"] = all_json["order_number"]
 
-            if "year" in all_json:
+            if "model_year" in all_json:
                 info["year"] = all_json["model_year"]
     
     # Reorder the fields
@@ -175,14 +174,14 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                 if isinstance(e, requests.exceptions.ConnectionError) and isinstance(e.__cause__, ConnectionResetError):
                     # Write VIN to RETRY.txt file
                     with open(f'{year}/RETRY.txt', "a") as f:
-                        f.write(str(updated_vin + "\n"))
+                        f.write(f"\n{updated_vin}")
                     vinChanging += 1  # Move to the next VIN
                     print("ConnectionResetError occurred. Retrying...")
                     continue  # Continue with the next VIN
                 elif e.errno == 10054:
                     # Write VIN to RETRY.txt file
                     with open(f'{year}/RETRY.txt', "a") as f:
-                        f.write(str(updated_vin + "\n"))
+                        f.write(f"\n{updated_vin}")
                     vinChanging += 1  # Move to the next VIN
                     print("Connection closed by host, waiting...")
                     time.sleep(3)
@@ -190,7 +189,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                     print("Skipping this VIN.")
                     # Write VIN to RETRY.txt file
                     with open(f'{year}/RETRY.txt', "a") as f:
-                        f.write(f"{updated_vin}\n")
+                        f.write(f"\n{updated_vin}")
                     vinChanging += 1  # Move to the next VIN
                     continue  # Continue with the next VIN
 

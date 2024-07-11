@@ -23,7 +23,7 @@ def extractPDF(contentsGet, vin):
         return text
     except Exception as e:
         with open(f"{year}/RETRY.txt", "a") as f:
-            f.write(f"{vin}\n")
+            f.write(f"\n{vin}")
         return None
 
 def extractInfo(text, vin):
@@ -32,12 +32,12 @@ def extractInfo(text, vin):
         print("Received None text. Skipping this VIN.")
         # Write VIN to RETRY.txt file
         with open(f"{year}/RETRY.txt", "a") as f:
-            f.write(f"{vin}\n")
+            f.write(f"\n{vin}")
         return
 
     # Write VIN to txt file
     with open(f"{year}/cadillac_{year}.txt", "a") as f:
-        f.write(f"{vin}\n")
+        f.write(f"\n{vin}")
     # Append only the last 6 digits of the VIN to the list and file
     skip_cadillac.append(int(vin[-6:]))
     with open(f"{year}/skip_cadillac.txt", "a") as file:
@@ -113,7 +113,7 @@ def processVin(vin):
     lastSix = int(vin[-6:])
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin="
     
-    if lastSix in skip_camaro or lastSix in skip_cadillac:
+    if lastSix in skip_camaro:
         print("\033[30mExisting sequence, skipping\033[0m")
         return
     else:
@@ -159,7 +159,7 @@ def processVin(vin):
                 print("Unknown error occurred. Skipping this VIN.")
                 # Write VIN to RETRY.txt file
                 with open(f"{year}/RETRY.txt", "a") as f:
-                    f.write(str("\n" + vin))
+                    f.write(f"\n{vin}")
                 return
 
         except KeyboardInterrupt:

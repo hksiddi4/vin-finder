@@ -110,7 +110,6 @@ def extractInfo(text, vin):
                 value = line.split("Engine: ")[1].strip().replace(" Engine", "").replace(" engine", "").replace("\u00AE","").replace("\u2013","-").replace("HO supercharged","Supercharged HO")
             elif "Moteur : " in line:
                 value = line.split("Moteur : ")[1].strip().replace(" Moteur", "").replace("\u00AE","").replace("\u2013","-")
-            value = value.replace("MOTEUR V8 HR SURALIMENTE DE 6,2 L", "6.2L V8 Supercharged HO")
             info[key] = value
         if "Transmission: " in line:
             info["Trans."] = line.split("Transmission: ")[1].strip().replace("\u00AE","").replace("\u2013","-").replace("TRANS AUTO 8 VIT TORQUEFLITE H PERF","TorqueFlite 8-Speed Automatic Transmission").replace("8-speed TorqueFlite high performance automatic","TorqueFlite 8-Speed Automatic Transmission")
