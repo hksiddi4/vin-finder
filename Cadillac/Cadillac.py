@@ -31,7 +31,7 @@ def extractInfo(text, updated_vin):
         print("Received None text. Skipping this VIN.")
         # Write VIN to RETRY.txt file
         with open(f'{year}/RETRY.txt', "a") as f:
-            f.write(f"\n{updated_vin}")
+            f.write(f"{updated_vin}\n")
         return None
     
     # Append only the last 6 digits of the VIN to the list and file
@@ -137,7 +137,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                 while retries < max_retries:
                     try:
                         # Get Request
-                        contentsGet = requests.get(newUrl, headers = {'User-Agent': 'caddy count finder version', 'Accept-Language': 'en-US'}, timeout=120)
+                        contentsGet = requests.get(newUrl, headers = {'User-Agent': 'caddy count finder', 'Accept-Language': 'en-US'}, timeout=120)
                         contents = contentsGet.text
                         time.sleep(1)
 
@@ -150,7 +150,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                         except json.decoder.JSONDecodeError:
                             # Write VIN to txt file
                             with open(f"{year}/caddy_{year}.txt", "a") as f:
-                                f.write(str("\n" + updated_vin))
+                                f.write(f"{updated_vin}\n")
                             # Inform console
                             print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
                             foundVIN += 1
@@ -174,14 +174,14 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                 if isinstance(e, requests.exceptions.ConnectionError) and isinstance(e.__cause__, ConnectionResetError):
                     # Write VIN to RETRY.txt file
                     with open(f'{year}/RETRY.txt', "a") as f:
-                        f.write(f"\n{updated_vin}")
+                        f.write(f"{updated_vin}\n")
                     vinChanging += 1  # Move to the next VIN
                     print("ConnectionResetError occurred. Retrying...")
                     continue  # Continue with the next VIN
                 elif e.errno == 10054:
                     # Write VIN to RETRY.txt file
                     with open(f'{year}/RETRY.txt', "a") as f:
-                        f.write(f"\n{updated_vin}")
+                        f.write(f"{updated_vin}\n")
                     vinChanging += 1  # Move to the next VIN
                     print("Connection closed by host, waiting...")
                     time.sleep(3)
@@ -189,7 +189,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                     print("Skipping this VIN.")
                     # Write VIN to RETRY.txt file
                     with open(f'{year}/RETRY.txt', "a") as f:
-                        f.write(f"\n{updated_vin}")
+                        f.write(f"{updated_vin}\n")
                     vinChanging += 1  # Move to the next VIN
                     continue  # Continue with the next VIN
 
@@ -248,7 +248,7 @@ minutes = int(remainder // 60)
 seconds = int(remainder  % 60)
 
 with open(f'{year}/time.txt', "a") as f:
-    f.write("\n{},{},{}".format(vinChanging_input, endVIN_input, elapsedTime))
+    f.write("{},{},{}\n".format(vinChanging_input, endVIN_input, elapsedTime))
 
 t = time.localtime()
 currentTime = time.strftime("%H:%M:%S", t)

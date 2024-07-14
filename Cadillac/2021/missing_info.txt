@@ -1,0 +1,11 @@
+1G6DV5RW9M0144033 - year,engine,transmission,drivetrain,exterior_color,dealer,location,ordernum,json,all_rpos
+1G6DV5RWXM0115642 - year,engine,transmission,drivetrain,exterior_color,dealer,location,ordernum,json,all_rpos
+1G6DT5RWXM0133435 - year,engine,transmission,drivetrain,exterior_color,dealer,location,ordernum,json,all_rpos
+1G6DT5RW0M0121813 - year,engine,transmission,drivetrain,exterior_color,dealer,location,ordernum,json,all_rpos
+1G6DT5RK4M0129734 - year,engine,transmission,drivetrain,exterior_color,msrp,dealer,location,ordernum,json,all_rpos
+1G6DT5RW3M0118727 - year,engine,transmission,drivetrain,exterior_color,msrp,dealer,location,ordernum,json,all_rpos
+1G6DT5RW6M0119953 - year,engine,transmission,drivetrain,exterior_color,dealer,location,ordernum,json,all_rpos
+1G6DJ5RK2M0115028 - year,engine,transmission,drivetrain,exterior_color,dealer,location,ordernum,json,all_rpos
+1G6DF5RL9M0106613 - year,engine,transmission,drivetrain,exterior_color,dealer,location,ordernum,json,all_rpos
+1G6DB5RK3M0111941 - year,engine,transmission,drivetrain,exterior_color,dealer,location,ordernum,json,all_rpos
+1G6DB5RK3M0119330 - year,engine,transmission,drivetrain,exterior_color,dealer,location,ordernum,json,all_rpos

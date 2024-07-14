@@ -23,7 +23,7 @@ def extractPDF(contentsGet, vin):
         return text
     except Exception as e:
         with open(f"{year}/RETRY.txt", "a") as f:
-            f.write(f"\n{vin}")
+            f.write(f"{vin}\n")
         return None
 
 def extractInfo(text, vin):
@@ -32,12 +32,12 @@ def extractInfo(text, vin):
         print("Received None text. Skipping this VIN.")
         # Write VIN to RETRY.txt file
         with open(f"{year}/RETRY.txt", "a") as f:
-            f.write(f"\n{vin}")
+            f.write(f"{vin}\n")
         return
 
     # Write VIN to txt file
-    with open(f"{year}/cadillac_{year}.txt", "a") as f:
-        f.write(f"\n{vin}")
+    with open(f"{year}/caddy_{year}.txt", "a") as f:
+        f.write(f"{vin}\n")
     # Append only the last 6 digits of the VIN to the list and file
     skip_cadillac.append(int(vin[-6:]))
     with open(f"{year}/skip_cadillac.txt", "a") as file:
@@ -126,7 +126,7 @@ def processVin(vin):
             while retries < max_retries:
                 try:
                     # Get Request
-                    contentsGet = requests.get(newUrl, headers = {'User-Agent': 'caddy count finder version', 'Accept-Language': 'en-US'}, timeout=120)
+                    contentsGet = requests.get(newUrl, headers = {'User-Agent': 'caddy count finder', 'Accept-Language': 'en-US'}, timeout=120)
                     contents = contentsGet.text
                     time.sleep(1)
 
@@ -159,7 +159,7 @@ def processVin(vin):
                 print("Unknown error occurred. Skipping this VIN.")
                 # Write VIN to RETRY.txt file
                 with open(f"{year}/RETRY.txt", "a") as f:
-                    f.write(f"\n{vin}")
+                    f.write(f"{vin}\n")
                 return
 
         except KeyboardInterrupt:

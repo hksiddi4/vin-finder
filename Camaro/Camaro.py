@@ -16,17 +16,17 @@ def extractPDF(contentsGet, updated_vin):
         if len(doc) > 0:
             if len(doc) > 1:
                 with open(f"{year}/notes.txt", "a") as nf:
-                    nf.write(f"{vin} - Multiple Pages\n")
+                    nf.write(f"{updated_vin} - Multiple Pages\n")
             page = doc.load_page(0)
             text = page.get_text()
         doc.close()
         return text
-    except Exception as e:
-        with open(f'{year}/RETRY.txt', "a") as f:
-            f.write(str(updated_vin + "\n"))
+    except fitz.FileDataError as e:
+        return None
 
 def extractInfo(text, updated_vin):
     global year
+    
     if text is None:
         print("Received None text. Skipping this VIN.")
         # Write VIN to RETRY.txt file
@@ -34,13 +34,10 @@ def extractInfo(text, updated_vin):
             f.write(f"{updated_vin}\n")
         return
     
-    # Write VIN to txt file
-    with open(f"{year}/camaro_{year}.txt", "a") as f:
-        f.write(f"{updated_vin}\n")
     # Append only the last 6 digits of the VIN to the list and file
-    skip_camaro.append(int(updated_vin[-6:]))
+    skip_camaro.append(updated_vin)
     with open(f"{year}/skip_camaro.txt", "a") as file:
-        file.write(f"{updated_vin[-6:]}\n")
+        file.write(f"{updated_vin[-6:].zfill(6)}\n")
 
     lines = text.split('\n')
     info = {}
@@ -83,7 +80,7 @@ def extractInfo(text, updated_vin):
             if "order_number" in all_json:
                 info["ordernum"] = all_json["order_number"]
 
-            if "year" in all_json:
+            if "model_year" in all_json:
                 info["year"] = all_json["model_year"]
     
     # Reorder the fields
@@ -136,7 +133,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                 while retries < max_retries:
                     try:
                         # Get Request
-                        contentsGet = requests.get(newUrl, headers = {'User-Agent': 'camaro count finder version', 'Accept-Language': 'en-US'}, timeout=120)
+                        contentsGet = requests.get(newUrl, headers = {'User-Agent': 'camaro count finder', 'Accept-Language': 'en-US'}, timeout=120)
                         contents = contentsGet.text
                         time.sleep(1)
 
@@ -147,12 +144,15 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                             print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
                         # If request returns not a json content = window sticker found
                         except json.decoder.JSONDecodeError:
+                            # Write VIN to txt file
+                            with open(f"{year}/camaro_{year}.txt", "a") as f:
+                                f.write(f"{updated_vin}\n")
                             # Inform console
                             print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
+                            foundVIN += 1
                             pdf_text = extractPDF(contentsGet, updated_vin)
                             pdf_info = extractInfo(pdf_text, updated_vin)
                             writeCSV(pdf_info)
-                            foundVIN += 1
 
                         # Increment VIN by 1
                         vinChanging += 1

@@ -72,18 +72,21 @@ years = {
     '2021': 'M',
     '2020': 'L'
 }
+
 urlIdent_blackwing_list_2022 = [
-    #"75RP", # CT4-V Blackwing A10
-    #"65RP", # CT4-V Blackwing M6
-    #"L5RP", # CT4-V Blackwing PreProd- Eval
-    #"Y5R6", # CT5-V Blackwing
+    "75RP", # CT4-V Blackwing A10
+    "65RP", # CT4-V Blackwing M6
+    "L5RP", # CT4-V Blackwing PreProd- Eval
+    "Y5R6", # CT5-V Blackwing
     "35R6", # CT5-V Blackwing A10
-    #"25R6" # CT5-V Blackwing M6
+    "25R6" # CT5-V Blackwing M6
 ]
+
 urlIdent_blackwing_list_2023 = [
     "L5RP", # CT4-V Blackwing
     "Y5R6" # CT5-V Blackwing
 ]
+
 urlIdent_blackwing_list_2024 = [
     "75RP", # CT4-V Blackwing A10
     "65RP", # CT4-V Blackwing M6
