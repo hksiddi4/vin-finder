@@ -9,9 +9,9 @@ from variables import *
 
 def extractPDF(contentsGet, vin):
     try:
-        with open(f"{year}/temp4.pdf", "wb") as f:
+        with open(f"{year}/temp.pdf", "wb") as f:
             f.write(contentsGet.content)
-        doc = fitz.open(f"{year}/temp4.pdf")
+        doc = fitz.open(f"{year}/temp.pdf")
         text = ""
         if len(doc) > 0:
             if len(doc) > 1:
@@ -22,7 +22,7 @@ def extractPDF(contentsGet, vin):
         doc.close()
         return text
     except Exception as e:
-        with open(f"{year}/RETRY10.txt", "a") as f:
+        with open(f"{year}/RETRY.txt", "a") as f:
             f.write(f"{vin}\n")
         return None
 
@@ -30,8 +30,8 @@ def extractInfo(text, vin):
     global foundVIN
     if text is None:
         print("Received None text. Skipping this VIN.")
-        # Write VIN to RETRY10.txt file
-        with open(f"{year}/RETRY10.txt", "a") as f:
+        # Write VIN to RETRY.txt file
+        with open(f"{year}/RETRY.txt", "a") as f:
             f.write(f"{vin}\n")
         return
 
@@ -156,16 +156,16 @@ def processVin(vin):
                 return
             else:
                 print("Unknown error occurred. Skipping this VIN.")
-                # Write VIN to RETRY10.txt file
-                with open(f"{year}/RETRY10.txt", "a") as f:
+                # Write VIN to RETRY.txt file
+                with open(f"{year}/RETRY.txt", "a") as f:
                     f.write(f"{vin}\n")
                 return
 
         except KeyboardInterrupt:
             sys.exit(0)
 
-# Open the file RETRY10.txt and read lines
-with open(f"{year}/RETRY4.txt", 'r') as file:
+# Open the file RETRY.txt and read lines
+with open(f"{year}/RETRY.txt", 'r') as file:
     lines = file.readlines()
 
 foundVIN = 0

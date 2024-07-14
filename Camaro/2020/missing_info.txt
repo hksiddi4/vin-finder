@@ -1,1 +1,2 @@
-1G1FH3D71L0107180 - year
+1G1FB3DS0L0113512 - year,engine,transmission,exterior_color,msrp
+1G1FB1RS0L0124667 - year,engine,transmission,exterior_color,msrp

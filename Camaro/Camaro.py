@@ -26,6 +26,7 @@ def extractPDF(contentsGet, updated_vin):
 
 def extractInfo(text, updated_vin):
     global year
+    global foundVIN
     
     if text is None:
         print("Received None text. Skipping this VIN.")
@@ -34,6 +35,7 @@ def extractInfo(text, updated_vin):
             f.write(f"{updated_vin}\n")
         return
     
+    foundVIN += 1
     # Append only the last 6 digits of the VIN to the list and file
     skip_camaro.append(updated_vin)
     with open(f"{year}/skip_camaro.txt", "a") as file:
@@ -149,7 +151,6 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                                 f.write(f"{updated_vin}\n")
                             # Inform console
                             print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
-                            foundVIN += 1
                             pdf_text = extractPDF(contentsGet, updated_vin)
                             pdf_info = extractInfo(pdf_text, updated_vin)
                             writeCSV(pdf_info)
@@ -174,13 +175,6 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                     vinChanging += 1  # Move to the next VIN
                     print("ConnectionResetError occurred. Retrying...")
                     continue  # Continue with the next VIN
-                elif e.errno == 10054:
-                    # Write VIN to RETRY.txt file
-                    with open(f'{year}/RETRY.txt', "a") as f:
-                        f.write(str(updated_vin + "\n"))
-                    vinChanging += 1  # Move to the next VIN
-                    print("Connection closed by host, waiting...")
-                    time.sleep(3)
                 else:
                     print("Skipping this VIN.")
                     # Write VIN to RETRY.txt file
