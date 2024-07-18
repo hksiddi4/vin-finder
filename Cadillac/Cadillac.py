@@ -48,46 +48,41 @@ def extractInfo(text, updated_vin):
     field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
     
-    info["vin"] = updated_vin
-    info["body"] = "SEDAN"
+    info = {
+        "vin": updated_vin,
+        "body": "SEDAN"
+    }
+    
     for i, line in enumerate(lines):
-        if f"{year} CT4 " in line or f"{year} CT5 " in line:
+        if any(f"{year} {suffix}" in line for suffix in ["CT4 ", "CT5 "]):
             model_info = ' '.join(line.strip().split())
             model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE", "LUXURY").replace("SERIE V", "V-SERIES").replace("SERIE-V", "V-SERIES")
             modeltrim = model_info[4:].strip().split()
             info["model"] = modeltrim[0]
             info["trim"] = ' '.join(modeltrim[1:])
         if "PRICE*" in line:
-            info["msrp"] = lines[i + 1].strip()
+            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(" ","").replace(".00","")
         if "DELIVERED" in line:
-            info["dealer"] = lines[i + 1].strip().replace("\u2013", "-")
-            info["location"] = lines[i + 3].strip()
-            json_data = lines[i + 7:i + 11]
-            all_json = json.loads(' '.join(json_data))
-            info["json"] = all_json
-            all_rpos = all_json.get("Options",[])
-            all_rpos_filt = [item for item in all_rpos if item]
-            info["all_rpos"] = all_rpos_filt
+            json_data = ' '.join(lines[i + 7:i + 11])
+            all_json = json.loads(json_data)
+            info.update({
+                "dealer": lines[i + 1].strip().replace("\u2013", "-"),
+                "location": lines[i + 3].strip(),
+                "json": all_json,
+                "all_rpos": [item for item in all_json.get("Options", []) if item],
+                "ordernum": all_json["order_number"],
+                "year": all_json["model_year"]
+            })
 
-            for item in all_rpos_filt:
+            for item in info["all_rpos"]:
                 if item in colors_dict:
                     info["exterior_color"] = colors_dict[item]
-                    continue
                 if item in engines_dict:
                     info["engine"] = engines_dict[item]
-                    continue
                 if item in trans_dict:
                     info["transmission"] = trans_dict[item]
-                    continue
                 if item in ext_dict:
                     info["drivetrain"] = ext_dict[item]
-                    continue
-
-            if "order_number" in all_json:
-                info["ordernum"] = all_json["order_number"]
-
-            if "model_year" in all_json:
-                info["year"] = all_json["model_year"]
     
     # Reorder the fields
     info_ordered = {field: info.get(field, None) for field in field_order}
@@ -205,7 +200,7 @@ while True:
         break
     else:
         print("Please enter a valid 6-digit number.")
-if year >= 2022:
+if int(year) >= 2022:
     while True:
         blackwing = input('Run as Blackwing? (Y/N)\n').strip().lower()
 

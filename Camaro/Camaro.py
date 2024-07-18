@@ -48,26 +48,33 @@ def extractInfo(text, updated_vin):
     field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
     
-    info["vin"] = updated_vin
-    info["model"] = "CAMARO"
-    info["drivetrain"] = "RWD"
-    info["body"] = "COUPE"
-    for i, line in enumerate(lines):
-        if "PRICE*" in line:
-            info["msrp"] = lines[i + 1].strip()
-        if "DELIVERED" in line:
-            info["dealer"] = lines[i + 1].strip().replace("\u2013", "-")
-            info["location"] = lines[i + 3].strip()
-            json_data = lines[i + 7:i + 11]
-            all_json = json.loads(' '.join(json_data))
-            info["json"] = all_json
-            all_rpos = all_json.get("Options",[])
-            all_rpos_filt = [item for item in all_rpos if item]
-            info["all_rpos"] = all_rpos_filt
+    info = {
+        "vin": updated_vin,
+        "model": "CAMARO",
+        "drivetrain": "RWD",
+        "body": "COUPE"
+    }
 
-            for item in all_rpos_filt:
-                if item in trim_dict:
-                    info["trim"] = trim_dict[item]
+    for i, line in enumerate(lines):
+        if any(f"{year} {suffix}" in line for suffix in ["CAMARO ", "COUPE CAMARO ", "CABRIOLET CAMARO "]):
+            model_info = ' '.join(line.strip().split())
+            modeltrim = model_info[4:].strip().split()
+            info["trim"] = ' '.join(modeltrim[1:]).replace(" CONVERTIBLE", "").replace(" COUPE", "").replace("CAMARO ", "")
+        if "PRICE*" in line:
+            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(" ","").replace(".00","")
+        if "DELIVERED" in line:
+            json_data = ' '.join(lines[i + 7:i + 11])
+            all_json = json.loads(json_data)
+            info.update({
+                "dealer": lines[i + 1].strip().replace("\u2013", "-"),
+                "location": lines[i + 3].strip(),
+                "json": all_json,
+                "all_rpos": [item for item in all_json.get("Options", []) if item],
+                "ordernum": all_json["order_number"],
+                "year": all_json["model_year"]
+            })
+
+            for item in info["all_rpos"]:
                 if item in body_dict:
                     info["body"] = body_dict[item]
                 if item in colors_dict:
@@ -76,14 +83,8 @@ def extractInfo(text, updated_vin):
                     info["engine"] = engines_dict[item]
                 if item in trans_dict:
                     info["transmission"] = trans_dict[item]
-                    if info["engine"] == "2.0L Turbo, 4-cylinder, SIDI, VVT":
-                        info["transmission"] = "A8"
-
-            if "order_number" in all_json:
-                info["ordernum"] = all_json["order_number"]
-
-            if "model_year" in all_json:
-                info["year"] = all_json["model_year"]
+            if info.get("engine") == "2.0L Turbo, 4-cylinder, SIDI, VVT":
+                info["transmission"] = "A8"
     
     # Reorder the fields
     info_ordered = {field: info.get(field, None) for field in field_order}
