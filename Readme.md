@@ -5,7 +5,7 @@ If the Challenger script is a success then any Stellantis model will work with t
 
 Any GM model will work with tweaking, there are a few more brands I will look into later.
 
-Currently known API's (thanks to Spork Marketing LLC)
+Currently known API's (thanks to [Spork Marketing LLC](https://windowstickerlookup.com/))
 
 - GM - 2020+
 
