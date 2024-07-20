@@ -11,8 +11,8 @@ weight_factors = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2]
 
 colors_dict = {
     "GAZ": "SUMMIT WHITE",
-    "GNW": "PANTHER BLACK METALLIC",
-    "GLK": "PANTHER BLACK MATTE",
+    "GNW": "PANTHER BLACK MATTE",
+    "GLK": "PANTHER BLACK METALLIC",
     "GBA": "BLACK",
     "GJI": "SHADOW GRAY METALLIC",
     "G9K": "SATIN STEEL GREY METALLIC",

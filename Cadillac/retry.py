@@ -68,14 +68,17 @@ def extractInfo(text, vin):
         if "DELIVERED" in line:
             json_data = ' '.join(lines[i + 7:i + 11])
             all_json = json.loads(json_data)
+            all_json["Options"] = [option for option in all_json["Options"] if option]
             info.update({
                 "dealer": lines[i + 1].strip().replace("\u2013", "-"),
                 "location": lines[i + 3].strip(),
                 "json": all_json,
-                "all_rpos": [item for item in all_json.get("Options", []) if item],
+                "all_rpos": all_json["Options"],
                 "ordernum": all_json["order_number"],
                 "year": all_json["model_year"]
             })
+            all_json["mmc_code"] = all_json["mmc_code"].replace(' ','')
+            all_json["sitedealer_code"] = all_json["sitedealer_code"].replace(' ','')
 
             for item in info["all_rpos"]:
                 if item in colors_dict:
