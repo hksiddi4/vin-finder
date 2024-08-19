@@ -7,10 +7,10 @@ import http.client, urllib
 from variables import *
 
 # Extract text from PDF -------------------------------------------------------------------------
-def extractPDF(contentsGet, updated_vin):
+def extractPDF(contents, updated_vin):
     try:
         with open(f'{year}/temp.pdf', "wb") as f:
-            f.write(contentsGet.content)
+            f.write(contents)
         doc = fitz.open(f'{year}/temp.pdf')
         text = ""
         if len(doc) > 0:
@@ -155,7 +155,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                                 f.write(f"{updated_vin}\n")
                             # Inform console
                             print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
-                            pdf_text = extractPDF(contentsGet, updated_vin)
+                            pdf_text = extractPDF(contents, updated_vin)
                             pdf_info = extractInfo(pdf_text, updated_vin)
                             writeCSV(pdf_info)
 

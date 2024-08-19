@@ -8,10 +8,10 @@ import http.client, urllib
 from variables import *
 
 # Extract text from PDF -------------------------------------------------------------------------
-def extractPDF(contentsGet, updated_vin):
+def extractPDF(contents, updated_vin):
     try:
         with open(f'{year}/temp.pdf', "wb") as f:
-            f.write(contentsGet.content)
+            f.write(contents)
         doc = fitz.open(f'{year}/temp.pdf')
         text = ""
         if len(doc) > 0:
@@ -191,7 +191,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                         try:
                             jsonCont = json.loads(contents)
                         except json.decoder.JSONDecodeError:
-                            pdf_text = extractPDF(contentsGet, updated_vin)
+                            pdf_text = extractPDF(contents, updated_vin)
                             if pdf_text is None:
                                 print("Received None text. Skipping this VIN.")
                                 # Write VIN to RETRY.txt file

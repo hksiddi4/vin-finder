@@ -32,7 +32,7 @@ def processVin(vin):
                 except json.decoder.JSONDecodeError:
                     # Inform console
                     print("\033[33mMatch Found For VIN: [" + vin + "].\033[0m")
-                    with open('found.txt', 'a') as file:
+                    with open('ZR1.txt', 'a') as file:
                         file.write(f"{vin}\n")
                     foundVIN += 1
                 break
@@ -99,7 +99,19 @@ remainder = elapsedTime % 3600
 minutes = int(remainder // 60)
 seconds = int(remainder  % 60)
 
+time_parts = []
+if hours == 1:
+    time_parts.append(f"{hours} hour")
+elif hours > 1:
+    time_parts.append(f"{hours} hours")
+if minutes == 1:
+    time_parts.append(f"{minutes} minute")
+elif minutes > 1:
+    time_parts.append(f"{minutes} minute(s)")
+
+time_str = ", ".join(time_parts) + f", {seconds} second" if time_parts else f"{seconds} seconds"
+
 t = time.localtime()
 currentTime = time.strftime("%H:%M:%S", t)
-print("Ended:", currentTime, " - Elapsed time: {} hour(s), {} minute(s), {} second(s)".format(hours, minutes, seconds))
+print("Ended:", currentTime, " - Elapsed time:", time_str)
 print("Tested {}/{} VIN(s) - Found {} match(es)".format(i, total_combinations, foundVIN))
