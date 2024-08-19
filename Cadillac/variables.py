@@ -94,19 +94,21 @@ urlIdent_blackwing_list_2024 = [
     "25R6", # CT5-V Blackwing M6
 ]
 
-# Manual/Auto/Coupe/Conv. Differentiations - Orderd by 2024 Highest-Lowest
+# Manual/Auto/Coupe/Conv. Differentiations - Orderd by 2025 Highest-Lowest
 urlIdent_list = [
+    "S5RW", # Premium Luxery/AWD, LGY, CT5
+    "P5RK", # Sport/RWD, LSY, CT5
+    "S5RK", # Premium Luxery/AWD, LSY, CT5
+    "U5RK", # Sport/AWD, LSY, CT5
+    "N5RW", # Premium Luxery/RWD, LGY, CT5
+    "N5RK", # Premium Luxery/RWD, LSY, CT5
     "V5RW", # V-Series/AWD, LGY, CT5
     "W5RK", # Luxery/RWD, LSY, CT5
     "T5RW", # Premium Luxery/AWD, LGY, CT5
     "J5RK", # Luxery/RWD, LSY (w/o 8speaker), CT4
     "T5RK", # Premium Luxery/AWD, LSY, CT5
-    "U5RK", # Sport/AWD, LSY, CT5
     "X5RK", # Luxery/AWD, LSY, CT5
     "R5RW", # V-Series/RWD, LGY, CT5
-    "N5RK", # Premium Luxery/RWD, LSY, CT5
-    "P5RK", # Sport/RWD, LSY, CT5
-    "N5RW", # Premium Luxery/RWD, LGY, CT5
     "K5RK", # Luxery/AWD, LSY, CT4
     "A5RK", # Luxery/RWD, LSY (w/ 8 speaker), CT4
     "B5RK", # Premium Luxery/RWD, LSY, CT4
@@ -115,12 +117,10 @@ urlIdent_list = [
     "G5RK", # Sport/AWD, LSY, CT4
     "C5RK", # Sport/RWD, LSY, CT4
     "H5RL", # V-Series/AWD, L3B, CT4
-    "S5RK", # Premium Luxery/AWD, LSY, CT5
     "E5RK", # Luxery/AWD, LSY, CT4
     "D5RL", # V-Series/RWD, L3B, CT4
     "F5RL", # Premium Luxery/AWD, L3B, CT4
-    "B5RL", # Premium Luxery/RWD, L3B, CT4
-    "S5RW" # Premium Luxery/AWD, LGY, CT5
+    "B5RL" # Premium Luxery/RWD, L3B, CT4
 ]
 
 while True:
@@ -132,8 +132,9 @@ while True:
     else:
         print("Invalid year.")
 
-with open(f'{year}/skip_camaro.txt', 'r') as file:
-    skip_camaro = [int(line.strip()) for line in file if line.strip().isdigit()]
+if int(year) <= 2024:
+    with open(f'{year}/skip_camaro.txt', 'r') as file:
+        skip_camaro = [int(line.strip()) for line in file if line.strip().isdigit()]
 
 with open(f'{year}/skip_cadillac.txt', 'r') as file:
     skip_cadillac = [int(line.strip()) for line in file if line.strip().isdigit()]

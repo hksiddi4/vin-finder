@@ -6,10 +6,10 @@ import time
 from variables import *
 
 # Extract text from PDF -------------------------------------------------------------------------
-def extractPDF(contentsGet, updated_vin):
+def extractPDF(contentsByte, updated_vin):
     try:
         with open(f'{year}/temp.pdf', "wb") as f:
-            f.write(contentsGet.content)
+            f.write(contentsByte)
         doc = fitz.open(f'{year}/temp.pdf')
         text = ""
         if len(doc) > 0:
@@ -134,6 +134,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                 try:
                     # Get Request
                     contentsGet = requests.get(newUrl, headers = {'User-Agent': 'corvette count finder', 'Accept-Language': 'en-US'}, timeout=120)
+                    contentsByte = contentsGet.content
                     contents = contentsGet.text
                     time.sleep(1)
 
@@ -149,7 +150,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                             f.write(f"{updated_vin}\n")
                         # Inform console
                         print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
-                        pdf_text = extractPDF(contentsGet, updated_vin)
+                        pdf_text = extractPDF(contentsByte, updated_vin)
                         pdf_info = extractInfo(pdf_text, updated_vin)
                         writeCSV(pdf_info)
 

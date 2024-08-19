@@ -7,10 +7,10 @@ import http.client, urllib
 from variables import *
 
 # Extract text from PDF -------------------------------------------------------------------------
-def extractPDF(contents, updated_vin):
+def extractPDF(contentsByte, updated_vin):
     try:
         with open(f'{year}/temp.pdf', "wb") as f:
-            f.write(contents)
+            f.write(contentsByte)
         doc = fitz.open(f'{year}/temp.pdf')
         text = ""
         if len(doc) > 0:
@@ -120,7 +120,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
 
     # Keep going until a specific stopping point
     while vinChanging <= endVIN:
-        if vinChanging in skip_cadillac or vinChanging in skip_camaro:
+        if (int(year) > 2024 and vinChanging in skip_cadillac) or (int(year) <= 2024 and (vinChanging in skip_cadillac or vinChanging in skip_camaro)):
             print("\033[30mExisting sequence, skipping\033[0m")
             vinChanging += 1
             continue
@@ -138,6 +138,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                     try:
                         # Get Request
                         contentsGet = requests.get(newUrl, headers = {'User-Agent': 'caddy count finder', 'Accept-Language': 'en-US'}, timeout=120)
+                        contentsByte = contentsGet.content
                         contents = contentsGet.text
                         time.sleep(1)
 
@@ -153,7 +154,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                                 f.write(f"{updated_vin}\n")
                             # Inform console
                             print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
-                            pdf_text = extractPDF(contents, updated_vin)
+                            pdf_text = extractPDF(contentsByte, updated_vin)
                             pdf_info = extractInfo(pdf_text, updated_vin)
                             writeCSV(pdf_info)
 
