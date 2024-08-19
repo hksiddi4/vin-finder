@@ -6,7 +6,6 @@ import time
 import http.client, urllib
 from variables import *
 
-# Extract text from PDF -------------------------------------------------------------------------
 def extractPDF(contentsByte, updated_vin):
     try:
         with open(f'{year}/temp.pdf', "wb") as f:
@@ -114,7 +113,7 @@ def writeCSV(pdf_info):
 
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
-    global totalVIN
+    global i
     global foundVIN
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G6D"
 
@@ -157,10 +156,9 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                             pdf_text = extractPDF(contentsByte, updated_vin)
                             pdf_info = extractInfo(pdf_text, updated_vin)
                             writeCSV(pdf_info)
-
                         # Increment VIN by 1
                         vinChanging += 1
-                        totalVIN += 1
+                        testedVIN += 1
                         break
 
                     except requests.exceptions.ReadTimeout:
@@ -170,15 +168,16 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                         time.sleep(120)
 
             except requests.exceptions.RequestException as e:
-                print(f"Error: {e}")
-                if isinstance(e, requests.exceptions.ConnectionError) and isinstance(e.__cause__, ConnectionResetError):
+                if isinstance(e.__cause__, ConnectionResetError):
+                    print(f"ConnectionResetError: {e}.")
                     # Write VIN to RETRY.txt file
                     with open(f'{year}/RETRY.txt', "a") as f:
                         f.write(f"{updated_vin}\n")
-                    vinChanging += 1  # Move to the next VIN
-                    print("ConnectionResetError occurred. Retrying...")
-                    continue  # Continue with the next VIN
+                    vinChanging += 1
+                    time.sleep(10)
+                    continue
                 else:
+                    print(f"Error: {e}")
                     print("Skipping this VIN.")
                     # Write VIN to RETRY.txt file
                     with open(f'{year}/RETRY.txt', "a") as f:
@@ -222,7 +221,7 @@ else:
 
 totalVIN = 0
 foundVIN = 0
-i = 1
+testedVIN = 0
 
 startTime = time.time()
 
@@ -232,7 +231,7 @@ for urlIdent in urlChosenList:
     print("Testing configuration (" + str(i) + "/" + str(urlList) + "): " + urlIdent + " -------------------------------")
     processVin(urlIdent, vinChanging, endVIN, yearDig)
     print("")
-    i += 1
+    totalVIN += 1
 
 endTime = time.time()
 elapsedTime = endTime - startTime
@@ -258,4 +257,4 @@ time_str = ", ".join(time_parts) + f", {seconds} second" if time_parts else f"{s
 t = time.localtime()
 currentTime = time.strftime("%H:%M:%S", t)
 print("Ended:", currentTime, " - Elapsed time:", time_str)
-print("Tested {} VIN(s) - Found {} match(es)".format(totalVIN, foundVIN))
+print("Tested {}/{} VIN(s) - Found {} match(es)".format(i, totalVIN, foundVIN))

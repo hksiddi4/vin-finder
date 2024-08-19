@@ -7,10 +7,10 @@ import http.client, urllib
 import sys
 from variables import *
 
-def extractPDF(contentsGet, vin):
+def extractPDF(contentsByte, vin):
     try:
         with open(f"{year}/temp.pdf", "wb") as f:
-            f.write(contentsGet.content)
+            f.write(contentsByte)
         doc = fitz.open(f"{year}/temp.pdf")
         text = ""
         if len(doc) > 0:
@@ -21,29 +21,26 @@ def extractPDF(contentsGet, vin):
             text = page.get_text()
         doc.close()
         return text
-    except Exception as e:
-        with open(f"{year}/RETRY.txt", "a") as f:
-            f.write(f"{vin}\n")
+    except fitz.FileDataError as e:
         return None
 
 def extractInfo(text, vin):
+    global year
     global foundVIN
+
     if text is None:
         print("Received None text. Skipping this VIN.")
         # Write VIN to RETRY.txt file
         with open(f"{year}/RETRY.txt", "a") as f:
             f.write(f"{vin}\n")
-        return
-
-    # Write VIN to txt file
-    with open(f"{year}/caddy_{year}.txt", "a") as f:
-        f.write(f"{vin}\n")
+        return None
+    
+    foundVIN += 1
     # Append only the last 6 digits of the VIN to the list and file
     skip_cadillac.append(int(vin[-6:]))
     with open(f"{year}/skip_cadillac.txt", "a") as file:
         file.write(f"{vin[-6:]}\n")
 
-    foundVIN += 1
     lines = text.split('\n')
     info = {}
     
@@ -92,10 +89,17 @@ def extractInfo(text, vin):
     
     # Reorder the fields
     info_ordered = {field: info.get(field, None) for field in field_order}
+
+    # Check for missing fields
+    missing_fields = [field for field, value in info_ordered.items() if value is None]
+    if missing_fields:
+        with open(f'{year}/missing_info.txt', "a") as f:
+            f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
     
     return info_ordered
 
 def writeCSV(pdf_info):
+    global year
     if pdf_info is None:
         return
     # Define the field names based on the keys of pdf_info
@@ -109,68 +113,75 @@ def writeCSV(pdf_info):
         writer.writerow(pdf_info)
 
 def processVin(vin):
+    global i
     lastSix = int(vin[-6:])
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin="
-    
-    if lastSix in skip_camaro:
-        print("\033[30mExisting sequence, skipping\033[0m")
-        return
-    else:
-        try:
-            newUrl = urlFirst + vin
+    try:
+        newUrl = urlFirst + vin
 
-            max_retries = 3
-            retries = 0
+        max_retries = 3
+        retries = 0
 
-            while retries < max_retries:
+        while retries < max_retries:
+            try:
+                # Get Request
+                contentsGet = requests.get(newUrl, headers = {'User-Agent': 'caddy count finder', 'Accept-Language': 'en-US'}, timeout=120)
+                contentsByte = contentsGet.content
+                contents = contentsGet.text
+                time.sleep(1)
+
+                # Check if request returns errorMessage or actual content (meaning a window sticker was found)
                 try:
-                    # Get Request
-                    contentsGet = requests.get(newUrl, headers = {'User-Agent': 'caddy count finder', 'Accept-Language': 'en-US'}, timeout=120)
-                    contents = contentsGet.text
-                    time.sleep(1)
+                    # If json content found = no window sticker
+                    jsonCont = json.loads(contents)
+                    print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
+                # If request returns not a json content = window sticker found
+                except json.decoder.JSONDecodeError:
+                    # Write VIN to txt file
+                    with open(f"{year}/caddy_{year}.txt", "a") as f:
+                        f.write(f"{updated_vin}\n")
+                    # Inform console
+                    print("\033[33mMatch Found For VIN: [" + vin + "].\033[0m")
+                    pdf_text = extractPDF(contentsByte, vin)
+                    pdf_info = extractInfo(pdf_text, vin)
+                    writeCSV(pdf_info)
+                    testedVIN += 1
+                break
 
-                    # Check if request returns errorMessage or actual content (meaning a window sticker was found)
-                    try:
-                        # If json content found = no window sticker
-                        jsonCont = json.loads(contents)
-                        print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
-                    # If request returns not a json content = window sticker found
-                    except json.decoder.JSONDecodeError:
-                        # Inform console
-                        print("\033[33mMatch Found For VIN: [" + vin + "].\033[0m")
-                        pdf_text = extractPDF(contentsGet, vin)
-                        pdf_info = extractInfo(pdf_text, vin)
-                        writeCSV(pdf_info)
-                    break
+            except requests.exceptions.ReadTimeout:
+                # Retry request
+                print("Timed out, retrying...")
+                retries += 1
+                time.sleep(120)
 
-                except requests.exceptions.ReadTimeout:
-                    # Retry request
-                    print("Timed out, retrying...")
-                    retries += 1
-                    time.sleep(120)
+    except requests.exceptions.RequestException as e:
+        if isinstance(e.__cause__, ConnectionResetError):
+            print(f"ConnectionResetError: {e}.")
+            # Write VIN to RETRY.txt file
+            with open(f'{year}/RETRY.txt', "a") as f:
+                f.write(f"{vin}\n")
+            vinChanging += 1
+            time.sleep(10)
+            continue
+        else:
+            print(f"Error: {e}")
+            print("Skipping this VIN.")
+            # Write VIN to RETRY.txt file
+            with open(f'{year}/RETRY.txt', "a") as f:
+                f.write(f"{vin}\n")
+            vinChanging += 1  # Move to the next VIN
+            continue  # Continue with the next VIN
 
-        except requests.exceptions.RequestException as e:
-            print(f"An error occurred: {e}")
-            if isinstance(e, requests.exceptions.ConnectionError) and isinstance(e.__cause__, ConnectionResetError):
-                print("ConnectionResetError occurred. Retrying...")
-                return
-            else:
-                print("Unknown error occurred. Skipping this VIN.")
-                # Write VIN to RETRY.txt file
-                with open(f"{year}/RETRY.txt", "a") as f:
-                    f.write(f"{vin}\n")
-                return
-
-        except KeyboardInterrupt:
-            sys.exit(0)
+    except KeyboardInterrupt:
+        sys.exit(0)
 
 # Open the file RETRY.txt and read lines
 with open(f"{year}/RETRY.txt", 'r') as file:
     lines = file.readlines()
 
+totalVIN = range(lines)
 foundVIN = 0
-
-i = 0
+testedVIN = 0
 
 startTime = time.time()
 
@@ -178,7 +189,6 @@ startTime = time.time()
 for vin in lines:
     vin = vin.strip()
     processVin(vin)
-    i += 1
 print("")
 
 endTime = time.time()
@@ -189,7 +199,19 @@ remainder = elapsedTime % 3600
 minutes = int(remainder // 60)
 seconds = int(remainder  % 60)
 
+time_parts = []
+if hours == 1:
+    time_parts.append(f"{hours} hour")
+elif hours > 1:
+    time_parts.append(f"{hours} hours")
+if minutes == 1:
+    time_parts.append(f"{minutes} minute")
+elif minutes > 1:
+    time_parts.append(f"{minutes} minute(s)")
+
+time_str = ", ".join(time_parts) + f", {seconds} second" if time_parts else f"{seconds} seconds"
+
 t = time.localtime()
 currentTime = time.strftime("%H:%M:%S", t)
-print("Ended:", currentTime, " - Elapsed time: {} hour(s), {} minute(s), {} second(s)".format(hours, minutes, seconds))
-print("Tested {} VIN(s) - Found {} match(es)".format(i, foundVIN))
+print("Ended:", currentTime, " - Elapsed time:", time_str)
+print("Tested {}/{} VIN(s) - Found {} match(es)".format(testedVIN, totalVIN, foundVIN))
