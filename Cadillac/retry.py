@@ -94,7 +94,7 @@ def extractInfo(text, vin):
     missing_fields = [field for field, value in info_ordered.items() if value is None]
     if missing_fields:
         with open(f'{year}/missing_info.txt', "a") as f:
-            f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
+            f.write(f"{vin} - {','.join(missing_fields)}\n")
     
     return info_ordered
 
@@ -113,7 +113,7 @@ def writeCSV(pdf_info):
         writer.writerow(pdf_info)
 
 def processVin(vin):
-    global i
+    global testedVIN
     lastSix = int(vin[-6:])
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin="
     try:
@@ -139,13 +139,12 @@ def processVin(vin):
                 except json.decoder.JSONDecodeError:
                     # Write VIN to txt file
                     with open(f"{year}/caddy_{year}.txt", "a") as f:
-                        f.write(f"{updated_vin}\n")
+                        f.write(f"{vin}\n")
                     # Inform console
                     print("\033[33mMatch Found For VIN: [" + vin + "].\033[0m")
                     pdf_text = extractPDF(contentsByte, vin)
                     pdf_info = extractInfo(pdf_text, vin)
                     writeCSV(pdf_info)
-                    testedVIN += 1
                 break
 
             except requests.exceptions.ReadTimeout:
@@ -153,6 +152,7 @@ def processVin(vin):
                 print("Timed out, retrying...")
                 retries += 1
                 time.sleep(120)
+        testedVIN += 1
 
     except requests.exceptions.RequestException as e:
         if isinstance(e.__cause__, ConnectionResetError):
@@ -160,17 +160,15 @@ def processVin(vin):
             # Write VIN to RETRY.txt file
             with open(f'{year}/RETRY.txt', "a") as f:
                 f.write(f"{vin}\n")
-            vinChanging += 1
             time.sleep(10)
-            continue
+            return
         else:
             print(f"Error: {e}")
             print("Skipping this VIN.")
             # Write VIN to RETRY.txt file
             with open(f'{year}/RETRY.txt', "a") as f:
                 f.write(f"{vin}\n")
-            vinChanging += 1  # Move to the next VIN
-            continue  # Continue with the next VIN
+            return  # Continue with the next VIN
 
     except KeyboardInterrupt:
         sys.exit(0)
@@ -179,7 +177,7 @@ def processVin(vin):
 with open(f"{year}/RETRY.txt", 'r') as file:
     lines = file.readlines()
 
-totalVIN = range(lines)
+totalVIN = len(lines)
 foundVIN = 0
 testedVIN = 0
 
