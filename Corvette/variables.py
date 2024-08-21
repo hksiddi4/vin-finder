@@ -10,25 +10,27 @@ alpha_numeric_conversion = {
 weight_factors = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2]
 
 colors_dict = {
-    "GAZ": "SUMMIT WHITE",
-    "GNW": "PANTHER BLACK MATTE",
-    "GLK": "PANTHER BLACK METALLIC",
+    "G1E": "LONG BEACH RED",
+    "G1W": "WHITE PEARL",
+    "G26": "SEBRING ORANGE",
+    "G48": "CAFFEINE",
+    "G8G": "ARCTIC WHITE",
+    "G9F": "CERAMIC MATRIX GRAY",
+    "GA7": "HYPERSONIC GRAY",
+    "GAN": "BLADE SILVER",
+    "GAR": "CARBON FLASH",
     "GBA": "BLACK",
-    "GJI": "SHADOW GRAY METALLIC",
-    "G9K": "SATIN STEEL GREY METALLIC",
-    "GXD": "SHARKSKIN METALLIC",
-    "GKK": "RIVERSIDE BLUE METALLIC",
-    "GJV": "RIPTIDE BLUE METALLIC",
+    "GC5": "AMPLIFY ORANGE",
+    "GD0": "ACCELERATE YELLOW",
+    "GJI": "SHADOW GRAY",
+    "GKZ": "TORCH RED",
     "GMO": "RAPID BLUE",
-    "GJ0": "RALLY GREEN METALLIC",
-    "GKO": "SHOCK",
-    "GCP": "NITRO YELLOW METALLIC",
-    "GCF": "VIVID ORANGE METALLIC",
-    "G16": "CRUSH",
-    "GSK": "WILD CHERRY TINTCOAT",
-    "GNT": "RADIANT RED TINTCOAT",
-    "G7E": "GARNET RED TINTCOAT",
-    "G7C": "RED HOT"
+    "GPH": "RED MIST",
+    "GS7": "ELKHART LAKE BLUE",
+    "GSJ": "SILVER FLARE",
+    "GUI": "ZEUS BRONZE",
+    "GVR": "CACTI",
+    "GXA": "SEA WOLF GRAY",
 }
 
 engines_dict = {
@@ -38,7 +40,7 @@ engines_dict = {
 }
 
 body_dict = {
-    "CM8": "CONVERTIBLE"
+    "CM9": "CONVERTIBLE"
 }
 
 trans_dict = {
@@ -56,7 +58,6 @@ trim_dict = {
     "1LT": "1LT"
 }
 
-# Year digit
 years = {
     '2025': 'S',
     '2024': 'R',
@@ -66,170 +67,52 @@ years = {
     '2020': 'L'
 }
 
-# Manual/Auto/Coupe/Conv. Differentiations - Ordered by 2024 Highest-Lowest
-urlIdent_list_2024 = [
-    "B1RS",
-    "H1R7",
-    "D1RS",
-    "D3DS",
-    "H3D7",
-    "F1R7",
-    "B3DS",
-    "G1R7",
-    "K1R6",
-    "J1R6",
-    "F3D7",
-    "E1R7",
-    "K3D6",
-    "G3D7",
-    "A1RS",
-    "C1RS",
-    "J3D6",
-    "C3DS",
-    "A3DS",
-    "E3D7"
+urlIdent_list = [
+    "A2D4",
+    "A3D4",
+    "B2D4",
+    "B3D4",
+    "C2D4",
+    "C3D4"
 ]
 
-# Manual/Auto/Coupe/Conv. Differentiations - Ordered by 2023 Highest-Lowest
-urlIdent_list_2023 = [
-    "B1RX",
-    "F1R7",
-    "H1R7",
-    "B1RS",
-    "F3D7",
-    "K1R6",
-    "B3DX",
-    "D1RS",
-    "E1R7",
-    "H3D7",
-    "D3DS",
-    "B3DS",
-    "J1R6",
-    "G1R7",
-    "K3D6",
-    "D1RX",
-    "D3DX",
-    "E3D7",
-    "A1RX",
-    "G3D7",
-    "J3D6",
-    "A1RS",
-    "C1RS",
-    "C3DS",
-    "A3DX",
-    "C3DX",
-    "C1RX",
-    "A3DS"
+urlIdent_z06_list = [
+    "D2D3",
+    "D3D3",
+    "E2D3",
+    "E3D3",
+    "F2D3",
+    "F3D3"
 ]
 
-# Manual/Auto/Coupe/Conv. Differentiations - Ordered by 2022 Highest-Lowest
-urlIdent_list_2022 = [
-    "F1R7",
-    "B1RX",
-    "H1R7",
-    "E1R7",
-    "K1R6",
-    "B1RS",
-    "F3D7",
-    "G1R7",
-    "H3D7",
-    "D1RS",
-    "J1R6",
-    "B3DX",
-    "D1RX",
-    "D3DS",
-    "K3D6",
-    "A1RX",
-    "B3DS",
-    "E3D7",
-    "D3DX",
-    "G3D7",
-    "A1RS",
-    "C1RS",
-    "C1RX",
-    "J3D6",
-    "A3DX",
-    "C3DS",
-    "C3DX",
-    "A3DS"
+urlIdent__eray_list = [
+    "K2D4",
+    "K3D4",
+    "L2D4",
+    "L3D4",
+    "M2D4",
+    "M3D4"
 ]
 
-# Manual/Auto/Coupe/Conv. Differentiations - Ordered by 2021 Highest-Lowest
-urlIdent_list_2021 = [
-    "F1R7",
-    "B1RS",
-    "B1RX",
-    "H1R7",
-    "E1R7",
-    "D1RS",
-    "K1R6",
-    "H3D7",
-    "B3DS",
-    "G1R7",
-    "J1R6",
-    "D3DS",
-    "F3D7",
-    "A1RX",
-    "A1RS",
-    "D1RX",
-    "K3D6",
-    "C1RS",
-    "B3DX",
-    "G3D7",
-    "D3DX",
-    "E3D7",
-    "J3D6",
-    "C3DS",
-    "A3DS",
-    "C1RX",
-    "A3DX",
-    "C3DX"
+urlIdent__zr1_list = [
+    "?2D7",
+    "?3D7",
+    "J2D7",
+    "J3D7"
 ]
 
-# Manual/Auto/Coupe/Conv. Differentiations - Ordered by 2020 Highest-Lowest
-urlIdent_list_2020 = [
-    "B1RS",
-    "B1RX",
-    "H1R7",
-    "F1R7",
-    "B3DX",
-    "H3D7",
-    "B3DS",
-    "E1R7",
-    "D1RS",
-    "K1R6",
-    "G1R7",
-    "A1RX",
-    "D3DS",
-    "J1R6",
-    "A1RS",
-    "F3D7",
-    "D1RX",
-    "K3D6",
-    "G3D7",
-    "C1RS",
-    "D3DX",
-    "E3D7",
-    "J3D6",
-    "A3DS",
-    "C1RX",
-    "C3DS",
-    "A3DX",
-    "C3DX"
-]
+while True:
+    year = input('Enter year to test:\n')
 
-# while True:
-#     year = input('Enter year to test:\n')
+    if year in years:
+        yearDig = years[year]
+        break
+    else:
+        print("Invalid year.")
 
-#     if year in years:
-#         # yearDig = years[year]
-#         # chosenIdent = f"urlIdent_list_{year}"
-#         # chosenList = globals()[chosenIdent]
-#         break
-#     else:
-#         print("Invalid year.")
+with open(f'{year}/skip_corvette.txt', 'r') as file:
+    skip_corvette = [int(line.strip()) for line in file if line.strip().isdigit()]
 
-# Function to calculate check digit
 def calculate_check_digit(vin):
     total = 0
     for i, char in enumerate(vin):

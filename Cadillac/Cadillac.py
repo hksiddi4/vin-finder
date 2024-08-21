@@ -101,10 +101,8 @@ def writeCSV(pdf_info):
     global year
     if pdf_info is None:
         return
-    # Define the field names based on the keys of pdf_info
     fieldnames = pdf_info.keys()
     
-    # Open the CSV file in append mode with newline='' to avoid extra newline characters
     with open(f"{year}/{year}_cadillac.csv", "a", newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         
@@ -113,8 +111,7 @@ def writeCSV(pdf_info):
 
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
-    global i
-    global foundVIN
+    global testedVIN
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G6D"
 
     # Keep going until a specific stopping point
@@ -141,17 +138,14 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                         contents = contentsGet.text
                         time.sleep(1)
 
-                        # Check if request returns errorMessage or actual content (meaning a window sticker was found)
                         try:
                             # If json content found = no window sticker
                             jsonCont = json.loads(contents)
                             print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
                         # If request returns not a json content = window sticker found
                         except json.decoder.JSONDecodeError:
-                            # Write VIN to txt file
                             with open(f"{year}/caddy_{year}.txt", "a") as f:
                                 f.write(f"{updated_vin}\n")
-                            # Inform console
                             print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
                             pdf_text = extractPDF(contentsByte, updated_vin)
                             pdf_info = extractInfo(pdf_text, updated_vin)
@@ -182,10 +176,8 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                     # Write VIN to RETRY.txt file
                     with open(f'{year}/RETRY.txt', "a") as f:
                         f.write(f"{updated_vin}\n")
-                    vinChanging += 1  # Move to the next VIN
-                    continue  # Continue with the next VIN
-
-            # When canceled in console, record last checked VIN to lastVin.txt
+                    vinChanging += 1
+                    continue
             except KeyboardInterrupt:
                 break
 
@@ -219,7 +211,8 @@ if int(year) >= 2022:
 else:
     urlChosenList = urlIdent_list
 
-totalVIN = 0
+totalVIN = int(endVIN_input) - int(vinChanging_input)
+totalIdent = 0
 foundVIN = 0
 testedVIN = 0
 
@@ -228,10 +221,10 @@ startTime = time.time()
 # Process request through all variations of trim/gears
 for urlIdent in urlChosenList:
     urlList = len(urlChosenList)
-    print("Testing configuration (" + str(i) + "/" + str(urlList) + "): " + urlIdent + " -------------------------------")
+    print(f"Testing configuration ({str(totalIdent)}/{str(urlList)}): {urlIdent} -------------------------------")
     processVin(urlIdent, vinChanging, endVIN, yearDig)
     print("")
-    totalVIN += 1
+    totalIdent += 1
 
 endTime = time.time()
 elapsedTime = endTime - startTime
@@ -256,5 +249,5 @@ time_str = ", ".join(time_parts) + f", {seconds} second" if time_parts else f"{s
 
 t = time.localtime()
 currentTime = time.strftime("%H:%M:%S", t)
-print("Ended:", currentTime, " - Elapsed time:", time_str)
-print("Tested {}/{} VIN(s) - Found {} match(es)".format(i, totalVIN, foundVIN))
+print(f"Ended: {currentTime} - Elapsed time: {time_str}")
+print(f"Tested {testedVIN}/{totalVIN} VIN(s) - Found {foundVIN} match(es)")

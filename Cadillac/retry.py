@@ -30,7 +30,6 @@ def extractInfo(text, vin):
 
     if text is None:
         print("Received None text. Skipping this VIN.")
-        # Write VIN to RETRY.txt file
         with open(f"{year}/RETRY.txt", "a") as f:
             f.write(f"{vin}\n")
         return None
@@ -42,9 +41,7 @@ def extractInfo(text, vin):
         file.write(f"{vin[-6:]}\n")
 
     lines = text.split('\n')
-    info = {}
-    
-    # Define the order of fields
+
     field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
     
@@ -137,10 +134,8 @@ def processVin(vin):
                     print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
                 # If request returns not a json content = window sticker found
                 except json.decoder.JSONDecodeError:
-                    # Write VIN to txt file
                     with open(f"{year}/caddy_{year}.txt", "a") as f:
                         f.write(f"{vin}\n")
-                    # Inform console
                     print("\033[33mMatch Found For VIN: [" + vin + "].\033[0m")
                     pdf_text = extractPDF(contentsByte, vin)
                     pdf_info = extractInfo(pdf_text, vin)
@@ -148,7 +143,6 @@ def processVin(vin):
                 break
 
             except requests.exceptions.ReadTimeout:
-                # Retry request
                 print("Timed out, retrying...")
                 retries += 1
                 time.sleep(120)
@@ -157,7 +151,6 @@ def processVin(vin):
     except requests.exceptions.RequestException as e:
         if isinstance(e.__cause__, ConnectionResetError):
             print(f"ConnectionResetError: {e}.")
-            # Write VIN to RETRY.txt file
             with open(f'{year}/RETRY.txt', "a") as f:
                 f.write(f"{vin}\n")
             time.sleep(10)
@@ -165,15 +158,35 @@ def processVin(vin):
         else:
             print(f"Error: {e}")
             print("Skipping this VIN.")
-            # Write VIN to RETRY.txt file
             with open(f'{year}/RETRY.txt', "a") as f:
                 f.write(f"{vin}\n")
-            return  # Continue with the next VIN
+            return
 
     except KeyboardInterrupt:
         sys.exit(0)
 
-# Open the file RETRY.txt and read lines
+def format_time(seconds):
+    hours = int(seconds // 3600)
+    remainder = seconds % 3600
+    minutes = int(remainder // 60)
+    seconds = int(remainder % 60)
+
+    if seconds >= 30:
+        minutes += 1
+    
+    time_parts = []
+    if hours == 1:
+        time_parts.append(f"{hours} hour")
+    elif hours > 1:
+        time_parts.append(f"{hours} hours")
+    
+    if minutes == 1:
+        time_parts.append(f"{minutes} minute")
+    elif minutes > 1:
+        time_parts.append(f"{minutes} minutes")
+    
+    return ", ".join(time_parts) if time_parts else "< 1 minute"
+
 with open(f"{year}/RETRY.txt", 'r') as file:
     lines = file.readlines()
 
@@ -181,9 +194,12 @@ totalVIN = len(lines)
 foundVIN = 0
 testedVIN = 0
 
+estTime = totalVIN * 2
+time_str = format_time(estTime)
+print(f"ETA: {time_str}")
+
 startTime = time.time()
 
-# Process each line
 for vin in lines:
     vin = vin.strip()
     processVin(vin)
@@ -191,25 +207,8 @@ print("")
 
 endTime = time.time()
 elapsedTime = endTime - startTime
+time_str = format_time(elapsedTime)
+currentTime = time.strftime("%H:%M:%S", time.localtime())
 
-hours = int(elapsedTime // 3600)
-remainder = elapsedTime % 3600
-minutes = int(remainder // 60)
-seconds = int(remainder  % 60)
-
-time_parts = []
-if hours == 1:
-    time_parts.append(f"{hours} hour")
-elif hours > 1:
-    time_parts.append(f"{hours} hours")
-if minutes == 1:
-    time_parts.append(f"{minutes} minute")
-elif minutes > 1:
-    time_parts.append(f"{minutes} minute(s)")
-
-time_str = ", ".join(time_parts) + f", {seconds} second" if time_parts else f"{seconds} seconds"
-
-t = time.localtime()
-currentTime = time.strftime("%H:%M:%S", t)
-print("Ended:", currentTime, " - Elapsed time:", time_str)
-print("Tested {}/{} VIN(s) - Found {} match(es)".format(testedVIN, totalVIN, foundVIN))
+print(f"Ended: {currentTime} - Elapsed time: {time_str}")
+print(f"Tested {testedVIN}/{totalVIN} VIN(s) - Found {foundVIN} match(es)")
