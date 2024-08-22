@@ -62,6 +62,8 @@ Retry.py is meant for the VIN's that were skipped during the main script run, if
 Other API's found thanks to https://windowstickerlookup.com/
 
 ## Issues
+Many times false positives will appear, or if the API is on maintenance stickers will disappear causing every sequence to be 'found' but recieve None text causing a huge backlog of Retry.txt VINs. One idea I will try is checking the PDF name if possible as I know when downloaded, each PDF is named VIN.pdf with the corresponding VIN as the name
+
 MuPDF error's out sometimes, unsure how to fix as the only sign is missing fields typically in the .csv. Have implemented a missing_field operation to maybe assist in finding a solution.
 
 Dodge scripts work but I recently returned to trying it as my first attempt broke something after a few thousand successful pulls, crossing fingers it doesn't break again.
