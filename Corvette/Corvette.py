@@ -40,24 +40,18 @@ def extractInfo(text, updated_vin):
         file.write(f"{updated_vin[-6:].zfill(6)}\n")
 
     lines = text.split('\n')
-    info = {}
-    
-    # Define the order of fields
+
     field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
     
     info = {
-        "vin": updated_vin,
+        "vin": vin,
         "model": "CORVETTE",
         "drivetrain": "RWD",
         "body": "COUPE"
     }
 
     for i, line in enumerate(lines):
-        if any(f"{year} {suffix}" in line for suffix in ["CORVETTE ", "COUPE CORVETTE ", "CABRIOLET CORVETTE "]):
-            model_info = ' '.join(line.strip().split())
-            modeltrim = model_info[4:].strip().split()
-            info["trim"] = ' '.join(modeltrim[1:]).replace(" CONVERTIBLE", "").replace(" COUPE", "").replace("CORVETTE ", "").replace(" CONV", "")
         if "PRICE*" in line:
             info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(" ","").replace(".00","")
         if "DELIVERED" in line:
@@ -72,7 +66,7 @@ def extractInfo(text, updated_vin):
                 "ordernum": all_json["order_number"],
                 "year": all_json["model_year"]
             })
-            all_json["mmc_code"] = all_json["mmc_code"].replace(' ','')
+            mmc_code = all_json["mmc_code"].replace(' ','')
             all_json["sitedealer_code"] = all_json["sitedealer_code"].replace(' ','')
 
             for item in info["all_rpos"]:
@@ -84,7 +78,13 @@ def extractInfo(text, updated_vin):
                     info["engine"] = engines_dict[item]
                 if item in trans_dict:
                     info["transmission"] = trans_dict[item]
+                if item in trim_dict:
+                    info["trim"] = trim_dict[item]
                 if item == "HP1":
+                    info["drivetrain"] = "AWD"
+            if mmc_code in mmc:
+                info["model"] = mmc[mmc_code]
+                if mmc_code == "1YG07" or mmc_code == "1YG67":
                     info["drivetrain"] = "AWD"
     
     # Reorder the fields

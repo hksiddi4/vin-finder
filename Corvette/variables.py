@@ -58,6 +58,15 @@ trim_dict = {
     "1LT": "1LT"
 }
 
+mmc = {
+    "1YC07": "CORVETTE STINGRAY",
+    "1YC67": "CORVETTE STINGRAY",
+    "1YH07": "CORVETTE Z06",
+    "1YH67": "CORVETTE ZO6",
+    "1YG07": "CORVETTE E-RAY",
+    "1YG67": "CORVETTE E-RAY"
+}
+
 years = {
     '2025': 'S',
     '2024': 'R',
