@@ -1298,3 +1298,4 @@
 1G1YB3D41P5115224 - trim
 1G1YC3D49P5115212 - trim
 1G1YC3D48P5105139 - year,trim,engine,transmission,exterior_color,msrp,dealer,location,ordernum,json,all_rpos
+1G1YB3D45P5104940 - year,trim,engine,transmission,exterior_color,dealer,location,ordernum,json,all_rpos

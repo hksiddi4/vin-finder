@@ -8,10 +8,11 @@ import sys
 from variables import *
 
 def extractPDF(contentsByte, vin):
+    pdf_path = f"{year}/temp.pdf"
     try:
-        with open(f"{year}/temp.pdf", "wb") as f:
+        with open(pdf_path, "wb") as f:
             f.write(contentsByte)
-        doc = fitz.open(f"{year}/temp.pdf")
+        doc = fitz.open(pdf_path)
         text = ""
         if len(doc) > 0:
             if len(doc) > 1:
@@ -21,18 +22,21 @@ def extractPDF(contentsByte, vin):
             text = page.get_text()
         doc.close()
         return text
+    except fitz.FitzError as e:
+        with open(f"{year}/RETRY.txt", "a") as f:
+            f.write(f"{vin}\n")
+        return None
     except Exception as e:
-        with open(f"{year}/RETRY1.txt", "a") as f:
+        with open(f"{year}/RETRY.txt", "a") as f:
             f.write(f"{vin}\n")
         return None
 
 def extractInfo(text, vin):
-    global year
-    global foundVIN
+    global year, foundVIN
 
     if text is None:
         print("Received None text. Skipping this VIN.")
-        with open(f"{year}/RETRY1.txt", "a") as f:
+        with open(f"{year}/RETRY.txt", "a") as f:
             f.write(f"{vin}\n")
         return None
 
@@ -83,8 +87,6 @@ def extractInfo(text, vin):
                     info["transmission"] = trans_dict[item]
                 if item in trim_dict:
                     info["trim"] = trim_dict[item]
-                if item == "HP1":
-                    info["drivetrain"] = "AWD"
             if mmc_code in mmc:
                 info["model"] = mmc[mmc_code]
                 if mmc_code == "1YG07" or mmc_code == "1YG67":
@@ -157,14 +159,14 @@ def processVin(vin):
     except requests.exceptions.RequestException as e:
         if isinstance(e.__cause__, ConnectionResetError):
             print(f"ConnectionResetError: {e}.")
-            with open(f'{year}/RETRY1.txt', "a") as f:
+            with open(f'{year}/RETRY.txt', "a") as f:
                 f.write(f"{vin}\n")
             time.sleep(10)
             return
         else:
             print(f"Error: {e}")
             print("Skipping this VIN.")
-            with open(f'{year}/RETRY1.txt', "a") as f:
+            with open(f'{year}/RETRY.txt', "a") as f:
                 f.write(f"{vin}\n")
             return
 
@@ -193,7 +195,7 @@ def format_time(seconds):
     
     return ", ".join(time_parts) if time_parts else "< 1 minute"
 
-with open(f"{year}/RETRY1.txt", 'r') as file:
+with open(f"{year}/RETRY.txt", 'r') as file:
     lines = file.readlines()
 
 totalVIN = len(lines)
