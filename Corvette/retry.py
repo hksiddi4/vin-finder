@@ -22,10 +22,6 @@ def extractPDF(contentsByte, vin):
             text = page.get_text()
         doc.close()
         return text
-    except fitz.FitzError as e:
-        with open(f"{year}/RETRY.txt", "a") as f:
-            f.write(f"{vin}\n")
-        return None
     except Exception as e:
         with open(f"{year}/RETRY.txt", "a") as f:
             f.write(f"{vin}\n")
@@ -107,14 +103,10 @@ def writeCSV(pdf_info):
     global year
     if pdf_info is None:
         return
-    # Define the field names based on the keys of pdf_info
     fieldnames = pdf_info.keys()
     
-    # Open the CSV file in append mode with newline='' to avoid extra newline characters
     with open(f"{year}/{year}_corvette.csv", "a", newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        
-        # Write the pdf_info to the CSV file
         writer.writerow(pdf_info)
 
 def processVin(vin):

@@ -6,10 +6,11 @@ import time
 from variables import *
 
 def extractPDF(contentsByte, updated_vin):
+    pdf_path = f"{year}/temp.pdf"
     try:
-        with open(f'{year}/temp.pdf', "wb") as f:
+        with open(pdf_path, "wb") as f:
             f.write(contentsByte)
-        doc = fitz.open(f'{year}/temp.pdf')
+        doc = fitz.open(pdf_path)
         text = ""
         if len(doc) > 0:
             if len(doc) > 1:
@@ -23,15 +24,13 @@ def extractPDF(contentsByte, updated_vin):
         return None
 
 def extractInfo(text, updated_vin):
-    global year
-    global foundVIN
+    global year, foundVIN
     
     if text is None:
         print("Received None text. Skipping this VIN.")
-        # Write VIN to RETRY.txt file
         with open(f'{year}/RETRY.txt', "a") as f:
             f.write(f"{updated_vin}\n")
-        return
+        return None
     
     foundVIN += 1
     # Append only the last 6 digits of the VIN to the list and file
@@ -106,8 +105,6 @@ def writeCSV(pdf_info):
 
     with open(f"{year}/{year}_corvette.csv", "a", newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        
-        # Write the pdf_info to the CSV file
         writer.writerow(pdf_info)
 
 # Main vin processing ---------------------------------------------------------------------------
@@ -117,6 +114,10 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
 
     # Keep going until a specific stopping point
     while vinChanging <= endVIN:
+        if vinChanging in skip_corvette:
+            print("\033[30mExisting sequence, skipping\033[0m")
+            vinChanging += 1
+            continue
         try:
             # Build the URL (first half + identify trim/gear + check digit + year digit + 0 + incrementing VIN)
             matchedVIN = "1G1Y" + urlIdent + "X" + yearDig + "0" + str(vinChanging)
@@ -257,15 +258,15 @@ else:
     urlChosenList = urlIdent_list
 
 totalVIN = int(endVIN_input) - int(vinChanging_input)
-totalIdent = 0
+totalIdent = 1
 foundVIN = 0
 testedVIN = 0
 
 startTime = time.time()
 
 # Process request through all variations of trim/gears
-for urlIdent in chosenList:
-    urlList = len(chosenList)
+for urlIdent in urlChosenList:
+    urlList = len(urlChosenList)
     print(f"Testing configuration ({str(totalIdent)}/{str(urlList)}): {urlIdent} -------------------------------")
     processVin(urlIdent, vinChanging, endVIN, yearDig)
     print("")
