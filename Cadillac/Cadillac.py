@@ -29,7 +29,6 @@ def extractInfo(text, updated_vin):
 
     if text is None:
         print("Received None text. Skipping this VIN.")
-        # Write VIN to RETRY.txt file
         with open(f'{year}/RETRY.txt', "a") as f:
             f.write(f"{updated_vin}\n")
         return None

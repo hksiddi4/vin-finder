@@ -36,8 +36,8 @@ def extractInfo(text, vin):
     
     foundVIN += 1
     # Append only the last 6 digits of the VIN to the list and file
-    skip_cadillac.append(int(vin[-6:]))
-    with open(f"{year}/skip_cadillac.txt", "a") as file:
+    skip_cadillac_ct6.append(int(vin[-6:]))
+    with open(f"{year}/skip_cadillac_ct6.txt", "a") as file:
         file.write(f"{vin[-6:]}\n")
 
     lines = text.split('\n')
@@ -51,12 +51,12 @@ def extractInfo(text, vin):
     }
     
     for i, line in enumerate(lines):
-        if any(f"{year} {suffix}" in line for suffix in ["CT4 ", "CT5 "]):
+        if any(f"{year} {suffix}" in line for suffix in ["CT6 "]):
             model_info = ' '.join(line.strip().split())
             model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE", "LUXURY").replace("SERIE V", "V-SERIES").replace("SERIE-V", "V-SERIES")
             modeltrim = model_info[4:].strip().split()
             info["model"] = modeltrim[0]
-            info["trim"] = ' '.join(modeltrim[1:])
+            info["trim"] = ' '.join(modeltrim[1:]).replace(" AWD", "").replace("3.6L ", "").replace("3,6L LUXURY A TI", "LUXURY")
         if "PRICE*" in line:
             info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(" ","").replace(".00","")
         if "DELIVERED" in line:
@@ -103,7 +103,7 @@ def writeCSV(pdf_info):
     fieldnames = pdf_info.keys()
     
     # Open the CSV file in append mode with newline='' to avoid extra newline characters
-    with open(f"{year}/{year}_cadillac.csv", "a", newline='') as csvfile:
+    with open(f"{year}/{year}_cadillac_ct6.csv", "a", newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         
         # Write the pdf_info to the CSV file
@@ -134,7 +134,7 @@ def processVin(vin):
                     print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
                 # If request returns not a json content = window sticker found
                 except json.decoder.JSONDecodeError:
-                    with open(f"{year}/caddy_{year}.txt", "a") as f:
+                    with open(f"{year}/caddy_{year}_ct6.txt", "a") as f:
                         f.write(f"{vin}\n")
                     print("\033[33mMatch Found For VIN: [" + vin + "].\033[0m")
                     pdf_text = extractPDF(contentsByte, vin)
