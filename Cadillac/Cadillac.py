@@ -36,8 +36,8 @@ def extractInfo(text, updated_vin):
     
     foundVIN += 1
     # Append only the last 6 digits of the VIN to the list and file
-    skip_cadillac.append(updated_vin)
-    with open(f"{year}/skip_cadillac.txt", "a") as file:
+    skip_cadillac_ct6.append(updated_vin)
+    with open(f"{year}/skip_cadillac_ct6.txt", "a") as file:
         file.write(f"{updated_vin[-6:].zfill(6)}\n")
 
     lines = text.split('\n')
@@ -53,12 +53,12 @@ def extractInfo(text, updated_vin):
     }
     
     for i, line in enumerate(lines):
-        if any(f"{year} {suffix}" in line for suffix in ["CT4 ", "CT5 "]):
+        if any(f"{year} {suffix}" in line for suffix in ["CT6 "]):
             model_info = ' '.join(line.strip().split())
             model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE", "LUXURY").replace("SERIE V", "V-SERIES").replace("SERIE-V", "V-SERIES")
             modeltrim = model_info[4:].strip().split()
             info["model"] = modeltrim[0]
-            info["trim"] = ' '.join(modeltrim[1:])
+            info["trim"] = ' '.join(modeltrim[1:]).replace(" AWD", "").replace("3.6L ", "").replace("3,6L LUXURY A TI", "LUXURY")
         if "PRICE*" in line:
             info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(" ","").replace(".00","")
         if "DELIVERED" in line:
@@ -103,7 +103,7 @@ def writeCSV(pdf_info):
         return
     fieldnames = pdf_info.keys()
     
-    with open(f"{year}/{year}_cadillac.csv", "a", newline='') as csvfile:
+    with open(f"{year}/{year}_cadillac_ct6.csv", "a", newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         
         # Write the pdf_info to the CSV file
@@ -112,18 +112,26 @@ def writeCSV(pdf_info):
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
     global testedVIN
-    urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G6D"
+    if ct6 == 'y':
+        urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G6K"
+    else:
+        urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G6D"
 
     # Keep going until a specific stopping point
     while vinChanging <= endVIN:
-        if (int(year) > 2024 and vinChanging in skip_cadillac) or (int(year) <= 2024 and (vinChanging in skip_cadillac or vinChanging in skip_camaro)):
+        # CT6 testing
+        # if (int(year) > 2024 and vinChanging in skip_cadillac_ct6) or (int(year) <= 2024 and (vinChanging in skip_cadillac_ct6 or vinChanging in skip_camaro)):
+        if (vinChanging in skip_cadillac_ct6):
             print("\033[30mExisting sequence, skipping\033[0m")
             vinChanging += 1
             continue
         else:
             try:
                 # Build the URL (first half + identify trim/gear + check digit + year digit + 0 + incrementing VIN)
-                matchedVIN = "1G6D" + urlIdent + "X" + yearDig + "0" + str(vinChanging)
+                if ct6 == 'y':
+                    matchedVIN = "1G6K" + urlIdent + "X" + yearDig + "U" + f"{vinChanging:06d}"
+                else:
+                    matchedVIN = "1G6D" + urlIdent + "X" + yearDig + "0" + f"{vinChanging:06d}"
                 updated_vin = calculate_check_digit(matchedVIN)
                 newUrl = urlFirst + urlIdent + updated_vin[8:11] + str(vinChanging).zfill(6)
 
@@ -144,7 +152,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                             print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
                         # If request returns not a json content = window sticker found
                         except json.decoder.JSONDecodeError:
-                            with open(f"{year}/caddy_{year}.txt", "a") as f:
+                            with open(f"{year}/caddy_{year}_ct6.txt", "a") as f:
                                 f.write(f"{updated_vin}\n")
                             print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
                             pdf_text = extractPDF(contentsByte, updated_vin)
@@ -195,7 +203,7 @@ while True:
         break
     else:
         print("Please enter a valid 6-digit number.")
-if int(year) >= 2022:
+if int(year) >= 2022 and ct6 != 'y':
     while True:
         blackwing = input('Run as Blackwing? (Y/N)\n').strip().lower()
 
@@ -212,7 +220,7 @@ else:
     urlChosenList = urlIdent_list
 
 totalVIN = int(endVIN_input) - int(vinChanging_input)
-totalIdent = 0
+totalIdent = 1
 foundVIN = 0
 testedVIN = 0
 

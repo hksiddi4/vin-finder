@@ -21,8 +21,9 @@ def extractPDF(contentsByte, vin):
             page = doc.load_page(0)
             text = page.get_text()
         doc.close()
-        return text
+        return text if text.strip() else None
     except Exception as e:
+        print(f"Exception: {e}")
         with open(f"{year}/RETRY.txt", "a") as f:
             f.write(f"{vin}\n")
         return None
@@ -138,6 +139,8 @@ def processVin(vin):
                         f.write(f"{vin}\n")
                     print("\033[33mMatch Found For VIN: [" + vin + "].\033[0m")
                     pdf_text = extractPDF(contentsByte, vin)
+                    if pdf_text is None:
+                        return
                     pdf_info = extractInfo(pdf_text, vin)
                     writeCSV(pdf_info)
                 break

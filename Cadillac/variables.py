@@ -16,12 +16,17 @@ colors_dict = {
     "G7W": "DARK EMERALD FROST",
     "G9G": "DIAMOND SKY METALLIC",
     "G9K": "SATIN STEEL METALLIC",
+    "GAN": "RADIANT SILVER METALLIC",
     "GAZ": "SUMMIT WHITE",
+    "GB8": "STELLAR BLACK METALLIC",
     "GBA": "BLACK RAVEN",
     "GCF": "BLAZE METALLIC",
+    "GCI": "MANHATTAN NOIR METALLIC",
+    "GCP": "CYBER YELLOW METALLIC",
     "GJ0": "EVERGREEN METALLIC",
     "GJI": "SHADOW METALLIC",
     "GJV": "COASTAL BLUE METALLIC",
+    "GKA": "MERCURY SILVER METALLIC",
     "GKK": "WAVE METALLIC",
     "GLK": "BLACK DIAMOND TRICOAT",
     "GLL": "ROYAL SPICE METALLIC",
@@ -29,34 +34,37 @@ colors_dict = {
     "GLU": "DARK MOON METALLIC",
     "GMO": "ELECTRIC BLUE",
     "GNT": "RADIANT RED TINTCOAT",
+    "GNW": "MAVERICK NOIR FROST",
+    "GPJ": "RED HORIZON TINTCOAT",
     "GRW": "RIFT METALLIC",
     "GSK": "INFRARED TINTCOAT",
     "GXD": "ARGENT SILVER METALLIC",
     "GXF": "MIDNIGHT SKY METALLIC",
-    "GCP": "CYBER YELLOW METALLIC",
-    "GXU": "MIDNIGHT STEEL METALLIC",
-    "GKA": "MERCURY SILVER METALLIC",
-    "GNW": "MAVERICK NOIR FROST"
+    "GXU": "MIDNIGHT STEEL METALLIC"
 }
 
 engines_dict = {
     "LSY": "2.0L TURBO, 4-CYL, SIDI",
+    "LGX": "3.6L V6, DI, VVT",
     "L3B": "2.7L TURBO",
     "LGY": "3.0L TWIN TURBO V6, SIDI",
     "LF4": "3.6L V6 TWIN TURBO SIDI, DOHC, VVT",
-    "LT4": "6.2L SUPERCHARGED V8"
+    "LT4": "6.2L SUPERCHARGED V8",
+    "LTA": "4.2L BLACKWING TWIN TURBO V8, SIDI, DOHC, VVT"
 }
 
 trans_dict = {
+    "M5N": "A8",
+    "MHA": "A8",
     "MG9": "M6",
     "MJK": "M6",
-    "MHA": "A8",
-    "M5N": "A8",
-    "MHU": "A10",
-    "MQA": "A10",
     "MHS": "A10",
+    "MHS": "A10",
+    "MHU": "A10",
+    "MHW": "A10",
+    "MHX": "A10",
     "MQ2": "A10",
-    "MHX": "A10"
+    "MQA": "A10"
 }
 
 ext_dict = {
@@ -95,7 +103,7 @@ urlIdent_blackwing_list_2024 = [
 ]
 
 # Manual/Auto/Coupe/Conv. Differentiations - Orderd by 2025 Highest-Lowest
-urlIdent_list = [
+urlIdent_list_ct45 = [
     "S5RW", # Premium Luxery/AWD, LGY, CT5
     "P5RK", # Sport/RWD, LSY, CT5
     "S5RK", # Premium Luxery/AWD, LSY, CT5
@@ -123,6 +131,14 @@ urlIdent_list = [
     "B5RL" # Premium Luxery/RWD, L3B, CT4
 ]
 
+# CT6
+urlIdent_list = [
+    "B5RS", # Luxury / LGX
+    "E5RS", # Premium Luxury / LGX
+    "V5RJ", # Platinum / LTA
+    "W5RJ" # V-Series / LTA
+]
+
 while True:
     year = input('Enter year to test:\n')
 
@@ -132,12 +148,20 @@ while True:
     else:
         print("Invalid year.")
 
-if int(year) <= 2024:
+while True:
+    ct6 = input('CT6?\n').lower()
+    break
+
+if int(year) <= 2024 or ct6 != 'y':
     with open(f'{year}/skip_camaro.txt', 'r') as file:
         skip_camaro = [int(line.strip()) for line in file if line.strip().isdigit()]
 
-with open(f'{year}/skip_cadillac.txt', 'r') as file:
-    skip_cadillac = [int(line.strip()) for line in file if line.strip().isdigit()]
+if ct6 != 'y':
+    with open(f'{year}/skip_cadillac.txt', 'r') as file:
+        skip_cadillac = [int(line.strip()) for line in file if line.strip().isdigit()]
+else:
+    with open(f'{year}/skip_cadillac_ct6.txt', 'r') as file:
+        skip_cadillac_ct6 = [int(line.strip()) for line in file if line.strip().isdigit()]
 
 # Function to calculate check digit
 def calculate_check_digit(matchedVIN):
