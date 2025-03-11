@@ -215,7 +215,26 @@ while True:
         break
     else:
         print("Please enter a valid 6-digit number.")
-if int(year) >= 2024:
+if int(year) == 2019:
+    while True:
+        zr1 = input('ZR1? (Y/N)\n').strip().lower()
+
+        if zr1 == "y":
+            tempName = f"urlIdent_2019_zr1_list"
+            urlChosenList = globals()[tempName]
+            break
+        elif zr1 == "n":
+            z06 = input('Z06? (Y/N)\n').strip().lower()
+
+            if zo6 == "y":
+                tempName = f"urlIdent_2019_z06_list"
+                urlChosenList = globals()[tempName]
+                break
+            urlChosenList = urlIdent_2019_list
+            break
+        else:
+            print("Please enter Y or N.")
+elif int(year) >= 2024:
     while True:
         eray = input('Run as E-Ray? (Y/N)\n').strip().lower()
 
