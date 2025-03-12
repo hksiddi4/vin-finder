@@ -44,7 +44,7 @@ def extractInfo(text, updated_vin):
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
     
     info = {
-        "vin": vin,
+        "vin": updated_vin,
         "model": "CORVETTE",
         "drivetrain": "RWD",
         "body": "COUPE"
@@ -109,7 +109,7 @@ def writeCSV(pdf_info):
 
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
-    global testedVIN
+    global testedVIN, foundVIN
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G1Y"
 
     # Keep going until a specific stopping point
@@ -120,7 +120,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
             continue
         try:
             # Build the URL (first half + identify trim/gear + check digit + year digit + 0 + incrementing VIN)
-            matchedVIN = "1G1Y" + urlIdent + "X" + yearDig + "0" + str(vinChanging)
+            matchedVIN = "1G1Y" + urlIdent + "X" + yearDig + "5" + str(vinChanging)
             updated_vin = calculate_check_digit(matchedVIN)
             newUrl = urlFirst + urlIdent + updated_vin[8:11] + str(vinChanging).zfill(6)
 
@@ -226,7 +226,7 @@ if int(year) == 2019:
         elif zr1 == "n":
             z06 = input('Z06? (Y/N)\n').strip().lower()
 
-            if zo6 == "y":
+            if z06 == "y":
                 tempName = f"urlIdent_2019_z06_list"
                 urlChosenList = globals()[tempName]
                 break
@@ -276,7 +276,10 @@ elif int(year) >= 2025:
 else:
     urlChosenList = urlIdent_list
 
-totalVIN = int(endVIN_input) - int(vinChanging_input)
+urlList = len(urlChosenList)
+
+totalVIN = (int(endVIN_input) + 1 - int(vinChanging_input)) * int(urlList)
+
 totalIdent = 1
 foundVIN = 0
 testedVIN = 0
@@ -285,7 +288,6 @@ startTime = time.time()
 
 # Process request through all variations of trim/gears
 for urlIdent in urlChosenList:
-    urlList = len(urlChosenList)
     print(f"Testing configuration ({str(totalIdent)}/{str(urlList)}): {urlIdent} -------------------------------")
     processVin(urlIdent, vinChanging, endVIN, yearDig)
     print("")

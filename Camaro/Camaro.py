@@ -8,10 +8,11 @@ from variables import *
 
 # Extract text from PDF -------------------------------------------------------------------------
 def extractPDF(contentsByte, updated_vin):
+    pdf_path = f"{year}/temp.pdf"
     try:
-        with open(f'{year}/temp.pdf', "wb") as f:
+        with open(pdf_path, "wb") as f:
             f.write(contentsByte)
-        doc = fitz.open(f'{year}/temp.pdf')
+        doc = fitz.open(pdf_path)
         text = ""
         if len(doc) > 0:
             if len(doc) > 1:
@@ -25,15 +26,14 @@ def extractPDF(contentsByte, updated_vin):
         return None
 
 def extractInfo(text, updated_vin):
-    global year
-    global foundVIN
+    global year, foundVIN
     
     if text is None:
         print("Received None text. Skipping this VIN.")
         # Write VIN to RETRY.txt file
         with open(f'{year}/RETRY.txt', "a") as f:
             f.write(f"{updated_vin}\n")
-        return
+        return None
     
     foundVIN += 1
     # Append only the last 6 digits of the VIN to the list and file
@@ -110,14 +110,12 @@ def writeCSV(pdf_info):
     # Open the CSV file in append mode with newline='' to avoid extra newline characters
     with open(f"{year}/{year}_camaro.csv", "a", newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        
         # Write the pdf_info to the CSV file
         writer.writerow(pdf_info)
 
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
-    global totalVIN
-    global foundVIN
+    global totalVIN, foundVIN
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G1F"
 
     # Keep going until a specific stopping point
@@ -151,10 +149,8 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                             print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
                         # If request returns not a json content = window sticker found
                         except json.decoder.JSONDecodeError:
-                            # Write VIN to txt file
                             with open(f"{year}/camaro_{year}.txt", "a") as f:
                                 f.write(f"{updated_vin}\n")
-                            # Inform console
                             print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
                             pdf_text = extractPDF(contentsByte, updated_vin)
                             pdf_info = extractInfo(pdf_text, updated_vin)
@@ -179,16 +175,14 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                         f.write(str(updated_vin + "\n"))
                     vinChanging += 1  # Move to the next VIN
                     print("ConnectionResetError occurred. Retrying...")
-                    continue  # Continue with the next VIN
+                    continue
                 else:
                     print("Skipping this VIN.")
                     # Write VIN to RETRY.txt file
                     with open(f'{year}/RETRY.txt', "a") as f:
                         f.write(f"{updated_vin}\n")
                     vinChanging += 1  # Move to the next VIN
-                    continue  # Continue with the next VIN
-
-            # When canceled in console, record last checked VIN to lastVin.txt
+                    continue
             except KeyboardInterrupt:
                 break
 
