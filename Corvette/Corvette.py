@@ -109,7 +109,7 @@ def writeCSV(pdf_info):
 
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
-    global testedVIN, foundVIN
+    global testedVIN
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G1Y"
 
     # Keep going until a specific stopping point
@@ -180,8 +180,10 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
             break
 
 def format_time(seconds):
-    hours = int(seconds // 3600)
-    remainder = seconds % 3600
+    days = int(seconds // 86400)
+    remainder = seconds % 86400
+    hours = int(remainder // 3600)
+    remainder %= 3600
     minutes = int(remainder // 60)
     seconds = int(remainder % 60)
 
@@ -189,6 +191,12 @@ def format_time(seconds):
         minutes += 1
     
     time_parts = []
+    
+    if days == 1:
+        time_parts.append(f"{days} day")
+    elif days > 1:
+        time_parts.append(f"{days} days")
+    
     if hours == 1:
         time_parts.append(f"{hours} hour")
     elif hours > 1:
@@ -200,6 +208,7 @@ def format_time(seconds):
         time_parts.append(f"{minutes} minutes")
     
     return ", ".join(time_parts) if time_parts else "< 1 minute"
+
 
 while True:
     vinChanging_input = input('Enter last 6 numbers of the VIN to start at:\n')
@@ -278,11 +287,15 @@ else:
 
 urlList = len(urlChosenList)
 
-totalVIN = (int(endVIN_input) + 1 - int(vinChanging_input)) * int(urlList)
+totalVIN = ((int(endVIN_input) + 1) - int(vinChanging_input)) * int(urlList)
 
 totalIdent = 1
 foundVIN = 0
 testedVIN = 0
+
+estTime = totalVIN * 2
+estTime = format_time(estTime)
+print(f"ETA: {estTime}")
 
 startTime = time.time()
 
@@ -298,5 +311,6 @@ elapsedTime = endTime - startTime
 time_str = format_time(elapsedTime)
 currentTime = time.strftime("%H:%M:%S", time.localtime())
 
-print(f"Ended: {currentTime} - Elapsed time: {time_str}")
+print(f"Ended: {currentTime}")
+print(f"Estimated time: {estTime} - Elapsed time: {time_str}")
 print(f"Tested {testedVIN}/{totalVIN} VIN(s) - Found {foundVIN} match(es)")

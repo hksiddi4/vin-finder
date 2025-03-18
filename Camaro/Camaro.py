@@ -3,7 +3,6 @@ import csv
 import json
 import requests
 import time
-import http.client, urllib
 from variables import *
 
 # Extract text from PDF -------------------------------------------------------------------------
@@ -115,7 +114,7 @@ def writeCSV(pdf_info):
 
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
-    global totalVIN, foundVIN
+    global totalVIN
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G1F"
 
     # Keep going until a specific stopping point
@@ -186,6 +185,28 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
             except KeyboardInterrupt:
                 break
 
+def format_time(seconds):
+    hours = int(seconds // 3600)
+    remainder = seconds % 3600
+    minutes = int(remainder // 60)
+    seconds = int(remainder % 60)
+
+    if seconds >= 30:
+        minutes += 1
+    
+    time_parts = []
+    if hours == 1:
+        time_parts.append(f"{hours} hour")
+    elif hours > 1:
+        time_parts.append(f"{hours} hours")
+    
+    if minutes == 1:
+        time_parts.append(f"{minutes} minute")
+    elif minutes > 1:
+        time_parts.append(f"{minutes} minutes")
+    
+    return ", ".join(time_parts) if time_parts else "< 1 minute"
+
 while True:
     vinChanging_input = input('Enter last 6 numbers of the VIN to start at:\n')
     if vinChanging_input.isdigit() and len(vinChanging_input) == 6:
@@ -201,9 +222,13 @@ while True:
     else:
         print("Please enter a valid 6-digit number.")
 
-totalVIN = 0
+totalVIN = (int(endVIN_input) + 1 - int(vinChanging_input)) * int(urlList)
 foundVIN = 0
 i = 1
+
+estTime = totalVIN * 2
+time_str = format_time(estTime)
+print(f"ETA: {time_str}")
 
 startTime = time.time()
 

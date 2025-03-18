@@ -41,7 +41,7 @@ engines_dict = {
     "LT1": "6.2L (376 ci) V8 DI",
     "LT2": "6.2L V8 DI",
     "LT4": "6.2L SUPERCHARGED V8",
-    "LT5": "6.2: SUPERCHARGED V8 TPI",
+    "LT5": "6.2L SUPERCHARGED V8 TPI",
     "LT6": "5.5L V8 DI",
     "LT7": "5.5L (335 ci) Twin-Turbo V8"
 }
@@ -141,7 +141,7 @@ urlIdent_2019_list = [
     "Z2D7",
     "Z3D7",
     "12D7",
-    "13D7",
+    "13D7"
 ]
 
 urlIdent_2019_z06_list = [
@@ -156,7 +156,7 @@ urlIdent_2019_z06_list = [
     "T2D6",
     "T3D6",
     "U2D6",
-    "U3D6",
+    "U3D6"
 ]
 
 urlIdent_2019_zr1_list = [
