@@ -114,8 +114,7 @@ def writeCSV(pdf_info):
 
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
-    global totalVIN
-    global foundVIN
+    global testedVIN
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G1F"
 
     # Keep going until a specific stopping point
@@ -223,16 +222,19 @@ while True:
     else:
         print("Please enter a valid 6-digit number.")
 
-totalVIN = 0
+urlList = len(chosenList)
+
+totalVIN = ((int(endVIN_input) + 1) - int(vinChanging_input)) * int(urlList)
+totalIdent = 1
 foundVIN = 0
-i = 1
+testedVIN = 0
 
 startTime = time.time()
 
 # Process request through all variations of trim/gears
 for urlIdent in chosenList:
     urlList = len(chosenList)
-    print("Testing configuration (" + str(i) + "/" + str(urlList) + "): " + urlIdent + " -------------------------------")
+    print(f"Testing configuration ({str(totalIdent)}/{str(urlList)}): {urlIdent} -------------------------------")
     processVin(urlIdent, vinChanging, endVIN, yearDig)
     print("")
     totalIdent += 1

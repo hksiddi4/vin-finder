@@ -288,7 +288,6 @@ else:
 urlList = len(urlChosenList)
 
 totalVIN = ((int(endVIN_input) + 1) - int(vinChanging_input)) * int(urlList)
-
 totalIdent = 1
 foundVIN = 0
 testedVIN = 0

@@ -64,7 +64,8 @@ years = {
     '2023': 'P',
     '2022': 'N',
     '2021': 'M',
-    '2020': 'L'
+    '2020': 'L',
+    '2019': 'K'
 }
 
 # Manual/Auto/Coupe/Conv. Differentiations - Ordered by 2024 Highest-Lowest
@@ -189,6 +190,37 @@ urlIdent_list_2021 = [
 
 # Manual/Auto/Coupe/Conv. Differentiations - Ordered by 2020 Highest-Lowest
 urlIdent_list_2020 = [
+    "B1RS",
+    "B1RX",
+    "H1R7",
+    "F1R7",
+    "B3DX",
+    "H3D7",
+    "B3DS",
+    "E1R7",
+    "D1RS",
+    "K1R6",
+    "G1R7",
+    "A1RX",
+    "D3DS",
+    "J1R6",
+    "A1RS",
+    "F3D7",
+    "D1RX",
+    "K3D6",
+    "G3D7",
+    "C1RS",
+    "D3DX",
+    "E3D7",
+    "J3D6",
+    "A3DS",
+    "C1RX",
+    "C3DS",
+    "A3DX",
+    "C3DX"
+]
+
+urlIdent_list_2019 = [
     "B1RS",
     "B1RX",
     "H1R7",
