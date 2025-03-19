@@ -120,7 +120,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
             continue
         try:
             # Build the URL (first half + identify trim/gear + check digit + year digit + 0 + incrementing VIN)
-            matchedVIN = "1G1Y" + urlIdent + "X" + yearDig + "0" + str(vinChanging)
+            matchedVIN = "1G1Y" + urlIdent + "X" + yearDig + "5" + str(vinChanging)
             updated_vin = calculate_check_digit(matchedVIN)
             newUrl = urlFirst + urlIdent + updated_vin[8:11] + str(vinChanging).zfill(6)
 
@@ -180,8 +180,10 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
             break
 
 def format_time(seconds):
-    hours = int(seconds // 3600)
-    remainder = seconds % 3600
+    days = int(seconds // 86400)
+    remainder = seconds % 86400
+    hours = int(remainder // 3600)
+    remainder %= 3600
     minutes = int(remainder // 60)
     seconds = int(remainder % 60)
 
@@ -189,6 +191,12 @@ def format_time(seconds):
         minutes += 1
     
     time_parts = []
+    
+    if days == 1:
+        time_parts.append(f"{days} day")
+    elif days > 1:
+        time_parts.append(f"{days} days")
+    
     if hours == 1:
         time_parts.append(f"{hours} hour")
     elif hours > 1:
@@ -200,6 +208,7 @@ def format_time(seconds):
         time_parts.append(f"{minutes} minutes")
     
     return ", ".join(time_parts) if time_parts else "< 1 minute"
+
 
 while True:
     vinChanging_input = input('Enter last 6 numbers of the VIN to start at:\n')
@@ -215,7 +224,26 @@ while True:
         break
     else:
         print("Please enter a valid 6-digit number.")
-if int(year) >= 2024:
+if int(year) == 2019:
+    while True:
+        zr1 = input('ZR1? (Y/N)\n').strip().lower()
+
+        if zr1 == "y":
+            tempName = f"urlIdent_2019_zr1_list"
+            urlChosenList = globals()[tempName]
+            break
+        elif zr1 == "n":
+            z06 = input('Z06? (Y/N)\n').strip().lower()
+
+            if z06 == "y":
+                tempName = f"urlIdent_2019_z06_list"
+                urlChosenList = globals()[tempName]
+                break
+            urlChosenList = urlIdent_2019_list
+            break
+        else:
+            print("Please enter Y or N.")
+elif int(year) >= 2024:
     while True:
         eray = input('Run as E-Ray? (Y/N)\n').strip().lower()
 
@@ -257,16 +285,22 @@ elif int(year) >= 2025:
 else:
     urlChosenList = urlIdent_list
 
-totalVIN = int(endVIN_input) - int(vinChanging_input)
+urlList = len(urlChosenList)
+
+totalVIN = ((int(endVIN_input) + 1) - int(vinChanging_input)) * int(urlList)
+
 totalIdent = 1
 foundVIN = 0
 testedVIN = 0
+
+estTime = totalVIN * 2
+estTime = format_time(estTime)
+print(f"ETA: {estTime}")
 
 startTime = time.time()
 
 # Process request through all variations of trim/gears
 for urlIdent in urlChosenList:
-    urlList = len(urlChosenList)
     print(f"Testing configuration ({str(totalIdent)}/{str(urlList)}): {urlIdent} -------------------------------")
     processVin(urlIdent, vinChanging, endVIN, yearDig)
     print("")
@@ -277,5 +311,6 @@ elapsedTime = endTime - startTime
 time_str = format_time(elapsedTime)
 currentTime = time.strftime("%H:%M:%S", time.localtime())
 
-print(f"Ended: {currentTime} - Elapsed time: {time_str}")
+print(f"Ended: {currentTime}")
+print(f"Estimated time: {estTime} - Elapsed time: {time_str}")
 print(f"Tested {testedVIN}/{totalVIN} VIN(s) - Found {foundVIN} match(es)")
