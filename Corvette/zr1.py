@@ -67,7 +67,8 @@ engine = ["7"]
 check_digit = ["X"]
 modelYear = ["S"]
 assembly_plant = ["5"]
-sequence = ["200001", "300001", "400001", "700001", "800001", "900001"]
+#OLDsequence = ["200001", "300001", "400001", "700001", "800001", "900001"]
+sequence = ["800001"]
 
 # Generating all combinations
 combinations = list(itertools.product(part1, equipment, body, safety, engine, check_digit, modelYear, assembly_plant, sequence))

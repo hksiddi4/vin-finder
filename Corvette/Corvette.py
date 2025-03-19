@@ -44,7 +44,7 @@ def extractInfo(text, updated_vin):
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
     
     info = {
-        "vin": vin,
+        "vin": updated_vin,
         "model": "CORVETTE",
         "drivetrain": "RWD",
         "body": "COUPE"

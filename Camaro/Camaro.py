@@ -3,15 +3,15 @@ import csv
 import json
 import requests
 import time
-import http.client, urllib
 from variables import *
 
 # Extract text from PDF -------------------------------------------------------------------------
 def extractPDF(contentsByte, updated_vin):
+    pdf_path = f"{year}/temp.pdf"
     try:
-        with open(f'{year}/temp.pdf', "wb") as f:
+        with open(pdf_path, "wb") as f:
             f.write(contentsByte)
-        doc = fitz.open(f'{year}/temp.pdf')
+        doc = fitz.open(pdf_path)
         text = ""
         if len(doc) > 0:
             if len(doc) > 1:
@@ -25,8 +25,7 @@ def extractPDF(contentsByte, updated_vin):
         return None
 
 def extractInfo(text, updated_vin):
-    global year
-    global foundVIN
+    global year, foundVIN
     
     if text is None:
         print("Received None text. Skipping this VIN.")
@@ -116,8 +115,7 @@ def writeCSV(pdf_info):
 
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
-    global totalVIN
-    global foundVIN
+    global testedVIN
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G1F"
 
     # Keep going until a specific stopping point
@@ -162,7 +160,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
 
                         # Increment VIN by 1
                         vinChanging += 1
-                        totalVIN += 1
+                        testedVIN += 1
                         break
 
                     except requests.exceptions.ReadTimeout:
@@ -192,6 +190,28 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
             except KeyboardInterrupt:
                 break
 
+def format_time(seconds):
+    hours = int(seconds // 3600)
+    remainder = seconds % 3600
+    minutes = int(remainder // 60)
+    seconds = int(remainder % 60)
+
+    if seconds >= 30:
+        minutes += 1
+    
+    time_parts = []
+    if hours == 1:
+        time_parts.append(f"{hours} hour")
+    elif hours > 1:
+        time_parts.append(f"{hours} hours")
+    
+    if minutes == 1:
+        time_parts.append(f"{minutes} minute")
+    elif minutes > 1:
+        time_parts.append(f"{minutes} minutes")
+    
+    return ", ".join(time_parts) if time_parts else "< 1 minute"
+
 while True:
     vinChanging_input = input('Enter last 6 numbers of the VIN to start at:\n')
     if vinChanging_input.isdigit() and len(vinChanging_input) == 6:
@@ -207,9 +227,10 @@ while True:
     else:
         print("Please enter a valid 6-digit number.")
 
-totalVIN = 0
+totalVIN = int(endVIN_input) - int(vinChanging_input)
+totalIdent = 1
 foundVIN = 0
-i = 1
+testedVIN = 0
 
 startTime = time.time()
 
@@ -219,21 +240,12 @@ for urlIdent in chosenList:
     print("Testing configuration (" + str(i) + "/" + str(urlList) + "): " + urlIdent + " -------------------------------")
     processVin(urlIdent, vinChanging, endVIN, yearDig)
     print("")
-    i += 1
+    totalIdent += 1
 
 endTime = time.time()
 elapsedTime = endTime - startTime
-elapsedTime = round(elapsedTime,1)
+time_str = format_time(elapsedTime)
+currentTime = time.strftime("%H:%M:%S", time.localtime())
 
-hours = int(elapsedTime // 3600)
-remainder = elapsedTime % 3600
-minutes = int(remainder // 60)
-seconds = int(remainder  % 60)
-
-with open(f'{year}/time.txt', "a") as f:
-    f.write("{},{},{}\n".format(vinChanging_input, endVIN_input, elapsedTime))
-
-t = time.localtime()
-currentTime = time.strftime("%H:%M:%S", t)
-print("Ended:", currentTime, " - Elapsed time: {} hour(s), {} minute(s), {} second(s)".format(hours, minutes, seconds))
-print("Tested {} VIN(s) - Found {} match(es)".format(totalVIN, foundVIN))
+print(f"Ended: {currentTime} - Elapsed time: {time_str}")
+print(f"Tested {testedVIN}/{totalVIN} VIN(s) - Found {foundVIN} match(es)")
