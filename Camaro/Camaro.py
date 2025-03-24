@@ -114,7 +114,7 @@ def writeCSV(pdf_info):
 
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
-    global totalVIN
+    global testedVIN
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G1F"
 
     # Keep going until a specific stopping point
@@ -157,7 +157,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
 
                         # Increment VIN by 1
                         vinChanging += 1
-                        totalVIN += 1
+                        testedVIN += 1
                         break
 
                     except requests.exceptions.ReadTimeout:
@@ -222,37 +222,27 @@ while True:
     else:
         print("Please enter a valid 6-digit number.")
 
-totalVIN = (int(endVIN_input) + 1 - int(vinChanging_input)) * int(urlList)
-foundVIN = 0
-i = 1
+urlList = len(chosenList)
 
-estTime = totalVIN * 2
-time_str = format_time(estTime)
-print(f"ETA: {time_str}")
+totalVIN = ((int(endVIN_input) + 1) - int(vinChanging_input)) * int(urlList)
+totalIdent = 1
+foundVIN = 0
+testedVIN = 0
 
 startTime = time.time()
 
 # Process request through all variations of trim/gears
 for urlIdent in chosenList:
     urlList = len(chosenList)
-    print("Testing configuration (" + str(i) + "/" + str(urlList) + "): " + urlIdent + " -------------------------------")
+    print(f"Testing configuration ({str(totalIdent)}/{str(urlList)}): {urlIdent} -------------------------------")
     processVin(urlIdent, vinChanging, endVIN, yearDig)
     print("")
-    i += 1
+    totalIdent += 1
 
 endTime = time.time()
 elapsedTime = endTime - startTime
-elapsedTime = round(elapsedTime,1)
+time_str = format_time(elapsedTime)
+currentTime = time.strftime("%H:%M:%S", time.localtime())
 
-hours = int(elapsedTime // 3600)
-remainder = elapsedTime % 3600
-minutes = int(remainder // 60)
-seconds = int(remainder  % 60)
-
-with open(f'{year}/time.txt', "a") as f:
-    f.write("{},{},{}\n".format(vinChanging_input, endVIN_input, elapsedTime))
-
-t = time.localtime()
-currentTime = time.strftime("%H:%M:%S", t)
-print("Ended:", currentTime, " - Elapsed time: {} hour(s), {} minute(s), {} second(s)".format(hours, minutes, seconds))
-print("Tested {} VIN(s) - Found {} match(es)".format(totalVIN, foundVIN))
+print(f"Ended: {currentTime} - Elapsed time: {time_str}")
+print(f"Tested {testedVIN}/{totalVIN} VIN(s) - Found {foundVIN} match(es)")
