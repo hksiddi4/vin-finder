@@ -19,9 +19,15 @@ def processVin(vin):
         while retries < max_retries:
             try:
                 # Get Request
-                contentsGet = requests.get(newUrl, headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36', 'Accept-Language': 'en-US'}, timeout=120)
+                contentsGet = requests.get(newUrl, headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36', 'Accept-Language': 'en-US'}, timeout=60)
                 contents = contentsGet.text
                 time.sleep(1)
+
+                # Retry if contents is empty
+                if contents == "":
+                    print("Empty content received. Retrying...")
+                    time.sleep(3)
+                    continue
 
                 # Check if request returns errorMessage or actual content (meaning a window sticker was found)
                 try:
@@ -60,14 +66,14 @@ def processVin(vin):
 
 # Defining the ranges and parts
 part1 = ["1G1Y"]
-equipment = ["G", "H", "J"]
+equipment = ["G", "J"]
 body = ["2", "3"]
 safety = ["D"]
 engine = ["7"]
 check_digit = ["X"]
 modelYear = ["S"]
 assembly_plant = ["5"]
-#OLDsequence = ["200001", "300001", "400001", "700001", "800001", "900001"]
+#sequence = ["200001", "300001", "400001", "700001", "800001", "900001"]
 sequence = ["800001"]
 
 # Generating all combinations

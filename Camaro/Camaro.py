@@ -229,6 +229,10 @@ totalIdent = 1
 foundVIN = 0
 testedVIN = 0
 
+estTime = totalVIN * 2
+estTime = format_time(estTime)
+print(f"ETA: {estTime}")
+
 startTime = time.time()
 
 # Process request through all variations of trim/gears

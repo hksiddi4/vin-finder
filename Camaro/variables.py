@@ -14,9 +14,11 @@ colors_dict = {
     "GNW": "PANTHER BLACK MATTE",
     "GLK": "PANTHER BLACK METALLIC",
     "GBA": "BLACK",
+    "GB8": "MOSAIC BLACK METALLIC",
     "GJI": "SHADOW GRAY METALLIC",
     "G9K": "SATIN STEEL GREY METALLIC",
     "GXD": "SHARKSKIN METALLIC",
+    "GAN": "SILVER ICE METALLIC",
     "GKK": "RIVERSIDE BLUE METALLIC",
     "GJV": "RIPTIDE BLUE METALLIC",
     "GMO": "RAPID BLUE",
@@ -28,7 +30,7 @@ colors_dict = {
     "GSK": "WILD CHERRY TINTCOAT",
     "GNT": "RADIANT RED TINTCOAT",
     "G7E": "GARNET RED TINTCOAT",
-    "G7C": "RED HOT"
+    "G7C": "RED HOT",
 }
 
 engines_dict = {

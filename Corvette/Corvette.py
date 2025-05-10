@@ -23,15 +23,36 @@ def extractPDF(contentsByte, updated_vin):
     except fitz.FileDataError as e:
         return None
 
-def extractInfo(text, updated_vin):
+def validatePDF(contentsByte):
+    try:
+        # Attempt to open the PDF from the byte content
+        with fitz.open(stream=contentsByte, filetype="pdf") as doc:
+            if len(doc) == 0:
+                return False  # Empty PDF
+            text = doc[0].get_text()
+            if not text.strip():
+                return False  # No meaningful content
+        return True
+    except Exception as e:
+        print(f"PDF validation failed: {e}")
+        return False
+
+def extractInfo(text, updated_vin, contentsByte):
     global year, foundVIN
-    
+
+    # Validate PDF content before processing
+    if not validatePDF(contentsByte):
+        print(f"Invalid PDF content for VIN: {updated_vin}. Skipping this VIN.")
+        with open(f'{year}/RETRY.txt', "a") as f:
+            f.write(f"{updated_vin}\n")
+        return None
+
     if text is None:
         print("Received None text. Skipping this VIN.")
         with open(f'{year}/RETRY.txt', "a") as f:
             f.write(f"{updated_vin}\n")
         return None
-    
+
     foundVIN += 1
     # Append only the last 6 digits of the VIN to the list and file
     skip_corvette.append(updated_vin)
@@ -130,22 +151,29 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
             while retries < max_retries:
                 try:
                     # Get Request
-                    contentsGet = requests.get(newUrl, headers = {'User-Agent': 'corvette count finder', 'Accept-Language': 'en-US'}, timeout=120)
+                    contentsGet = requests.get(newUrl, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36', 'Accept-Language': 'en-US'}, timeout=120)
                     contentsByte = contentsGet.content
                     contents = contentsGet.text
                     time.sleep(1)
 
+                    # Validate PDF content
+                    if not validatePDF(contentsByte):
+                        print(f"\033[31mInvalid PDF for VIN: {updated_vin}. Retrying...\033[0m")
+                        retries += 1
+                        time.sleep(5)
+                        continue
+
                     try:
-                        # If json content found = no window sticker
+                        # If JSON content found = no window sticker
                         jsonCont = json.loads(contents)
                         print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
-                    # If request returns not a json content = window sticker found
+                    # If request returns not a JSON content = window sticker found
                     except json.decoder.JSONDecodeError:
                         with open(f"{year}/corvette_{year}.txt", "a") as f:
                             f.write(f"{updated_vin}\n")
                         print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
                         pdf_text = extractPDF(contentsByte, updated_vin)
-                        pdf_info = extractInfo(pdf_text, updated_vin)
+                        pdf_info = extractInfo(pdf_text, updated_vin, contentsByte)
                         writeCSV(pdf_info)
 
                     # Increment VIN by 1
