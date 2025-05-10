@@ -23,41 +23,10 @@ def extractPDF(contentsByte, updated_vin):
     except fitz.FileDataError as e:
         return None
 
-def validatePDF(contentsByte):
-    try:
-        # Attempt to open the PDF from the byte content
-        with fitz.open(stream=contentsByte, filetype="pdf") as doc:
-            if len(doc) == 0:
-                return False  # Empty PDF
-            text = doc[0].get_text()
-            if not text.strip():
-                return False  # No meaningful content
-        return True
-    except Exception as e:
-        print(f"PDF validation failed: {e}")
-        return False
-
-def extractInfo(text, updated_vin, contentsByte):
+def extractInfo(text, updated_vin):
     global year, foundVIN
 
-    # Validate PDF content before processing
-    if not validatePDF(contentsByte):
-        print(f"Invalid PDF content for VIN: {updated_vin}. Skipping this VIN.")
-        with open(f'{year}/RETRY.txt', "a") as f:
-            f.write(f"{updated_vin}\n")
-        return None
-
-    if text is None:
-        print("Received None text. Skipping this VIN.")
-        with open(f'{year}/RETRY.txt', "a") as f:
-            f.write(f"{updated_vin}\n")
-        return None
-
     foundVIN += 1
-    # Append only the last 6 digits of the VIN to the list and file
-    skip_corvette.append(updated_vin)
-    with open(f"{year}/skip_corvette.txt", "a") as file:
-        file.write(f"{updated_vin[-6:].zfill(6)}\n")
 
     lines = text.split('\n')
 
@@ -130,7 +99,7 @@ def writeCSV(pdf_info):
 
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
-    global testedVIN
+    global testedVIN, foundVIN
     urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G1Y"
 
     # Keep going until a specific stopping point
@@ -156,11 +125,10 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                     contents = contentsGet.text
                     time.sleep(1)
 
-                    # Validate PDF content
-                    if not validatePDF(contentsByte):
-                        print(f"\033[31mInvalid PDF for VIN: {updated_vin}. Retrying...\033[0m")
-                        retries += 1
-                        time.sleep(5)
+                    # Retry if contents is empty
+                    if contents == "":
+                        print("Empty content received. Retrying...")
+                        time.sleep(3)
                         continue
 
                     try:
@@ -173,7 +141,13 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                             f.write(f"{updated_vin}\n")
                         print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
                         pdf_text = extractPDF(contentsByte, updated_vin)
-                        pdf_info = extractInfo(pdf_text, updated_vin, contentsByte)
+                        pdf_info = extractInfo(pdf_text, updated_vin)
+                        
+                        # Append only the last 6 digits of the VIN to the list and file
+                        skip_corvette.append(int(updated_vin[-6:]))
+                        with open(f"{year}/skip_corvette.txt", "a") as file:
+                            file.write(f"{updated_vin[-6:].zfill(6)}\n")
+                        
                         writeCSV(pdf_info)
 
                     # Increment VIN by 1
@@ -252,6 +226,7 @@ while True:
         break
     else:
         print("Please enter a valid 6-digit number.")
+urlChosenList = None
 if int(year) == 2019:
     while True:
         zr1 = input('ZR1? (Y/N)\n').strip().lower()
@@ -271,33 +246,7 @@ if int(year) == 2019:
             break
         else:
             print("Please enter Y or N.")
-elif int(year) >= 2024:
-    while True:
-        eray = input('Run as E-Ray? (Y/N)\n').strip().lower()
-
-        if eray == "y":
-            tempName = f"urlIdent_eray_list"
-            urlChosenList = globals()[tempName]
-            break
-        elif eray == "n":
-            urlChosenList = urlIdent_list
-            break
-        else:
-            print("Please enter Y or N.")
-elif int(year) >= 2023:
-    while True:
-        z06 = input('Run as Z06? (Y/N)\n').strip().lower()
-
-        if z06 == "y":
-            tempName = f"urlIdent_z06_list"
-            urlChosenList = globals()[tempName]
-            break
-        elif z06 == "n":
-            urlChosenList = urlIdent_list
-            break
-        else:
-            print("Please enter Y or N.")
-elif int(year) >= 2025:
+if int(year) >= 2025:
     while True:
         zr1 = input('Run as ZR1? (Y/N)\n').strip().lower()
 
@@ -310,7 +259,33 @@ elif int(year) >= 2025:
             break
         else:
             print("Please enter Y or N.")
-else:
+if int(year) >= 2024:
+    while True:
+        eray = input('Run as E-Ray? (Y/N)\n').strip().lower()
+
+        if eray == "y":
+            tempName = f"urlIdent_eray_list"
+            urlChosenList = globals()[tempName]
+            break
+        elif eray == "n":
+            urlChosenList = urlIdent_list
+            break
+        else:
+            print("Please enter Y or N.")
+if int(year) >= 2023:
+    while True:
+        z06 = input('Run as Z06? (Y/N)\n').strip().lower()
+
+        if z06 == "y":
+            tempName = f"urlIdent_z06_list"
+            urlChosenList = globals()[tempName]
+            break
+        elif z06 == "n":
+            urlChosenList = urlIdent_list
+            break
+        else:
+            print("Please enter Y or N.")
+if urlChosenList is None:
     urlChosenList = urlIdent_list
 
 urlList = len(urlChosenList)

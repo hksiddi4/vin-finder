@@ -29,7 +29,6 @@ def processVin(vin):
                     time.sleep(3)
                     continue
 
-                # Check if request returns errorMessage or actual content (meaning a window sticker was found)
                 try:
                     # If json content found = no window sticker
                     jsonCont = json.loads(contents)
@@ -74,7 +73,7 @@ check_digit = ["X"]
 modelYear = ["S"]
 assembly_plant = ["5"]
 #sequence = ["200001", "300001", "400001", "700001", "800001", "900001"]
-sequence = ["800001"]
+sequence = ["800001", "800002", "800003", "800004", "800005", "800006", "800007", "800008"]
 
 # Generating all combinations
 combinations = list(itertools.product(part1, equipment, body, safety, engine, check_digit, modelYear, assembly_plant, sequence))
