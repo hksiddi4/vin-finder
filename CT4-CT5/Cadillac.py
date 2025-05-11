@@ -24,25 +24,12 @@ def extractPDF(contentsByte, updated_vin):
         return None
 
 def extractInfo(text, updated_vin):
-    global year
-    global foundVIN
-
-    if text is None:
-        print("Received None text. Skipping this VIN.")
-        with open(f'{year}/RETRY.txt', "a") as f:
-            f.write(f"{updated_vin}\n")
-        return None
+    global year, foundVIN
     
     foundVIN += 1
-    # Append only the last 6 digits of the VIN to the list and file
-    skip_cadillac_ct6.append(updated_vin)
-    with open(f"{year}/skip_cadillac_ct6.txt", "a") as file:
-        file.write(f"{updated_vin[-6:].zfill(6)}\n")
 
     lines = text.split('\n')
-    info = {}
     
-    # Define the order of fields
     field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
     
@@ -156,6 +143,12 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                             print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
                             pdf_text = extractPDF(contentsByte, updated_vin)
                             pdf_info = extractInfo(pdf_text, updated_vin)
+
+                            # Append only the last 6 digits of the VIN to the list and file
+                            skip_cadillac_ct6.append(updated_vin)
+                            with open(f"{year}/skip_cadillac_ct6.txt", "a") as file:
+                                file.write(f"{updated_vin[-6:].zfill(6)}\n")
+
                             writeCSV(pdf_info)
                         # Increment VIN by 1
                         vinChanging += 1

@@ -27,9 +27,9 @@ def extractPDF(contentsByte, updated_vin):
 def extractInfo(text, updated_vin, model):
     parser_registry = {
         "corvette": parse_corvette,
+        "ct4": parse_ct,
+        "ct5": parse_ct,
         #"camaro": parse_camaro,
-        #"ct4": parse_ct4,
-        #"ct5": parse_ct5,
     }
 
     parser = parser_registry.get(model.lower())
@@ -38,70 +38,6 @@ def extractInfo(text, updated_vin, model):
         return parser(text, updated_vin)
     else:
         raise ValueError(f"Unsupported model: {model}")
-
-def parse_corvette(text, updated_vin):
-    global year, foundVIN
-
-    foundVIN += 1
-
-    lines = text.split('\n')
-
-    field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
-                   "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
-    
-    info = {
-        "vin": updated_vin,
-        "model": "CORVETTE",
-        "drivetrain": "RWD",
-        "body": "COUPE"
-    }
-
-    for i, line in enumerate(lines):
-        if "PRICE*" in line:
-            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(" ","").replace(".00","")
-        if "DELIVERED" in line:
-            json_data = ' '.join(lines[i + 7:i + 11])
-            all_json = json.loads(json_data)
-            all_json["Options"] = [option for option in all_json["Options"] if option]
-            info.update({
-                "dealer": lines[i + 1].strip().replace("\u2013", "-"),
-                "location": lines[i + 3].strip(),
-                "json": all_json,
-                "all_rpos": all_json["Options"],
-                "ordernum": all_json["order_number"],
-                "year": all_json["model_year"]
-            })
-            mmc_code = all_json["mmc_code"].replace(' ','')
-            all_json["sitedealer_code"] = all_json["sitedealer_code"].replace(' ','')
-
-            for item in info["all_rpos"]:
-                if item in body_dict:
-                    info["body"] = body_dict[item]
-                if item in colors_dict:
-                    info["exterior_color"] = colors_dict[item]
-                if item in engines_dict:
-                    info["engine"] = engines_dict[item]
-                if item in trans_dict:
-                    info["transmission"] = trans_dict[item]
-                if item in trim_dict:
-                    info["trim"] = trim_dict[item]
-                if item == "HP1":
-                    info["drivetrain"] = "AWD"
-            if mmc_code in mmc:
-                info["model"] = mmc[mmc_code]
-                if mmc_code == "1YG07" or mmc_code == "1YG67":
-                    info["drivetrain"] = "AWD"
-    
-    # Reorder the fields
-    info_ordered = {field: info.get(field, None) for field in field_order}
-
-    # Check for missing fields
-    missing_fields = [field for field, value in info_ordered.items() if value is None]
-    if missing_fields:
-        with open(f'{path}/missing_info.txt', "a") as f:
-            f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
-    
-    return info_ordered
 
 def writeCSV(pdf_info):
     global year
@@ -195,6 +131,130 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                 continue
         except KeyboardInterrupt:
             break
+
+def parse_corvette(text, updated_vin):
+    global year, foundVIN
+
+    foundVIN += 1
+
+    lines = text.split('\n')
+
+    field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
+                   "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
+    
+    info = {
+        "vin": updated_vin,
+        "model": "CORVETTE",
+        "drivetrain": "RWD",
+        "body": "COUPE"
+    }
+
+    for i, line in enumerate(lines):
+        if "PRICE*" in line:
+            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(" ","").replace(".00","")
+        if "DELIVERED" in line:
+            json_data = ' '.join(lines[i + 7:i + 11])
+            all_json = json.loads(json_data)
+            all_json["Options"] = [option for option in all_json["Options"] if option]
+            info.update({
+                "dealer": lines[i + 1].strip().replace("\u2013", "-"),
+                "location": lines[i + 3].strip(),
+                "json": all_json,
+                "all_rpos": all_json["Options"],
+                "ordernum": all_json["order_number"],
+                "year": all_json["model_year"]
+            })
+            mmc_code = all_json["mmc_code"].replace(' ','')
+            all_json["sitedealer_code"] = all_json["sitedealer_code"].replace(' ','')
+
+            for item in info["all_rpos"]:
+                if item in body_dict:
+                    info["body"] = body_dict[item]
+                if item in colors_dict:
+                    info["exterior_color"] = colors_dict[item]
+                if item in engines_dict:
+                    info["engine"] = engines_dict[item]
+                if item in trans_dict:
+                    info["transmission"] = trans_dict[item]
+                if item in trim_dict:
+                    info["trim"] = trim_dict[item]
+                if item == "HP1":
+                    info["drivetrain"] = "AWD"
+            if mmc_code in mmc:
+                info["model"] = mmc[mmc_code]
+                if mmc_code == "1YG07" or mmc_code == "1YG67":
+                    info["drivetrain"] = "AWD"
+    
+    # Reorder the fields
+    info_ordered = {field: info.get(field, None) for field in field_order}
+
+    # Check for missing fields
+    missing_fields = [field for field, value in info_ordered.items() if value is None]
+    if missing_fields:
+        with open(f'{path}/missing_info.txt', "a") as f:
+            f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
+    
+    return info_ordered
+
+def parse_ct(text, updated_vin):
+    global year, foundVIN
+    
+    foundVIN += 1
+
+    lines = text.split('\n')
+    
+    field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
+                   "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
+    
+    info = {
+        "vin": updated_vin,
+        "body": "SEDAN"
+    }
+    
+    for i, line in enumerate(lines):
+        if any(f"{year} {suffix}" in line for suffix in ["CT6 "]):
+            model_info = ' '.join(line.strip().split())
+            model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE", "LUXURY").replace("SERIE V", "V-SERIES").replace("SERIE-V", "V-SERIES")
+            modeltrim = model_info[4:].strip().split()
+            info["model"] = modeltrim[0]
+            info["trim"] = ' '.join(modeltrim[1:]).replace(" AWD", "").replace("3.6L ", "").replace("3,6L LUXURY A TI", "LUXURY")
+        if "PRICE*" in line:
+            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(" ","").replace(".00","")
+        if "DELIVERED" in line:
+            json_data = ' '.join(lines[i + 7:i + 11])
+            all_json = json.loads(json_data)
+            all_json["Options"] = [option for option in all_json["Options"] if option]
+            info.update({
+                "dealer": lines[i + 1].strip().replace("\u2013", "-"),
+                "location": lines[i + 3].strip(),
+                "json": all_json,
+                "all_rpos": all_json["Options"],
+                "ordernum": all_json["order_number"],
+                "year": all_json["model_year"]
+            })
+            all_json["mmc_code"] = all_json["mmc_code"].replace(' ','')
+            all_json["sitedealer_code"] = all_json["sitedealer_code"].replace(' ','')
+
+            for item in info["all_rpos"]:
+                if item in colors_dict:
+                    info["exterior_color"] = colors_dict[item]
+                if item in engines_dict:
+                    info["engine"] = engines_dict[item]
+                if item in trans_dict:
+                    info["transmission"] = trans_dict[item]
+                if item in ext_dict:
+                    info["drivetrain"] = ext_dict[item]
+    
+    # Reorder the fields
+    info_ordered = {field: info.get(field, None) for field in field_order}
+
+    # Check for missing fields
+    missing_fields = [field for field, value in info_ordered.items() if value is None]
+    if missing_fields:
+        with open(f'{year}/missing_info.txt', "a") as f:
+            f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
+    
+    return info_ordered
 
 urlChosenList = None
 while True:
