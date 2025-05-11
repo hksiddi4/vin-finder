@@ -173,7 +173,6 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
             else:
                 print(f"Error: {e}")
                 print("Skipping this VIN.")
-                # Write VIN to RETRY.txt file
                 with open(f'{year}/RETRY.txt', "a") as f:
                     f.write(f"{updated_vin}\n")
                 vinChanging += 1

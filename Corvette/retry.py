@@ -21,27 +21,14 @@ def extractPDF(contentsByte, vin):
             page = doc.load_page(0)
             text = page.get_text()
         doc.close()
-        return text if text.strip() else None
-    except Exception as e:
-        print(f"Exception: {e}")
-        with open(f"{year}/RETRY.txt", "a") as f:
-            f.write(f"{vin}\n")
+        return text
+    except fitz.FileDataError as e:
         return None
 
 def extractInfo(text, vin):
     global year, foundVIN
 
-    if text is None:
-        print("Received None text. Skipping this VIN.")
-        with open(f"{year}/RETRY.txt", "a") as f:
-            f.write(f"{vin}\n")
-        return None
-
     foundVIN += 1
-    # Append only the last 6 digits of the VIN to the list and file
-    skip_corvette.append(int(vin[-6:]))
-    with open(f"{year}/skip_corvette.txt", "a") as file:
-        file.write(f"{vin[-6:]}\n")
 
     lines = text.split('\n')
 
@@ -128,7 +115,12 @@ def processVin(vin):
                 contents = contentsGet.text
                 time.sleep(1)
 
-                # Check if request returns errorMessage or actual content (meaning a window sticker was found)
+                # Retry if contents is empty
+                if contents == "":
+                    print("Empty content received. Retrying...")
+                    time.sleep(3)
+                    continue
+
                 try:
                     # If json content found = no window sticker
                     jsonCont = json.loads(contents)
@@ -139,9 +131,13 @@ def processVin(vin):
                         f.write(f"{vin}\n")
                     print("\033[33mMatch Found For VIN: [" + vin + "].\033[0m")
                     pdf_text = extractPDF(contentsByte, vin)
-                    if pdf_text is None:
-                        return
                     pdf_info = extractInfo(pdf_text, vin)
+
+                    # Append only the last 6 digits of the VIN to the list and file
+                    skip_corvette.append(int(vin[-6:]))
+                    with open(f"{year}/skip_corvette.txt", "a") as file:
+                        file.write(f"{vin[-6:]}\n")
+                    
                     writeCSV(pdf_info)
                 break
 
