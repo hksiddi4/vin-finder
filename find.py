@@ -24,7 +24,22 @@ def extractPDF(contentsByte, updated_vin):
     except fitz.FileDataError as e:
         return None
 
-def extractInfo(text, updated_vin):
+def extractInfo(text, updated_vin, model):
+    parser_registry = {
+        "corvette": parse_corvette,
+        #"camaro": parse_camaro,
+        #"ct4": parse_ct4,
+        #"ct5": parse_ct5,
+    }
+
+    parser = parser_registry.get(model.lower())
+
+    if parser:
+        return parser(text, updated_vin)
+    else:
+        raise ValueError(f"Unsupported model: {model}")
+
+def parse_corvette(text, updated_vin):
     global year, foundVIN
 
     foundVIN += 1
@@ -94,7 +109,7 @@ def writeCSV(pdf_info):
         return
     fieldnames = pdf_info.keys()
 
-    with open(f"{path}/{year}_corvette.csv", "a", newline='') as csvfile:
+    with open(f"{path}/{year}_{model.lower()}.csv", "a", newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writerow(pdf_info)
 
@@ -142,7 +157,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                             f.write(f"{updated_vin}\n")
                         print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
                         pdf_text = extractPDF(contentsByte, updated_vin)
-                        pdf_info = extractInfo(pdf_text, updated_vin)
+                        pdf_info = extractInfo(pdf_text, updated_vin, model)
                         
                         # Append only the last 6 digits of the VIN to the list and file
                         skip_corvette.append(int(updated_vin[-6:]))
