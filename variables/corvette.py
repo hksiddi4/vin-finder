@@ -175,20 +175,20 @@ urlIdent_z06_list = [
     "F3D3"
 ]
 
-urlIdent__eray_list = [
-    "K2D4",
-    "K3D4",
-    "L2D4",
-    "L3D4",
-    "M2D4",
-    "M3D4"
+urlIdent_eray_list = [ # Ordered by most-least production
+    "M2D4", # 3LZ Coupe
+    "M3D4", # 3LZ Conv.
+    "L2D4", # 2LZ Coupe
+    "L3D4", # 2LZ Conv.
+    "K2D4", # 1LZ Coupe
+    "K3D4", # 1LZ Conv.
 ]
 
-urlIdent__zr1_list = [
-    "?2D7",
-    "?3D7",
-    "J2D7",
-    "J3D7"
+urlIdent_zr1_list = [
+    "G2D7", # 1LZ Coupe
+    "G3D7", # 1LZ Conv.
+    "J2D7", # 3LZ Coupe
+    "J3D7", # 3LZ Conv.
 ]
 
 while True:

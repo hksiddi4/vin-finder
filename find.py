@@ -265,18 +265,17 @@ while True:
                 zr1 = input('ZR1? (Y/N)\n').strip().lower()
 
                 if zr1 == "y":
-                    tempName = f"urlIdent_2019_zr1_list"
-                    urlChosenList = globals()[tempName]
+                    urlChosenList = globals()["urlIdent_2019_zr1_list"]
                     break
                 elif zr1 == "n":
                     z06 = input('Z06? (Y/N)\n').strip().lower()
 
                     if z06 == "y":
-                        tempName = f"urlIdent_2019_z06_list"
-                        urlChosenList = globals()[tempName]
+                        urlChosenList = globals()["urlIdent_2019_z06_list"]
                         break
-                    urlChosenList = urlIdent_2019_list
-                    break
+                    elif z06 == "n":
+                        urlChosenList = globals()["urlIdent_2019_list"]
+                        break
                 else:
                     print("Please enter Y or N.")
         if int(year) >= 2025:
@@ -284,11 +283,9 @@ while True:
                 zr1 = input('Run as ZR1? (Y/N)\n').strip().lower()
 
                 if zr1 == "y":
-                    tempName = f"urlIdent_zr1_list"
-                    urlChosenList = globals()[tempName]
+                    urlChosenList = globals()["urlIdent_zr1_list"]
                     break
                 elif zr1 == "n":
-                    urlChosenList = urlIdent_list
                     break
                 else:
                     print("Please enter Y or N.")
@@ -297,11 +294,9 @@ while True:
                 eray = input('Run as E-Ray? (Y/N)\n').strip().lower()
 
                 if eray == "y":
-                    tempName = f"urlIdent_eray_list"
-                    urlChosenList = globals()[tempName]
+                    urlChosenList = globals()["urlIdent_eray_list"]
                     break
                 elif eray == "n":
-                    urlChosenList = urlIdent_list
                     break
                 else:
                     print("Please enter Y or N.")
@@ -310,11 +305,9 @@ while True:
                 z06 = input('Run as Z06? (Y/N)\n').strip().lower()
 
                 if z06 == "y":
-                    tempName = f"urlIdent_z06_list"
-                    urlChosenList = globals()[tempName]
+                    urlChosenList = globals()["urlIdent_z06_list"]
                     break
                 elif z06 == "n":
-                    urlChosenList = urlIdent_list
                     break
                 else:
                     print("Please enter Y or N.")
