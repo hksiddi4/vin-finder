@@ -86,16 +86,6 @@ mmc_2020 = {
     "1YG67": "CORVETTE E-RAY"
 }
 
-years = {
-    '2025': 'S',
-    '2024': 'R',
-    '2023': 'P',
-    '2022': 'N',
-    '2021': 'M',
-    '2020': 'L',
-    '2019': 'K'
-}
-
 urlIdent_2019_list = [
     "A2D7",
     "A3D7",
@@ -190,19 +180,6 @@ urlIdent_zr1_list = [
     "J2D7", # 3LZ Coupe
     "J3D7", # 3LZ Conv.
 ]
-
-while True:
-    year = input('Enter year to test:\n')
-
-    if year in years:
-        yearDig = years[year]
-        if year == '2019':
-            mmc = mmc_2019
-        else:
-            mmc = mmc_2020
-        break
-    else:
-        print("Invalid year.")
 
 with open(f'Corvette/{year}/skip_corvette.txt', 'r') as file:
     skip_corvette = [int(line.strip()) for line in file if line.strip().isdigit()]

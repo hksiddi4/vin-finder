@@ -3,8 +3,8 @@ import csv
 import json
 import requests
 import time
+import importlib
 from variables.universal import *
-from variables.corvette import *
 
 def extractPDF(contentsByte, updated_vin):
     pdf_path = f"{path}/temp.pdf"
@@ -52,17 +52,27 @@ def writeCSV(pdf_info):
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
     global testedVIN, foundVIN
-    urlFirst = "https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin=1G1Y"
+    if model == "CORVETTE":
+        startVIN = "1G1Y"
+        skipping = "skip_corvette"
+    elif model in ("CT4", "CT5"):
+        startVIN = "1G6D"
+        skipping = "skip_cadillac"
+    elif model == "CT6":
+        startVIN = "1G6K"
+        skipping = "skip_cadillac_ct6"
+
+    urlFirst = f"https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin={startVIN}"
 
     # Keep going until a specific stopping point
     while vinChanging <= endVIN:
-        if vinChanging in skip_corvette:
+        if vinChanging in {skipping}:
             print("\033[30mExisting sequence, skipping\033[0m")
             vinChanging += 1
             continue
         try:
             # Build the URL (first half + identify trim/gear + check digit + year digit + 0 + incrementing VIN)
-            matchedVIN = "1G1Y" + urlIdent + "X" + yearDig + "5" + str(vinChanging)
+            matchedVIN = {startVIN} + urlIdent + "X" + yearDig + "5" + str(vinChanging)
             updated_vin = calculate_check_digit(matchedVIN)
             newUrl = urlFirst + urlIdent + updated_vin[8:11] + str(vinChanging).zfill(6)
 
@@ -96,8 +106,8 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                         pdf_info = extractInfo(pdf_text, updated_vin, model)
                         
                         # Append only the last 6 digits of the VIN to the list and file
-                        skip_corvette.append(int(updated_vin[-6:]))
-                        with open(f"{path}/skip_corvette.txt", "a") as file:
+                        skipping.append(int(updated_vin[-6:]))
+                        with open(f"{path}/{skipping}.txt", "a") as file:
                             file.write(f"{updated_vin[-6:].zfill(6)}\n")
                         
                         writeCSV(pdf_info)
@@ -256,10 +266,24 @@ def parse_ct(text, updated_vin):
     
     return info_ordered
 
-urlChosenList = None
 while True:
+    year = input('Enter year to test:\n')
+
+    if year in years:
+        yearDig = years[year]
+        if year == '2019':
+            mmc = mmc_2019 # Move this to universal.py (make universal.py a huge variables.py file instead?)
+        else:
+            mmc = mmc_2020
+        break
+    else:
+        print("Invalid year.")
+
+urlChosenList = None
+while True: # urlChosenList
     model = input('Enter model to use:\n')
     if model.upper() == "CORVETTE":
+        var_module = importlib.import_module("variables.corvette")
         if int(year) == 2019:
             while True:
                 zr1 = input('ZR1? (Y/N)\n').strip().lower()
@@ -314,11 +338,17 @@ while True:
         if urlChosenList is None:
             urlChosenList = urlIdent_list
     elif model.upper() == "CAMARO":
+        var_module = importlib.import_module("variables.camaro")
         urlChosenList = urlIdent_list # CHANGE THIS TO CAMARO IN FUTURE
     elif model.upper() == "CT4":
+        var_module = importlib.import_module("variables.ct")
         urlChosenList = urlIdent_list # CHANGE THIS TO CT4 IN FUTURE
     elif model.upper() == "CT5":
+        var_module = importlib.import_module("variables.ct")
         urlChosenList = urlIdent_list # CHANGE THIS TO CT5 IN FUTURE
+    else:
+        print("Please enter a valid model.")
+        continue
     break
 
 while True:

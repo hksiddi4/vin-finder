@@ -58,3 +58,13 @@ def format_time(seconds):
         time_parts.append(f"{minutes} minutes")
     
     return ", ".join(time_parts) if time_parts else "< 1 minute"
+
+years = {
+    '2025': 'S',
+    '2024': 'R',
+    '2023': 'P',
+    '2022': 'N',
+    '2021': 'M',
+    '2020': 'L',
+    '2019': 'K'
+}
