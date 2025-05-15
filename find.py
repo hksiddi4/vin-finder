@@ -3,8 +3,9 @@ import csv
 import json
 import requests
 import time
-import importlib
 from variables.universal import *
+from variables.corvette import *
+#from variables.ct import * - to be added in future
 
 def extractPDF(contentsByte, updated_vin):
     pdf_path = f"{path}/temp.pdf"
@@ -26,13 +27,13 @@ def extractPDF(contentsByte, updated_vin):
 
 def extractInfo(text, updated_vin, model):
     parser_registry = {
-        "corvette": parse_corvette,
-        "ct4": parse_ct,
-        "ct5": parse_ct,
+        "CORVETTE": parse_corvette,
+        "CT4": parse_ct,
+        "CT5": parse_ct,
         #"camaro": parse_camaro,
     }
 
-    parser = parser_registry.get(model.lower())
+    parser = parser_registry.get(model)
 
     if parser:
         return parser(text, updated_vin)
@@ -52,27 +53,37 @@ def writeCSV(pdf_info):
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
     global testedVIN, foundVIN
-    if model == "CORVETTE":
-        startVIN = "1G1Y"
-        skipping = "skip_corvette"
-    elif model in ("CT4", "CT5"):
-        startVIN = "1G6D"
-        skipping = "skip_cadillac"
-    elif model == "CT6":
-        startVIN = "1G6K"
-        skipping = "skip_cadillac_ct6"
+    start_vin_map = {
+        "CORVETTE": "1G1Y",
+        "CT4": "1G6D",
+        "CT5": "1G6D",
+        "CT6": "1G6K"
+    }
+    skip_file_map = {
+        "CORVETTE": f'Corvette/{year}/skip_corvette.txt',
+        "CT4": f'CT4-CT5/{year}/skip_cadillac.txt',
+        "CT5": f'CT4-CT5/{year}/skip_cadillac.txt'
+    }
+
+    startVIN = start_vin_map.get(model)
+    skip_file = skip_file_map.get(model)
+    
+    if skip_file:
+        with open(skip_file, 'r') as file:
+            skipping = [int(line.strip()) for line in file if line.strip().isdigit()]
+
 
     urlFirst = f"https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin={startVIN}"
 
     # Keep going until a specific stopping point
     while vinChanging <= endVIN:
-        if vinChanging in {skipping}:
+        if vinChanging in skipping:
             print("\033[30mExisting sequence, skipping\033[0m")
             vinChanging += 1
             continue
         try:
             # Build the URL (first half + identify trim/gear + check digit + year digit + 0 + incrementing VIN)
-            matchedVIN = {startVIN} + urlIdent + "X" + yearDig + "5" + str(vinChanging)
+            matchedVIN = startVIN + urlIdent + "X" + yearDig + "5" + str(vinChanging)
             updated_vin = calculate_check_digit(matchedVIN)
             newUrl = urlFirst + urlIdent + updated_vin[8:11] + str(vinChanging).zfill(6)
 
@@ -143,7 +154,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
             break
 
 def parse_corvette(text, updated_vin):
-    global year, foundVIN
+    global foundVIN
 
     foundVIN += 1
 
@@ -281,18 +292,17 @@ while True:
 
 urlChosenList = None
 while True: # urlChosenList
-    model = input('Enter model to use:\n')
-    if model.upper() == "CORVETTE":
-        var_module = importlib.import_module("variables.corvette")
+    model = input('Enter model to use:\n').upper()
+    if model == "CORVETTE":
         if int(year) == 2019:
             while True:
-                zr1 = input('ZR1? (Y/N)\n').strip().lower()
+                zr1 = input('ZR1? (y/n)\n').strip().lower()
 
                 if zr1 == "y":
                     urlChosenList = globals()["urlIdent_2019_zr1_list"]
                     break
                 elif zr1 == "n":
-                    z06 = input('Z06? (Y/N)\n').strip().lower()
+                    z06 = input('Z06? (y/n)\n').strip().lower()
 
                     if z06 == "y":
                         urlChosenList = globals()["urlIdent_2019_z06_list"]
@@ -301,10 +311,10 @@ while True: # urlChosenList
                         urlChosenList = globals()["urlIdent_2019_list"]
                         break
                 else:
-                    print("Please enter Y or N.")
+                    print("Please enter y or n.")
         if int(year) >= 2025:
             while True:
-                zr1 = input('Run as ZR1? (Y/N)\n').strip().lower()
+                zr1 = input('Run as ZR1? (y/n)\n').strip().lower()
 
                 if zr1 == "y":
                     urlChosenList = globals()["urlIdent_zr1_list"]
@@ -312,10 +322,10 @@ while True: # urlChosenList
                 elif zr1 == "n":
                     break
                 else:
-                    print("Please enter Y or N.")
+                    print("Please enter y or n.")
         if int(year) >= 2024:
             while True:
-                eray = input('Run as E-Ray? (Y/N)\n').strip().lower()
+                eray = input('Run as E-Ray? (y/n)\n').strip().lower()
 
                 if eray == "y":
                     urlChosenList = globals()["urlIdent_eray_list"]
@@ -323,10 +333,10 @@ while True: # urlChosenList
                 elif eray == "n":
                     break
                 else:
-                    print("Please enter Y or N.")
+                    print("Please enter y or n.")
         if int(year) >= 2023:
             while True:
-                z06 = input('Run as Z06? (Y/N)\n').strip().lower()
+                z06 = input('Run as Z06? (y/n)\n').strip().lower()
 
                 if z06 == "y":
                     urlChosenList = globals()["urlIdent_z06_list"]
@@ -334,17 +344,14 @@ while True: # urlChosenList
                 elif z06 == "n":
                     break
                 else:
-                    print("Please enter Y or N.")
+                    print("Please enter y or n.")
         if urlChosenList is None:
             urlChosenList = urlIdent_list
     elif model.upper() == "CAMARO":
-        var_module = importlib.import_module("variables.camaro")
         urlChosenList = urlIdent_list # CHANGE THIS TO CAMARO IN FUTURE
     elif model.upper() == "CT4":
-        var_module = importlib.import_module("variables.ct")
         urlChosenList = urlIdent_list # CHANGE THIS TO CT4 IN FUTURE
     elif model.upper() == "CT5":
-        var_module = importlib.import_module("variables.ct")
         urlChosenList = urlIdent_list # CHANGE THIS TO CT5 IN FUTURE
     else:
         print("Please enter a valid model.")

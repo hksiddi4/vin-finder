@@ -180,6 +180,3 @@ urlIdent_zr1_list = [
     "J2D7", # 3LZ Coupe
     "J3D7", # 3LZ Conv.
 ]
-
-with open(f'Corvette/{year}/skip_corvette.txt', 'r') as file:
-    skip_corvette = [int(line.strip()) for line in file if line.strip().isdigit()]
