@@ -306,4 +306,4 @@ currentTime = time.strftime("%H:%M:%S", time.localtime())
 
 print(f"Ended: {currentTime}")
 print(f"Estimated time: {estTime} - Elapsed time: {time_str}")
-print(f"Tested {testedVIN}/{totalVIN} VIN(s) - Found {foundVIN} match(es)")
+print(f"Tested {testedVIN}/{totalVIN} VIN(s) - Found \033[33m{foundVIN}\033[0m match(es)")
