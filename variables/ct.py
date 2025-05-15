@@ -121,33 +121,9 @@ urlIdent_list_ct45 = [
 ]
 
 # CT6
-urlIdent_list = [
+urlIdent_list_ct6 = [
     "B5RS", # Luxury / LGX
     "E5RS", # Premium Luxury / LGX
     "V5RJ", # Platinum / LTA
     "W5RJ" # V-Series / LTA
 ]
-
-while True:
-    year = input('Enter year to test:\n')
-
-    if year in years:
-        yearDig = years[year]
-        break
-    else:
-        print("Invalid year.")
-
-while True:
-    ct6 = input('CT6?\n').lower()
-    break
-
-if int(year) <= 2024 or ct6 != 'y':
-    with open(f'{year}/skip_camaro.txt', 'r') as file:
-        skip_camaro = [int(line.strip()) for line in file if line.strip().isdigit()]
-
-if ct6 != 'y':
-    with open(f'{year}/skip_cadillac.txt', 'r') as file:
-        skip_cadillac = [int(line.strip()) for line in file if line.strip().isdigit()]
-else:
-    with open(f'{year}/skip_cadillac_ct6.txt', 'r') as file:
-        skip_cadillac_ct6 = [int(line.strip()) for line in file if line.strip().isdigit()]
