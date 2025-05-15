@@ -6,6 +6,7 @@ import time
 from variables.universal import *
 from variables.corvette import *
 from variables.ct import *
+from variables.camaro import *
 
 def extractPDF(contentsByte, updated_vin):
     pdf_path = f"{path}/temp.pdf"
@@ -67,8 +68,8 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
             f'Camaro/{year}/skip_camaro.txt',
             f'CT4-CT5/{year}/skip_cadillac.txt'
         ],
-        "CORVETTE": f'Corvette/{year}/skip_corvette.txt',
-        "CT6": f'CT4-CT5/{year}/skip_cadillac_ct6.txt',
+        "CORVETTE": [f'Corvette/{year}/skip_corvette.txt'],
+        "CT6": [f'CT4-CT5/{year}/skip_cadillac_ct6.txt'],
     }
     if model in ("CAMARO", "CT4", "CT5"):
         files_to_read = skip_files_map["CAMARO_CT4_CT5"]
@@ -198,14 +199,14 @@ def parse_corvette(text, updated_vin):
             for item in info["all_rpos"]:
                 if item in body_dict:
                     info["body"] = body_dict[item]
-                if item in colors_dict:
-                    info["exterior_color"] = colors_dict[item]
+                if item in colors_dict_corvette:
+                    info["exterior_color"] = colors_dict_corvette[item]
                 if item in engines_dict:
                     info["engine"] = engines_dict[item]
                 if item in trans_dict:
                     info["transmission"] = trans_dict[item]
-                if item in trim_dict:
-                    info["trim"] = trim_dict[item]
+                if item in trim_dict_corvette:
+                    info["trim"] = trim_dict_corvette[item]
                 if item == "HP1":
                     info["drivetrain"] = "AWD"
             if mmc_code in mmc:
@@ -262,14 +263,14 @@ def parse_camaro(text, updated_vin):
             for item in info["all_rpos"]:
                 if item in body_dict:
                     info["body"] = body_dict[item]
-                if item in colors_dict:
-                    info["exterior_color"] = colors_dict[item]
+                if item in colors_dict_camaro:
+                    info["exterior_color"] = colors_dict_camaro[item]
                 if item in engines_dict:
                     info["engine"] = engines_dict[item]
                 if item in trans_dict:
                     info["transmission"] = trans_dict[item]
-                if item in trim_dict:
-                    info["trim"] = trim_dict[item]
+                if item in trim_dict_camaro:
+                    info["trim"] = trim_dict_camaro[item]
             if info.get("engine") == "2.0L Turbo, 4-cylinder, SIDI, VVT":
                 info["transmission"] = "A8"
     
@@ -324,8 +325,8 @@ def parse_ct(text, updated_vin):
             all_json["sitedealer_code"] = all_json["sitedealer_code"].replace(' ','')
 
             for item in info["all_rpos"]:
-                if item in colors_dict:
-                    info["exterior_color"] = colors_dict[item]
+                if item in colors_dict_ct:
+                    info["exterior_color"] = colors_dict_ct[item]
                 if item in engines_dict:
                     info["engine"] = engines_dict[item]
                 if item in trans_dict:
@@ -352,66 +353,47 @@ while True:
     else:
         print("Invalid year.")
 
-
 urlChosenList = None
 while True: # urlChosenList
+    while True:
+        vinChanging_input = input('Enter last 6 numbers of the VIN to start at:\n')
+        if vinChanging_input.isdigit() and len(vinChanging_input) == 6:
+            vinChanging = int(vinChanging_input)
+            break
+        else:
+            print("\033[31mPlease enter a valid 6-digit number.\033[0m\n")
+    while True:
+        endVIN_input = input('Enter last 6 numbers of the VIN to stop at:\n')
+        if endVIN_input.isdigit() and len(endVIN_input) == 6:
+            endVIN = int(endVIN_input)
+            break
+        else:
+            print("\033[31mPlease enter a valid 6-digit number.\033[0m\n")
     model = input('Enter model to use:\n').upper()
     if model == "CORVETTE":
-        mmc = mmc_2020
+        mmc = mmc_2020 if int(year) == 2019 else mmc_2020
+        start_digit = vinChanging_input[0]
         if int(year) == 2019:
-            mmc = mmc_2019
-            while True:
-                zr1 = input('ZR1? (y/n)\n').strip().lower()
-
-                if zr1 == "y":
-                    urlChosenList = globals()["urlIdent_2019_zr1_list"]
-                    break
-                elif zr1 == "n":
-                    z06 = input('Z06? (y/n)\n').strip().lower()
-
-                    if z06 == "y":
-                        urlChosenList = globals()["urlIdent_2019_z06_list"]
-                        break
-                    elif z06 == "n":
-                        urlChosenList = globals()["urlIdent_2019_list"]
-                        break
-                else:
-                    print("Please enter y or n.")
-        if int(year) >= 2025:
-            while True:
-                zr1 = input('Run as ZR1? (y/n)\n').strip().lower()
-
-                if zr1 == "y":
-                    urlChosenList = globals()["urlIdent_zr1_list"]
-                    break
-                elif zr1 == "n":
-                    break
-                else:
-                    print("Please enter y or n.")
-        if int(year) >= 2024:
-            while True:
-                eray = input('Run as E-Ray? (y/n)\n').strip().lower()
-
-                if eray == "y":
-                    urlChosenList = globals()["urlIdent_eray_list"]
-                    break
-                elif eray == "n":
-                    break
-                else:
-                    print("Please enter y or n.")
-        if int(year) >= 2023:
-            while True:
-                z06 = input('Run as Z06? (y/n)\n').strip().lower()
-
-                if z06 == "y":
-                    urlChosenList = globals()["urlIdent_z06_list"]
-                    break
-                elif z06 == "n":
-                    break
-                else:
-                    print("Please enter y or n.")
-        if urlChosenList is None:
+            if start_digit == "8":
+                urlChosenList = globals()["urlIdent_2019_zr1_list"]
+            elif start_digit == "6":
+                urlChosenList = globals()["urlIdent_2019_z06_list"]
+            elif start_digit == "1":
+                urlChosenList = globals()["urlIdent_2019_list"]
+            else:
+                print("\033[31mInvalid sequence.\033[0m\n")
+                continue
+        elif int(year) >= 2025 and start_digit == "8":
+            urlChosenList = globals()["urlIdent_zr1_list"]
+        elif int(year) >= 2024 and start_digit == "5":
+            urlChosenList = globals()["urlIdent_eray_list"]
+        elif int(year) >= 2023 and start_digit == "6":
+            urlChosenList = globals()["urlIdent_z06_list"]
+        elif start_digit == "1":
             urlChosenList = urlIdent_list
+        else:
+            print("\033[31mInvalid sequence.\033[0m\n")
+            continue
     elif model == "CAMARO" and 2020 <= int(year) <= 2024:
         urlChosenList = f"urlIdent_list_{year}"
     elif model in ("CT4", "CT5"):
@@ -419,24 +401,9 @@ while True: # urlChosenList
     elif model == "CT6":
         urlChosenList = urlIdent_list_ct6
     else:
-        print("Please enter a valid model or check the year.")
+        print("\033[31mPlease enter a valid model or check the year.\033[0m\n")
         continue
     break
-
-while True:
-    vinChanging_input = input('Enter last 6 numbers of the VIN to start at:\n')
-    if vinChanging_input.isdigit() and len(vinChanging_input) == 6:
-        vinChanging = int(vinChanging_input)
-        break
-    else:
-        print("Please enter a valid 6-digit number.")
-while True:
-    endVIN_input = input('Enter last 6 numbers of the VIN to stop at:\n')
-    if endVIN_input.isdigit() and len(endVIN_input) == 6:
-        endVIN = int(endVIN_input)
-        break
-    else:
-        print("Please enter a valid 6-digit number.")
 
 path = f"{model.capitalize()}/{year}"
 
@@ -467,4 +434,4 @@ currentTime = time.strftime("%H:%M:%S", time.localtime())
 
 print(f"Ended: {currentTime}")
 print(f"Estimated time: {estTime} - Elapsed time: {time_str}")
-print(f"Tested {testedVIN}/{totalVIN} VIN(s) - Found {foundVIN} match(es)")
+print(f"Tested {testedVIN}/{totalVIN} VIN(s) - Found Found \033[93m{foundVIN}\033[0m match(es)")

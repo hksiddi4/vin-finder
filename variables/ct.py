@@ -1,4 +1,4 @@
-colors_dict = {
+colors_dict_ct = {
     "G1W": "CRYSTAL WHITE TRICOAT",
     "G7C": "VELOCITY RED",
     "G7E": "RED OBSESSION TINTCOAT",
@@ -32,42 +32,9 @@ colors_dict = {
     "GXU": "MIDNIGHT STEEL METALLIC"
 }
 
-engines_dict = {
-    "LSY": "2.0L TURBO, 4-CYL, SIDI",
-    "LGX": "3.6L V6, DI, VVT",
-    "L3B": "2.7L TURBO",
-    "LGY": "3.0L TWIN TURBO V6, SIDI",
-    "LF4": "3.6L V6 TWIN TURBO SIDI, DOHC, VVT",
-    "LT4": "6.2L SUPERCHARGED V8",
-    "LTA": "4.2L, V8, TWIN TURBO"
-}
-
-trans_dict = {
-    "M5N": "A8",
-    "MHA": "A8",
-    "MG9": "M6",
-    "MJK": "M6",
-    "MHS": "A10",
-    "MHS": "A10",
-    "MHU": "A10",
-    "MHW": "A10",
-    "MHX": "A10",
-    "MQ2": "A10",
-    "MQA": "A10"
-}
-
 ext_dict = {
     "F46": "AWD",
     "RWL": "RWD"
-}
-
-years = {
-    '2025': 'S',
-    '2024': 'R',
-    '2023': 'P',
-    '2022': 'N',
-    '2021': 'M',
-    '2020': 'L'
 }
 
 urlIdent_blackwing_list_2022 = [

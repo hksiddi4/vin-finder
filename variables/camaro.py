@@ -1,4 +1,4 @@
-colors_dict = {
+colors_dict_camaro = {
     "GAZ": "SUMMIT WHITE",
     "GNW": "PANTHER BLACK MATTE",
     "GLK": "PANTHER BLACK METALLIC",
@@ -22,23 +22,7 @@ colors_dict = {
     "G7C": "RED HOT",
 }
 
-engines_dict = {
-    "LTG": "2.0L Turbo, 4-cylinder, SIDI, VVT",
-    "LGX": "3.6L V6, DI, VVT",
-    "LT1": "6.2L (376 ci) V8 DI",
-    "LT4": "6.2L SUPERCHARGED V8"
-}
-
-body_dict = {
-    "CM8": "CONVERTIBLE"
-}
-
-trans_dict = {
-    "MN6": "M6",
-    "MX0": "A10"
-}
-
-trim_dict = {
+trim_dict_camaro = {
     "ZL1": "ZL1",
     "2SS": "2SS",
     "1SS": "1SS",

@@ -68,3 +68,46 @@ years = {
     '2020': 'L',
     '2019': 'K'
 }
+
+engines_dict = {
+    "L3B": "2.7L TURBO",
+    "LF4": "3.6L V6 TWIN TURBO SIDI, DOHC, VVT",
+    "LGX": "3.6L V6, DI, VVT",
+    "LGY": "3.0L TWIN TURBO V6, SIDI",
+    "LSY": "2.0L TURBO, 4-CYL, SIDI",
+    "LT1": "6.2L (376 ci) V8 DI",
+    "LT2": "6.2L V8 DI",
+    "LT4": "6.2L SUPERCHARGED V8",
+    "LT5": "6.2L SUPERCHARGED V8 TPI",
+    "LT6": "5.5L V8 DI",
+    "LT7": "5.5L (335 ci) Twin-Turbo V8",
+    "LTA": "4.2L, V8, TWIN TURBO",
+    "LTG": "2.0L Turbo, 4-cylinder, SIDI, VVT",
+}
+
+trans_dict = {
+    "M1L": "DCT8",
+    "M1M": "DCT8",
+    "M5N": "A8",
+    "M5U": "A8",
+    "MEK": "M7",
+    "MEL": "M7",
+    "MEP": "M7",
+    "MG9": "M6",
+    "MHA": "A8",
+    "MHS": "A10",
+    "MHU": "A10",
+    "MHW": "A10",
+    "MHX": "A10",
+    "MJK": "M6",
+    "MLH": "DCT8",
+    "MN6": "M6",
+    "MQ2": "A10",
+    "MQA": "A10",
+    "MX0": "A10",
+}
+
+body_dict = {
+    "CM8": "CONVERTIBLE",
+    "CM9": "CONVERTIBLE",
+}

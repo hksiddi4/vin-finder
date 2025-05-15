@@ -1,4 +1,4 @@
-colors_dict = {
+colors_dict_corvette = {
     "G1E": "LONG BEACH RED METALLIC",
     "G1W": "WHITE PEARL METALLIC TRICOAT",
     "G26": "SEBRING ORANGE",
@@ -28,32 +28,7 @@ colors_dict = {
     "GXL": "HYSTERIA PURPLE METALLIC",
 }
 
-engines_dict = {
-    "LT1": "6.2L (376 ci) V8 DI",
-    "LT2": "6.2L V8 DI",
-    "LT4": "6.2L SUPERCHARGED V8",
-    "LT5": "6.2L SUPERCHARGED V8 TPI",
-    "LT6": "5.5L V8 DI",
-    "LT7": "5.5L (335 ci) Twin-Turbo V8"
-}
-
-body_dict = {
-    "CM8": "CONVERTIBLE",
-    "CM9": "CONVERTIBLE"
-}
-
-trans_dict = {
-    "M1L": "DCT8",
-    "M1M": "DCT8",
-    "MLH": "DCT8",
-    # 2019
-    "M5U": "A8",
-    "MEK": "M7",
-    "MEL": "M7",
-    "MEP": "M7"
-}
-
-trim_dict = {
+trim_dict_corvette = {
     "3ZR": "3ZR",
     "1ZR": "1ZR",
     "3LZ": "3LZ",
