@@ -1,3 +1,0 @@
-1G1YB2D45S5100213 - year,trim,engine,transmission,exterior_color,dealer,location,ordernum,json,all_rpos
-1G1YM2D41S5500733 - year,trim,engine,transmission,exterior_color,dealer,location,ordernum,json,all_rpos
-1G1YB2D43S5100775 - year,trim,engine,transmission,exterior_color,dealer,location,ordernum,json,all_rpos
