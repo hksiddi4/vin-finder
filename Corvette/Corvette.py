@@ -6,7 +6,7 @@ import time
 from variables import *
 
 def extractPDF(contentsByte, updated_vin):
-    pdf_path = f"{year}/temp.pdf"
+    pdf_path = f"{year}/temp1.pdf"
     try:
         with open(pdf_path, "wb") as f:
             f.write(contentsByte)

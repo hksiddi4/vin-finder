@@ -178,12 +178,12 @@ urlIdent_list = [
 ]
 
 urlIdent_z06_list = [
-    "D2D3",
-    "D3D3",
-    "E2D3",
-    "E3D3",
-    "F2D3",
-    "F3D3"
+    "F3D3", # 3LZ Conv.
+    "F2D3", # 3LZ Coupe
+    "E2D3", # 2LZ Coupe
+    "D2D3", # 1LZ Coupe
+    "E3D3", # 2LZ Conv.
+    "D3D3", # 1LZ Conv.
 ]
 
 urlIdent_eray_list = [ # Ordered by most-least production
