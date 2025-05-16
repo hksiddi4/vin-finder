@@ -3,6 +3,7 @@ import csv
 import json
 import requests
 import time
+import sys
 from variables.universal import *
 from variables.corvette import *
 from variables.ct import *
@@ -38,7 +39,7 @@ def extractInfo(text, updated_vin, model):
     if parser:
         return parser(text, updated_vin)
     else:
-        raise ValueError(f"Unsupported model: {model}")
+        raise ValueError(f"\033[31mUnsupported model: {model}\033[0m\n")
 
 def writeCSV(pdf_info):
     global year
@@ -51,115 +52,69 @@ def writeCSV(pdf_info):
         writer.writerow(pdf_info)
 
 # Main vin processing ---------------------------------------------------------------------------
-def processVin(urlIdent, vinChanging, endVIN, yearDig):
-    global testedVIN, foundVIN
-    model_data = {
-        "CAMARO": {"start_vin": "1G1F", "plant": "0"}, # 0 = Lansing - Grand River
-        "CORVETTE": {"start_vin": "1G1Y", "plant": "5"}, # 5 = Bowling Green
-        "CT4": {"start_vin": "1G6D", "plant": "0"},
-        "CT5": {"start_vin": "1G6D", "plant": "0"},
-        "CT6": {"start_vin": "1G6K", "plant": "U"}, # U = Detroit-Hamtramck
-    }
-    startVIN = model_data.get(model, {}).get("start_vin")
-    plant = model_data.get(model, {}).get("plant")
+def processVin(vin):
+    global testedVIN
+    urlFirst = f"https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin="
+    try:
+        newUrl = urlFirst + vin
 
-    skip_files_map = {
-        "CAMARO_CT4_CT5": [
-            f'Camaro/{year}/skip_camaro.txt',
-            f'CT4-CT5/{year}/skip_cadillac.txt'
-        ],
-        "CORVETTE": [f'Corvette/{year}/skip_corvette.txt'],
-        "CT6": [f'CT4-CT5/{year}/skip_cadillac_ct6.txt'],
-    }
-    if model in ("CAMARO", "CT4", "CT5"):
-        files_to_read = skip_files_map["CAMARO_CT4_CT5"]
-    else:
-        files_to_read = skip_files_map.get(model, [])
+        max_retries = 3
+        retries = 0
 
-    skipping = []
-    for file_path in files_to_read:
-        with open(file_path, 'r') as file:
-            skipping.extend(int(line.strip()) for line in file if line.strip().isdigit())
+        while retries < max_retries:
+            try:
+                # Get Request
+                contentsGet = requests.get(newUrl, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36', 'Accept-Language': 'en-US'}, timeout=120)
+                contentsByte = contentsGet.content
+                contents = contentsGet.text
+                time.sleep(1)
 
-    urlFirst = f"https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin={startVIN}"
+                # Retry if contents is empty
+                if contents == "":
+                    print("Empty content received. Retrying...")
+                    time.sleep(3)
+                    continue
 
-    # Keep going until a specific stopping point
-    while vinChanging <= endVIN:
-        if vinChanging in skipping:
-            print("\033[30mExisting sequence, skipping\033[0m")
-            vinChanging += 1
-            continue
-        try:
-            # Build the URL (first half + identify trim/gear + check digit + model year + plant location + sequence number)
-            matchedVIN = startVIN + urlIdent + "X" + yearDig + plant + str(vinChanging)
-            updated_vin = calculate_check_digit(matchedVIN)
-            newUrl = urlFirst + urlIdent + updated_vin[8:11] + str(vinChanging).zfill(6)
-
-            max_retries = 3
-            retries = 0
-
-            while retries < max_retries:
                 try:
-                    # Get Request
-                    contentsGet = requests.get(newUrl, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36', 'Accept-Language': 'en-US'}, timeout=120)
-                    contentsByte = contentsGet.content
-                    contents = contentsGet.text
-                    time.sleep(1)
+                    # If json content found = no window sticker
+                    jsonCont = json.loads(contents)
+                    print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
+                # If request returns not a json content = window sticker found
+                except json.decoder.JSONDecodeError:
+                    with open(f"{path}/{model.lower()}_{year}.txt", "a") as f:
+                        f.write(f"{vin}\n")
+                    print("\033[33mMatch Found For VIN: [" + vin + "].\033[0m")
+                    pdf_text = extractPDF(contentsByte, vin)
+                    pdf_info = extractInfo(pdf_text, vin, model)
 
-                    # Retry if contents is empty
-                    if contents == "":
-                        print("Empty content received. Retrying...")
-                        time.sleep(3)
-                        continue
+                    # Append only the last 6 digits of the VIN to the list and file
+                    with open(f"{path}/skip_{model.lower()}.txt", "a") as file:
+                        file.write(f"{vin[-6:]}\n")
+                    
+                    writeCSV(pdf_info)
+                break
 
-                    try:
-                        # If JSON content found = no window sticker
-                        jsonCont = json.loads(contents)
-                        print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
-                    # If request returns not a JSON content = window sticker found
-                    except json.decoder.JSONDecodeError:
-                        with open(f"{path}/{model.lower()}_{year}.txt", "a") as f:
-                            f.write(f"{updated_vin}\n")
-                        print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
-                        pdf_text = extractPDF(contentsByte, updated_vin)
-                        pdf_info = extractInfo(pdf_text, updated_vin, model)
-                        
-                        # Append only the last 6 digits of the VIN to the list and file
-                        skipping.append(int(updated_vin[-6:]))
-                        with open(f"{path}/skip_{model.lower()}.txt", "a") as file:
-                            file.write(f"{updated_vin[-6:].zfill(6)}\n")
-                        
-                        writeCSV(pdf_info)
+            except requests.exceptions.ReadTimeout:
+                print("Timed out, retrying...")
+                retries += 1
+                time.sleep(120)
+        testedVIN += 1
 
-                    # Increment VIN by 1
-                    vinChanging += 1
-                    testedVIN += 1
-                    break
-
-                except requests.exceptions.ReadTimeout:
-                    # Retry request
-                    print("Timed out, retrying...")
-                    retries += 1
-                    time.sleep(120)
-
-        except requests.exceptions.RequestException as e:
-            if isinstance(e.__cause__, ConnectionResetError):
-                print(f"ConnectionResetError: {e}.")
-                # Write VIN to RETRY.txt file
-                with open(f'{path}/RETRY.txt', "a") as f:
-                    f.write(f"{updated_vin}\n")
-                vinChanging += 1
-                time.sleep(10)
-                continue
-            else:
-                print(f"Error: {e}")
-                print("Skipping this VIN.")
-                with open(f'{path}/RETRY.txt', "a") as f:
-                    f.write(f"{updated_vin}\n")
-                vinChanging += 1
-                continue
-        except KeyboardInterrupt:
-            break
+    except requests.exceptions.RequestException as e:
+        if isinstance(e.__cause__, ConnectionResetError):
+            print(f"ConnectionResetError: {e}.")
+            with open(f'{path}/RETRY.txt', "a") as f:
+                f.write(f"{vin}\n")
+            time.sleep(10)
+            return
+        else:
+            print(f"Error: {e}")
+            print("Skipping this VIN.")
+            with open(f'{path}/RETRY.txt', "a") as f:
+                f.write(f"{vin}\n")
+            return
+    except KeyboardInterrupt:
+        sys.exit(0)
 
 def parse_corvette(text, updated_vin):
     global foundVIN
@@ -353,85 +308,41 @@ while True:
     else:
         print("Invalid year.")
 
-urlChosenList = None
-while True: # urlChosenList
-    while True:
-        vinChanging_input = input('Enter last 6 numbers of the VIN to start at:\n')
-        if vinChanging_input.isdigit() and len(vinChanging_input) == 6:
-            vinChanging = int(vinChanging_input)
-            break
-        else:
-            print("\033[31mPlease enter a valid 6-digit number.\033[0m\n")
-    while True:
-        endVIN_input = input('Enter last 6 numbers of the VIN to stop at:\n')
-        if endVIN_input.isdigit() and len(endVIN_input) == 6:
-            endVIN = int(endVIN_input)
-            break
-        else:
-            print("\033[31mPlease enter a valid 6-digit number.\033[0m\n")
+while True:
     model = input('Enter model to use:\n').upper()
-    if model == "CORVETTE":
-        mmc = mmc_2019 if int(year) == 2019 else mmc_2020
-        start_digit = vinChanging_input[0]
-        if int(year) == 2019:
-            if start_digit == "8":
-                urlChosenList = globals()["urlIdent_2019_zr1_list"]
-            elif start_digit == "6":
-                urlChosenList = globals()["urlIdent_2019_z06_list"]
-            elif start_digit == "1":
-                urlChosenList = globals()["urlIdent_2019_list"]
-            else:
-                print("\033[31mInvalid sequence.\033[0m\n")
-                continue
-        elif int(year) >= 2025 and start_digit == "8":
-            urlChosenList = globals()["urlIdent_zr1_list"]
-        elif int(year) >= 2024 and start_digit == "5":
-            urlChosenList = globals()["urlIdent_eray_list"]
-        elif int(year) >= 2023 and start_digit == "6":
-            urlChosenList = globals()["urlIdent_z06_list"]
-        elif start_digit == "1":
-            urlChosenList = urlIdent_list
-        else:
-            print("\033[31mInvalid sequence.\033[0m\n")
-            continue
-    elif model == "CAMARO" and 2020 <= int(year) <= 2024:
-        urlChosenList = f"urlIdent_list_{year}"
-    elif model in ("CT4", "CT5"):
-        urlChosenList = urlIdent_list_ct45
-    elif model == "CT6":
-        urlChosenList = urlIdent_list_ct6
-    else:
-        print("\033[31mPlease enter a valid model or check the year.\033[0m\n")
+    if model not in ["CORVETTE", "CT4", "CT5", "CAMARO"]:
+        print("\033[31mInvalid model.\033[0m\n")
         continue
+    if model == "CORVETTE" and year == "2019":
+        mmc = mmc_2019
+    else:
+        mmc = mmc_2020
     break
 
 path = f"{model.capitalize()}/{year}"
 
-urlList = len(urlChosenList)
+with open(f"{path}/RETRY.txt", 'r') as file:
+    lines = file.readlines()
 
-totalVIN = ((int(endVIN_input) + 1) - int(vinChanging_input)) * int(urlList)
-totalIdent = 1
+totalVIN = len(lines)
 foundVIN = 0
 testedVIN = 0
 
 estTime = totalVIN * 2
-estTime = format_time(estTime)
-print(f"ETA: {estTime}")
+time_str = format_time(estTime)
+print(f"ETA: {time_str}")
 
 startTime = time.time()
 
-# Process request through all variations of trim/gears
-for urlIdent in urlChosenList:
-    print(f"Testing configuration ({str(totalIdent)}/{str(urlList)}): {urlIdent} -------------------------------")
-    processVin(urlIdent, vinChanging, endVIN, yearDig)
-    print("")
-    totalIdent += 1
+for vin in lines:
+    vin = vin.strip()
+    processVin(vin)
+print("")
 
 endTime = time.time()
 elapsedTime = endTime - startTime
 time_str = format_time(elapsedTime)
 currentTime = time.strftime("%H:%M:%S", time.localtime())
 
-print(f"Ended: {currentTime}")
-print(f"Estimated time: {estTime} - Elapsed time: {time_str}")
-print(f"Tested {testedVIN}/{totalVIN} VIN(s) - Found Found \033[93m{foundVIN}\033[0m match(es)")
+print(f"Ended: {currentTime} - Elapsed time: {time_str}")
+print(f"Tested {testedVIN}/{totalVIN} VIN(s) - Found \033[93m{foundVIN}\033[0m match(es)")
