@@ -1,3 +1,6 @@
+import fitz
+import csv
+
 # Working Check Digit Calculator --------------------------------------------------------
 # Step 1: Assign values to letters
 alpha_numeric_conversion = {

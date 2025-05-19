@@ -1,7 +1,6 @@
 import json
 import requests
 import time
-import sys
 from variables.universal import *
 from variables.corvette import *
 from variables.ct import *
@@ -70,7 +69,7 @@ def processVin(vin):
                 f.write(f"{vin}\n")
             return
     except KeyboardInterrupt:
-        sys.exit(0)
+        break
 
 def parse_corvette(text, updated_vin):
     global foundVIN

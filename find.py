@@ -1,5 +1,3 @@
-import fitz
-import csv
 import json
 import requests
 import time
