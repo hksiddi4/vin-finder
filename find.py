@@ -56,8 +56,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
     model_data = {
         "CAMARO": {"start_vin": "1G1F", "plant": "0"}, # 0 = Lansing - Grand River
         "CORVETTE": {"start_vin": "1G1Y", "plant": "5"}, # 5 = Bowling Green
-        "CT4": {"start_vin": "1G6D", "plant": "0"},
-        "CT5": {"start_vin": "1G6D", "plant": "0"},
+        "CT4-CT5": {"start_vin": "1G6D", "plant": "0"},
         "CT6": {"start_vin": "1G6K", "plant": "U"}, # U = Detroit-Hamtramck
     }
     startVIN = model_data.get(model, {}).get("start_vin")
@@ -68,7 +67,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
             f'Camaro/{year}/skip_camaro.txt',
             f'CT4-CT5/{year}/skip_cadillac.txt'
         ],
-        "CT": [f'CT4-CT5/{year}/skip_cadillac.txt'],
+        "CT4-CT5": [f'CT4-CT5/{year}/skip_cadillac.txt'],
         "CORVETTE": [f'Corvette/{year}/skip_corvette.txt'],
         "CT6": [f'CT4-CT5/{year}/skip_cadillac_ct6.txt'],
     }
@@ -76,7 +75,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
         if 2020 <= int(year) <= 2024:
             files_to_read = skip_files_map["CAMARO_CT4_CT5"]
         else:
-            files_to_read = skip_files_map["CT"]
+            files_to_read = skip_files_map["CT4-CT5"]
     else:
         files_to_read = skip_files_map.get(model, [])
 
@@ -395,6 +394,7 @@ while True: # urlChosenList
         urlChosenList = f"urlIdent_list_{year}"
     elif model in ("CT4", "CT5"):
         urlChosenList = urlIdent_list_ct45
+        model = "CT4-CT5"
     elif model == "CT6":
         urlChosenList = urlIdent_list_ct6
     else:
