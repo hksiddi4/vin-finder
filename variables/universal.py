@@ -59,7 +59,7 @@ def format_time(seconds):
     
     return ", ".join(time_parts) if time_parts else "< 1 minute"
 
-def extractPDF(contentsByte, updated_vin):
+def extractPDF(contentsByte, updated_vin, path):
     pdf_path = f"{path}/temp.pdf"
     try:
         with open(pdf_path, "wb") as f:
@@ -77,7 +77,7 @@ def extractPDF(contentsByte, updated_vin):
     except fitz.FileDataError as e:
         return None
 
-def extractInfo(text, updated_vin, model):
+def extractInfo(text, updated_vin, model, path):
     parser_registry = {
         "CORVETTE": parse_corvette,
         "CT4-CT5": parse_ct,

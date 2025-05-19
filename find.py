@@ -1,3 +1,5 @@
+import fitz
+import csv
 import json
 import requests
 import time
@@ -80,8 +82,8 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                         with open(f"{path}/{model.lower()}_{year}.txt", "a") as f:
                             f.write(f"{updated_vin}\n")
                         print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
-                        pdf_text = extractPDF(contentsByte, updated_vin)
-                        pdf_info = extractInfo(pdf_text, updated_vin, model)
+                        pdf_text = extractPDF(contentsByte, updated_vin, path)
+                        pdf_info = extractInfo(pdf_text, updated_vin, model, path)
                         
                         # Append only the last 6 digits of the VIN to the list and file
                         skipping.append(int(updated_vin[-6:]))

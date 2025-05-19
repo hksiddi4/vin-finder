@@ -40,8 +40,8 @@ def processVin(vin):
                     with open(f"{path}/{model.lower()}_{year}.txt", "a") as f:
                         f.write(f"{vin}\n")
                     print("\033[33mMatch Found For VIN: [" + vin + "].\033[0m")
-                    pdf_text = extractPDF(contentsByte, vin)
-                    pdf_info = extractInfo(pdf_text, vin, model)
+                    pdf_text = extractPDF(contentsByte, vin, path)
+                    pdf_info = extractInfo(pdf_text, vin, model, path)
 
                     # Append only the last 6 digits of the VIN to the list and file
                     with open(f"{path}/skip_{model.lower()}.txt", "a") as file:
