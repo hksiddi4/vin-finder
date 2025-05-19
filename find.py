@@ -9,24 +9,9 @@ from variables.camaro import *
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
     global testedVIN, foundVIN
-    model_data = {
-        "CAMARO": {"start_vin": "1G1F", "plant": "0"}, # 0 = Lansing - Grand River
-        "CORVETTE": {"start_vin": "1G1Y", "plant": "5"}, # 5 = Bowling Green
-        "CT4-CT5": {"start_vin": "1G6D", "plant": "0"},
-        "CT6": {"start_vin": "1G6K", "plant": "U"}, # U = Detroit-Hamtramck
-    }
     startVIN = model_data.get(model, {}).get("start_vin")
     plant = model_data.get(model, {}).get("plant")
 
-    skip_files_map = {
-        "CAMARO_CT4_CT5": [
-            f'Camaro/{year}/skip_camaro.txt',
-            f'CT4-CT5/{year}/skip_ct4-ct5.txt'
-        ],
-        "CT4-CT5": [f'CT4-CT5/{year}/skip_ct4-ct5.txt'],
-        "CORVETTE": [f'Corvette/{year}/skip_corvette.txt'],
-        "CT6": [f'CT4-CT5/{year}/skip_cadillac_ct6.txt'],
-    }
     if model in ("CAMARO", "CT4", "CT5"):
         if 2020 <= int(year) <= 2024:
             files_to_read = skip_files_map["CAMARO_CT4_CT5"]
