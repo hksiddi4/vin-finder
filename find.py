@@ -29,8 +29,7 @@ def extractPDF(contentsByte, updated_vin):
 def extractInfo(text, updated_vin, model):
     parser_registry = {
         "CORVETTE": parse_corvette,
-        "CT4": parse_ct,
-        "CT5": parse_ct,
+        "CT4-CT5": parse_ct,
         "CAMARO": parse_camaro,
     }
     parser = parser_registry.get(model)
@@ -65,9 +64,9 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
     skip_files_map = {
         "CAMARO_CT4_CT5": [
             f'Camaro/{year}/skip_camaro.txt',
-            f'CT4-CT5/{year}/skip_cadillac.txt'
+            f'CT4-CT5/{year}/skip_ct4-ct5.txt'
         ],
-        "CT4-CT5": [f'CT4-CT5/{year}/skip_cadillac.txt'],
+        "CT4-CT5": [f'CT4-CT5/{year}/skip_ct4-ct5.txt'],
         "CORVETTE": [f'Corvette/{year}/skip_corvette.txt'],
         "CT6": [f'CT4-CT5/{year}/skip_cadillac_ct6.txt'],
     }
@@ -304,7 +303,7 @@ def parse_ct(text, updated_vin):
     }
     
     for i, line in enumerate(lines):
-        if any(f"{year} {suffix}" in line for suffix in ["CT6 "]):
+        if any(f"{year} {suffix}" in line for suffix in ["CT4 ", "CT5 ", "CT6 "]):
             model_info = ' '.join(line.strip().split())
             model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE", "LUXURY").replace("SERIE V", "V-SERIES").replace("SERIE-V", "V-SERIES")
             modeltrim = model_info[4:].strip().split()
@@ -343,7 +342,7 @@ def parse_ct(text, updated_vin):
     # Check for missing fields
     missing_fields = [field for field, value in info_ordered.items() if value is None]
     if missing_fields:
-        with open(f'{year}/missing_info.txt', "a") as f:
+        with open(f'{path}/missing_info.txt', "a") as f:
             f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
     
     return info_ordered
@@ -402,7 +401,7 @@ while True: # urlChosenList
         continue
     break
 
-path = f"{model.capitalize()}/{year}"
+path = f"{model}/{year}"
 
 urlList = len(urlChosenList)
 
