@@ -68,11 +68,15 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
             f'Camaro/{year}/skip_camaro.txt',
             f'CT4-CT5/{year}/skip_cadillac.txt'
         ],
+        "CT": [f'CT4-CT5/{year}/skip_cadillac.txt'],
         "CORVETTE": [f'Corvette/{year}/skip_corvette.txt'],
         "CT6": [f'CT4-CT5/{year}/skip_cadillac_ct6.txt'],
     }
     if model in ("CAMARO", "CT4", "CT5"):
-        files_to_read = skip_files_map["CAMARO_CT4_CT5"]
+        if 2020 <= int(year) <= 2024:
+            files_to_read = skip_files_map["CAMARO_CT4_CT5"]
+        else:
+            files_to_read = skip_files_map["CT"]
     else:
         files_to_read = skip_files_map.get(model, [])
 
@@ -345,14 +349,6 @@ def parse_ct(text, updated_vin):
     
     return info_ordered
 
-while True:
-    year = input('Enter year to test:\n')
-    yearDig = years.get(year)
-    if yearDig:
-        break
-    else:
-        print("Invalid year.")
-
 urlChosenList = None
 while True: # urlChosenList
     while True:
@@ -369,6 +365,7 @@ while True: # urlChosenList
             break
         else:
             print("\033[31mPlease enter a valid 6-digit number.\033[0m\n")
+    
     model = input('Enter model to use:\n').upper()
     if model == "CORVETTE":
         mmc = mmc_2019 if int(year) == 2019 else mmc_2020

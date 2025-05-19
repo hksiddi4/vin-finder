@@ -111,3 +111,11 @@ body_dict = {
     "CM8": "CONVERTIBLE",
     "CM9": "CONVERTIBLE",
 }
+
+while True:
+    year = input('Enter year to test:\n')
+    yearDig = years.get(year)
+    if yearDig:
+        break
+    else:
+        print("Invalid year.")
