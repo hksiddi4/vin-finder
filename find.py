@@ -6,6 +6,19 @@ from variables.corvette import *
 from variables.ct import *
 from variables.camaro import *
 
+def extractInfo(text, updated_vin, model):
+    parser_registry = {
+        "CORVETTE": parse_corvette,
+        "CT4-CT5": parse_ct,
+        "CAMARO": parse_camaro,
+    }
+    parser = parser_registry.get(model)
+
+    if parser:
+        return parser(text, updated_vin)
+    else:
+        raise ValueError(f"Unsupported model: {model}")
+
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
     global testedVIN, foundVIN
@@ -66,14 +79,14 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                             f.write(f"{updated_vin}\n")
                         print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
                         pdf_text = extractPDF(contentsByte, updated_vin, path)
-                        pdf_info = extractInfo(pdf_text, updated_vin, model, path)
+                        pdf_info = extractInfo(pdf_text, updated_vin, model)
                         
                         # Append only the last 6 digits of the VIN to the list and file
                         skipping.append(int(updated_vin[-6:]))
                         with open(f"{path}/skip_{model.lower()}.txt", "a") as file:
                             file.write(f"{updated_vin[-6:].zfill(6)}\n")
                         
-                        writeCSV(pdf_info)
+                        writeCSV(pdf_info, path, model)
 
                     # Increment VIN by 1
                     vinChanging += 1

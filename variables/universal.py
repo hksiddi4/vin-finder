@@ -80,20 +80,7 @@ def extractPDF(contentsByte, updated_vin, path):
     except fitz.FileDataError as e:
         return None
 
-def extractInfo(text, updated_vin, model, path):
-    parser_registry = {
-        "CORVETTE": parse_corvette,
-        "CT4-CT5": parse_ct,
-        "CAMARO": parse_camaro,
-    }
-    parser = parser_registry.get(model)
-
-    if parser:
-        return parser(text, updated_vin)
-    else:
-        raise ValueError(f"Unsupported model: {model}")
-
-def writeCSV(pdf_info):
+def writeCSV(pdf_info, path, model):
     global year
     if pdf_info is None:
         return

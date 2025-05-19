@@ -6,6 +6,19 @@ from variables.corvette import *
 from variables.ct import *
 from variables.camaro import *
 
+def extractInfo(text, updated_vin, model):
+    parser_registry = {
+        "CORVETTE": parse_corvette,
+        "CT4-CT5": parse_ct,
+        "CAMARO": parse_camaro,
+    }
+    parser = parser_registry.get(model)
+
+    if parser:
+        return parser(text, updated_vin)
+    else:
+        raise ValueError(f"Unsupported model: {model}")
+
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(vin):
     global testedVIN
@@ -40,13 +53,13 @@ def processVin(vin):
                         f.write(f"{vin}\n")
                     print("\033[33mMatch Found For VIN: [" + vin + "].\033[0m")
                     pdf_text = extractPDF(contentsByte, vin, path)
-                    pdf_info = extractInfo(pdf_text, vin, model, path)
+                    pdf_info = extractInfo(pdf_text, vin, model)
 
                     # Append only the last 6 digits of the VIN to the list and file
                     with open(f"{path}/skip_{model.lower()}.txt", "a") as file:
                         file.write(f"{vin[-6:]}\n")
                     
-                    writeCSV(pdf_info)
+                    writeCSV(pdf_info, path)
                 break
 
             except requests.exceptions.ReadTimeout:
