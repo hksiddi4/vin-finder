@@ -1,5 +1,3 @@
-import fitz
-import csv
 import json
 import requests
 import time
@@ -8,48 +6,6 @@ from variables.universal import *
 from variables.corvette import *
 from variables.ct import *
 from variables.camaro import *
-
-def extractPDF(contentsByte, updated_vin):
-    pdf_path = f"{path}/temp.pdf"
-    try:
-        with open(pdf_path, "wb") as f:
-            f.write(contentsByte)
-        doc = fitz.open(pdf_path)
-        text = ""
-        if len(doc) > 0:
-            if len(doc) > 1:
-                with open(f"{path}/notes.txt", "a") as nf:
-                    nf.write(f"{updated_vin} - Multiple Pages\n")
-            page = doc.load_page(0)
-            text = page.get_text()
-        doc.close()
-        return text
-    except fitz.FileDataError as e:
-        return None
-
-def extractInfo(text, updated_vin, model):
-    parser_registry = {
-        "CORVETTE": parse_corvette,
-        "CT4": parse_ct,
-        "CT5": parse_ct,
-        "CAMARO": parse_camaro,
-    }
-    parser = parser_registry.get(model)
-
-    if parser:
-        return parser(text, updated_vin)
-    else:
-        raise ValueError(f"\033[31mUnsupported model: {model}\033[0m\n")
-
-def writeCSV(pdf_info):
-    global year
-    if pdf_info is None:
-        return
-    fieldnames = pdf_info.keys()
-
-    with open(f"{path}/{year}_{model.lower()}.csv", "a", newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writerow(pdf_info)
 
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(vin):
@@ -301,25 +257,17 @@ def parse_ct(text, updated_vin):
     return info_ordered
 
 while True:
-    year = input('Enter year to test:\n')
-    yearDig = years.get(year)
-    if yearDig:
-        break
-    else:
-        print("Invalid year.")
-
-while True:
     model = input('Enter model to use:\n').upper()
-    if model not in ["CORVETTE", "CT4", "CT5", "CAMARO"]:
-        print("\033[31mInvalid model.\033[0m\n")
-        continue
-    if model == "CORVETTE" and year == "2019":
-        mmc = mmc_2019
+    if model == "CORVETTE":
+        mmc = mmc_2019 if int(year) == 2019 else mmc_2020
+    elif model in ("CT4", "CT5"):
+        model = "CT4-CT5"
     else:
-        mmc = mmc_2020
+        print("\033[31mPlease enter a valid model or check the year.\033[0m\n")
+        continue
     break
 
-path = f"{model.capitalize()}/{year}"
+path = f"{model}/{year}"
 
 with open(f"{path}/RETRY.txt", 'r') as file:
     lines = file.readlines()

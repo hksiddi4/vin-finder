@@ -59,6 +59,47 @@ def format_time(seconds):
     
     return ", ".join(time_parts) if time_parts else "< 1 minute"
 
+def extractPDF(contentsByte, updated_vin):
+    pdf_path = f"{path}/temp.pdf"
+    try:
+        with open(pdf_path, "wb") as f:
+            f.write(contentsByte)
+        doc = fitz.open(pdf_path)
+        text = ""
+        if len(doc) > 0:
+            if len(doc) > 1:
+                with open(f"{path}/notes.txt", "a") as nf:
+                    nf.write(f"{updated_vin} - Multiple Pages\n")
+            page = doc.load_page(0)
+            text = page.get_text()
+        doc.close()
+        return text
+    except fitz.FileDataError as e:
+        return None
+
+def extractInfo(text, updated_vin, model):
+    parser_registry = {
+        "CORVETTE": parse_corvette,
+        "CT4-CT5": parse_ct,
+        "CAMARO": parse_camaro,
+    }
+    parser = parser_registry.get(model)
+
+    if parser:
+        return parser(text, updated_vin)
+    else:
+        raise ValueError(f"Unsupported model: {model}")
+
+def writeCSV(pdf_info):
+    global year
+    if pdf_info is None:
+        return
+    fieldnames = pdf_info.keys()
+
+    with open(f"{path}/{year}_{model.lower()}.csv", "a", newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writerow(pdf_info)
+
 years = {
     '2025': 'S',
     '2024': 'R',
