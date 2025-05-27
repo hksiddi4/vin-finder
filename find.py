@@ -344,8 +344,8 @@ while True: # urlChosenList
         else:
             print("\033[31mInvalid sequence.\033[0m\n")
             continue
-    elif model == "CAMARO" and 2020 <= int(year) <= 2024:
-        urlChosenList = f"urlIdent_list_{year}"
+    elif model == "CAMARO" and 2019 <= int(year) <= 2024:
+        urlChosenList = globals()[f"urlIdent_list_{year}"]
     elif model in ("CT4", "CT5"):
         urlChosenList = urlIdent_list_ct45
         model = "CT4-CT5"
