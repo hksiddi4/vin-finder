@@ -228,8 +228,9 @@ def parse_camaro(text, updated_vin):
                     info["transmission"] = trans_dict[item]
                 if item in trim_dict_camaro:
                     info["trim"] = trim_dict_camaro[item]
-            if info.get("engine") == "2.0L Turbo, 4-cylinder, SIDI, VVT":
+            if info.get("engine") == "2.0L Turbo, 4-cylinder, SIDI, VVT" or (info.get("year") == "2019" and info.get("engine") == "3.6L V6, DI, VVT"):
                 info["transmission"] = "A8"
+            
     
     # Reorder the fields
     info_ordered = {field: info.get(field, None) for field in field_order}
