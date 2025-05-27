@@ -59,7 +59,7 @@ def processVin(vin):
                     with open(f"{path}/skip_{model.lower()}.txt", "a") as file:
                         file.write(f"{vin[-6:]}\n")
                     
-                    writeCSV(pdf_info, path)
+                    writeCSV(pdf_info, path, model)
                 break
 
             except requests.exceptions.ReadTimeout:
@@ -82,7 +82,7 @@ def processVin(vin):
                 f.write(f"{vin}\n")
             return
     except KeyboardInterrupt:
-        break
+        return
 
 def parse_corvette(text, updated_vin):
     global foundVIN
@@ -274,6 +274,8 @@ while True:
         mmc = mmc_2019 if int(year) == 2019 else mmc_2020
     elif model in ("CT4", "CT5"):
         model = "CT4-CT5"
+    elif model == "CAMARO":
+        model = "CAMARO"
     else:
         print("\033[31mPlease enter a valid model or check the year.\033[0m\n")
         continue
