@@ -55,8 +55,8 @@ urlIdent_blackwing_list_2023 = [
 ]
 
 urlIdent_blackwing_list_2024 = [
-    "75RP", # CT4-V Blackwing A10
-    "65RP", # CT4-V Blackwing M6
+    #"75RP", # CT4-V Blackwing A10
+    #"65RP", # CT4-V Blackwing M6
     "35R6", # CT5-V Blackwing A10
     "25R6", # CT5-V Blackwing M6
 ]

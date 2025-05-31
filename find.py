@@ -349,7 +349,12 @@ while True: # urlChosenList
     elif model == "CAMARO" and 2020 <= int(year) <= 2024:
         urlChosenList = f"urlIdent_list_{year}"
     elif model in ("CT4", "CT5"):
-        urlChosenList = urlIdent_list_ct45
+        if int(year) >= 2022:
+            blackwing = input('Run as Blackwing? (Y/N):\n').upper()
+            if blackwing == "Y":
+                urlChosenList = globals()["urlIdent_blackwing_list_2024"]
+        elif start_digit == "1":
+            urlChosenList = urlIdent_list_ct45
         model = "CT4-CT5"
     elif model == "CT6":
         urlChosenList = urlIdent_list_ct6
