@@ -186,32 +186,32 @@ urlIdent_list_2020 = [
 ]
 
 urlIdent_list_2019 = [
-    "B1RS",
-    "B1RX",
-    "H1R7",
-    "F1R7",
-    "B3DX",
-    "H3D7",
-    "B3DS",
-    "E1R7",
-    "D1RS",
-    "K1R6",
-    "G1R7",
-    "A1RX",
-    "D3DS",
-    "J1R6",
-    "A1RS",
-    "F3D7",
-    "D1RX",
-    "K3D6",
-    "G3D7",
-    "C1RS",
-    "D3DX",
-    "E3D7",
-    "J3D6",
-    "A3DS",
-    "C1RX",
-    "C3DS",
-    "A3DX",
-    "C3DX"
+    "B1RS", # 1LT A8 Coupe V6
+    "B1RX", # 1LT A8 Coupe I4
+    "H1R7", # 2SS A10 Coupe
+    "F1R7", # 1SS A10 Coupe
+    "B3DX", # 1LT A8 Conv. I4
+    "H3D7", # 2SS A10 Conv.
+    "B3DS", # 1LT A8 Conv. V6
+    "E1R7", # 1SS M6 Coupe
+    "D1RS", # 2/3LT A8 Coupe
+    "K1R6", # ZL1 A10 Coupe
+    "G1R7", # 2SS M6 Coupe
+    "A1RX", # 1LT M6 Coupe I4
+    "D3DS", # 2/3LT A8 Conv. V6
+    "J1R6", # ZL1 M6 Coupe
+    "A1RS", # 1LT M6 Coupe V6
+    "F3D7", # 1SS A10 Conv.
+    "D1RX", # 2/3LT A8 Coupe I4
+    "K3D6", # ZL1 A10 Conv.
+    "G3D7", # 2SS M6 Conv.
+    "C1RS", # 2/3LT M6 Coupe V6
+    "D3DX", # 2/3LT A8 Conv. I4
+    "E3D7", # 1SS M6 Conv.
+    "J3D6", # ZL1 M6 Conv.
+    "A3DS", # 1LT M6 Conv. V6
+    "C1RX", # 2/3LT M6 Coupe I4
+    "C3DS", # 2/3LT M6 Conv. V6
+    "A3DX", # 1LT M6 Conv. I4
+    "C3DX" # 2/3LT M6 Conv. I4
 ]

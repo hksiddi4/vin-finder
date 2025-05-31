@@ -1,11 +1,23 @@
 import json
 import requests
 import time
-import sys
 from variables.universal import *
 from variables.corvette import *
 from variables.ct import *
 from variables.camaro import *
+
+def extractInfo(text, updated_vin, model):
+    parser_registry = {
+        "CORVETTE": parse_corvette,
+        "CT4-CT5": parse_ct,
+        "CAMARO": parse_camaro,
+    }
+    parser = parser_registry.get(model)
+
+    if parser:
+        return parser(text, updated_vin)
+    else:
+        raise ValueError(f"Unsupported model: {model}")
 
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(vin):
@@ -40,14 +52,14 @@ def processVin(vin):
                     with open(f"{path}/{model.lower()}_{year}.txt", "a") as f:
                         f.write(f"{vin}\n")
                     print("\033[33mMatch Found For VIN: [" + vin + "].\033[0m")
-                    pdf_text = extractPDF(contentsByte, vin)
+                    pdf_text = extractPDF(contentsByte, vin, path)
                     pdf_info = extractInfo(pdf_text, vin, model)
 
                     # Append only the last 6 digits of the VIN to the list and file
                     with open(f"{path}/skip_{model.lower()}.txt", "a") as file:
                         file.write(f"{vin[-6:]}\n")
                     
-                    writeCSV(pdf_info)
+                    writeCSV(pdf_info, path, model)
                 break
 
             except requests.exceptions.ReadTimeout:
@@ -70,7 +82,7 @@ def processVin(vin):
                 f.write(f"{vin}\n")
             return
     except KeyboardInterrupt:
-        sys.exit(0)
+        return
 
 def parse_corvette(text, updated_vin):
     global foundVIN
@@ -262,6 +274,8 @@ while True:
         mmc = mmc_2019 if int(year) == 2019 else mmc_2020
     elif model in ("CT4", "CT5"):
         model = "CT4-CT5"
+    elif model == "CAMARO":
+        model = "CAMARO"
     else:
         print("\033[31mPlease enter a valid model or check the year.\033[0m\n")
         continue

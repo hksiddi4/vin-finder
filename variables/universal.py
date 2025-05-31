@@ -1,3 +1,6 @@
+import fitz
+import csv
+
 # Working Check Digit Calculator --------------------------------------------------------
 # Step 1: Assign values to letters
 alpha_numeric_conversion = {
@@ -59,7 +62,7 @@ def format_time(seconds):
     
     return ", ".join(time_parts) if time_parts else "< 1 minute"
 
-def extractPDF(contentsByte, updated_vin):
+def extractPDF(contentsByte, updated_vin, path):
     pdf_path = f"{path}/temp.pdf"
     try:
         with open(pdf_path, "wb") as f:
@@ -77,20 +80,7 @@ def extractPDF(contentsByte, updated_vin):
     except fitz.FileDataError as e:
         return None
 
-def extractInfo(text, updated_vin, model):
-    parser_registry = {
-        "CORVETTE": parse_corvette,
-        "CT4-CT5": parse_ct,
-        "CAMARO": parse_camaro,
-    }
-    parser = parser_registry.get(model)
-
-    if parser:
-        return parser(text, updated_vin)
-    else:
-        raise ValueError(f"Unsupported model: {model}")
-
-def writeCSV(pdf_info):
+def writeCSV(pdf_info, path, model):
     global year
     if pdf_info is None:
         return
@@ -108,6 +98,31 @@ years = {
     '2021': 'M',
     '2020': 'L',
     '2019': 'K'
+}
+
+while True:
+    year = input('Enter year to test:\n')
+    yearDig = years.get(year)
+    if yearDig:
+        break
+    else:
+        print("Invalid year.")
+
+model_data = {
+    "CAMARO": {"start_vin": "1G1F", "plant": "0"}, # 0 = Lansing - Grand River
+    "CORVETTE": {"start_vin": "1G1Y", "plant": "5"}, # 5 = Bowling Green
+    "CT4-CT5": {"start_vin": "1G6D", "plant": "0"},
+    "CT6": {"start_vin": "1G6K", "plant": "U"}, # U = Detroit-Hamtramck
+}
+
+skip_files_map = {
+    "CAMARO_CT4_CT5": [
+        f'Camaro/{year}/skip_camaro.txt',
+        f'CT4-CT5/{year}/skip_ct4-ct5.txt'
+    ],
+    "CT4-CT5": [f'CT4-CT5/{year}/skip_ct4-ct5.txt'],
+    "CORVETTE": [f'Corvette/{year}/skip_corvette.txt'],
+    "CT6": [f'CT4-CT5/{year}/skip_cadillac_ct6.txt'],
 }
 
 engines_dict = {
@@ -152,11 +167,3 @@ body_dict = {
     "CM8": "CONVERTIBLE",
     "CM9": "CONVERTIBLE",
 }
-
-while True:
-    year = input('Enter year to test:\n')
-    yearDig = years.get(year)
-    if yearDig:
-        break
-    else:
-        print("Invalid year.")

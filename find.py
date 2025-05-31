@@ -6,27 +6,25 @@ from variables.corvette import *
 from variables.ct import *
 from variables.camaro import *
 
+def extractInfo(text, updated_vin, model):
+    parser_registry = {
+        "CORVETTE": parse_corvette,
+        "CT4-CT5": parse_ct,
+        "CAMARO": parse_camaro,
+    }
+    parser = parser_registry.get(model)
+
+    if parser:
+        return parser(text, updated_vin)
+    else:
+        raise ValueError(f"Unsupported model: {model}")
+
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig):
     global testedVIN, foundVIN
-    model_data = {
-        "CAMARO": {"start_vin": "1G1F", "plant": "0"}, # 0 = Lansing - Grand River
-        "CORVETTE": {"start_vin": "1G1Y", "plant": "5"}, # 5 = Bowling Green
-        "CT4-CT5": {"start_vin": "1G6D", "plant": "0"},
-        "CT6": {"start_vin": "1G6K", "plant": "U"}, # U = Detroit-Hamtramck
-    }
     startVIN = model_data.get(model, {}).get("start_vin")
     plant = model_data.get(model, {}).get("plant")
 
-    skip_files_map = {
-        "CAMARO_CT4_CT5": [
-            f'Camaro/{year}/skip_camaro.txt',
-            f'CT4-CT5/{year}/skip_ct4-ct5.txt'
-        ],
-        "CT4-CT5": [f'CT4-CT5/{year}/skip_ct4-ct5.txt'],
-        "CORVETTE": [f'Corvette/{year}/skip_corvette.txt'],
-        "CT6": [f'CT4-CT5/{year}/skip_cadillac_ct6.txt'],
-    }
     if model in ("CAMARO", "CT4", "CT5"):
         if 2020 <= int(year) <= 2024:
             files_to_read = skip_files_map["CAMARO_CT4_CT5"]
@@ -80,7 +78,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                         with open(f"{path}/{model.lower()}_{year}.txt", "a") as f:
                             f.write(f"{updated_vin}\n")
                         print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
-                        pdf_text = extractPDF(contentsByte, updated_vin)
+                        pdf_text = extractPDF(contentsByte, updated_vin, path)
                         pdf_info = extractInfo(pdf_text, updated_vin, model)
                         
                         # Append only the last 6 digits of the VIN to the list and file
@@ -88,7 +86,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                         with open(f"{path}/skip_{model.lower()}.txt", "a") as file:
                             file.write(f"{updated_vin[-6:].zfill(6)}\n")
                         
-                        writeCSV(pdf_info)
+                        writeCSV(pdf_info, path, model)
 
                     # Increment VIN by 1
                     vinChanging += 1
@@ -230,8 +228,9 @@ def parse_camaro(text, updated_vin):
                     info["transmission"] = trans_dict[item]
                 if item in trim_dict_camaro:
                     info["trim"] = trim_dict_camaro[item]
-            if info.get("engine") == "2.0L Turbo, 4-cylinder, SIDI, VVT":
+            if info.get("engine") == "2.0L Turbo, 4-cylinder, SIDI, VVT" or (info.get("year") == "2019" and info.get("engine") == "3.6L V6, DI, VVT"):
                 info["transmission"] = "A8"
+            
     
     # Reorder the fields
     info_ordered = {field: info.get(field, None) for field in field_order}
@@ -346,8 +345,8 @@ while True: # urlChosenList
         else:
             print("\033[31mInvalid sequence.\033[0m\n")
             continue
-    elif model == "CAMARO" and 2020 <= int(year) <= 2024:
-        urlChosenList = f"urlIdent_list_{year}"
+    elif model == "CAMARO" and 2019 <= int(year) <= 2024:
+        urlChosenList = globals()[f"urlIdent_list_{year}"]
     elif model in ("CT4", "CT5"):
         if int(year) >= 2022:
             blackwing = input('Run as Blackwing? (Y/N):\n').upper()
