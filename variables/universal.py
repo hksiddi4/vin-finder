@@ -117,11 +117,11 @@ model_data = {
 
 skip_files_map = {
     "CAMARO_CT4_CT5": [
-        f'Camaro/{year}/skip_camaro.txt',
+        f'CAMARO/{year}/skip_camaro.txt',
         f'CT4-CT5/{year}/skip_ct4-ct5.txt'
     ],
     "CT4-CT5": [f'CT4-CT5/{year}/skip_ct4-ct5.txt'],
-    "CORVETTE": [f'Corvette/{year}/skip_corvette.txt'],
+    "CORVETTE": [f'CORVETTE/{year}/skip_corvette.txt'],
     "CT6": [f'CT4-CT5/{year}/skip_cadillac_ct6.txt'],
 }
 
