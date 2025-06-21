@@ -142,6 +142,7 @@ engines_dict = {
 }
 
 trans_dict = {
+    "M1K": "DCT8",
     "M1L": "DCT8",
     "M1M": "DCT8",
     "M5N": "A8",

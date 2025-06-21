@@ -52,7 +52,12 @@ def processVin(vin):
                     with open(f"{path}/{model.lower()}_{year}.txt", "a") as f:
                         f.write(f"{vin}\n")
                     print("\033[33mMatch Found For VIN: [" + vin + "].\033[0m")
-                    pdf_text = extractPDF(contentsByte, vin, path)
+                    try:
+                        pdf_text = extractPDF(contentsByte, vin, path)
+                    except Exception as e:
+                        print("MuPDF error. Retrying in 3 seconds...")
+                        time.sleep(3)
+                        continue
                     pdf_info = extractInfo(pdf_text, vin, model)
 
                     # Append only the last 6 digits of the VIN to the list and file
