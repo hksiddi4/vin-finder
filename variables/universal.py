@@ -106,7 +106,7 @@ while True:
     if yearDig:
         break
     else:
-        print("Invalid year.")
+        print("\033[91mInvalid year.\033[0m")
 
 model_data = {
     "CAMARO": {"start_vin": "1G1F", "plant": "0"}, # 0 = Lansing - Grand River
@@ -117,11 +117,11 @@ model_data = {
 
 skip_files_map = {
     "CAMARO_CT4_CT5": [
-        f'Camaro/{year}/skip_camaro.txt',
+        f'CAMARO/{year}/skip_camaro.txt',
         f'CT4-CT5/{year}/skip_ct4-ct5.txt'
     ],
     "CT4-CT5": [f'CT4-CT5/{year}/skip_ct4-ct5.txt'],
-    "CORVETTE": [f'Corvette/{year}/skip_corvette.txt'],
+    "CORVETTE": [f'CORVETTE/{year}/skip_corvette.txt'],
     "CT6": [f'CT4-CT5/{year}/skip_cadillac_ct6.txt'],
 }
 
@@ -142,6 +142,7 @@ engines_dict = {
 }
 
 trans_dict = {
+    "M1K": "DCT8",
     "M1L": "DCT8",
     "M1M": "DCT8",
     "M5N": "A8",

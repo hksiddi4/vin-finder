@@ -186,32 +186,32 @@ urlIdent_list_2020 = [
 ]
 
 urlIdent_list_2019 = [
-    "B1RS", # 1LT A8 Coupe V6
-    "B1RX", # 1LT A8 Coupe I4
-    "H1R7", # 2SS A10 Coupe
-    "F1R7", # 1SS A10 Coupe
-    "B3DX", # 1LT A8 Conv. I4
-    "H3D7", # 2SS A10 Conv.
-    "B3DS", # 1LT A8 Conv. V6
-    "E1R7", # 1SS M6 Coupe
-    "D1RS", # 2/3LT A8 Coupe
-    "K1R6", # ZL1 A10 Coupe
-    "G1R7", # 2SS M6 Coupe
-    "A1RX", # 1LT M6 Coupe I4
-    "D3DS", # 2/3LT A8 Conv. V6
-    "J1R6", # ZL1 M6 Coupe
-    "A1RS", # 1LT M6 Coupe V6
-    "F3D7", # 1SS A10 Conv.
-    "D1RX", # 2/3LT A8 Coupe I4
-    "K3D6", # ZL1 A10 Conv.
-    "G3D7", # 2SS M6 Conv.
-    "C1RS", # 2/3LT M6 Coupe V6
-    "D3DX", # 2/3LT A8 Conv. I4
-    "E3D7", # 1SS M6 Conv.
-    "J3D6", # ZL1 M6 Conv.
-    "A3DS", # 1LT M6 Conv. V6
-    "C1RX", # 2/3LT M6 Coupe I4
-    "C3DS", # 2/3LT M6 Conv. V6
-    "A3DX", # 1LT M6 Conv. I4
-    "C3DX" # 2/3LT M6 Conv. I4
+    "B1RS", # 1LT A8 Coupe V6       - 1
+    "B1RX", # 1LT A8 Coupe I4       - 2
+    "H1R7", # 2SS A10 Coupe         - 3
+    "F1R7", # 1SS A10 Coupe         - 4
+    "B3DX", # 1LT A8 Conv. I4       - 5
+    "H3D7", # 2SS A10 Conv.         - 6
+    "B3DS", # 1LT A8 Conv. V6       - 7
+    "E1R7", # 1SS M6 Coupe          - 8
+    "D1RS", # 2/3LT A8 Coupe        - 9
+    "K1R6", # ZL1 A10 Coupe         - 10
+    "G1R7", # 2SS M6 Coupe          - 11
+    "A1RX", # 1LT M6 Coupe I4       - 12
+    "D3DS", # 2/3LT A8 Conv. V6     - 13
+    "J1R6", # ZL1 M6 Coupe          - 14
+    "A1RS", # 1LT M6 Coupe V6       - 15
+    "F3D7", # 1SS A10 Conv.         - 16
+    "D1RX", # 2/3LT A8 Coupe I4     - 17
+    "K3D6", # ZL1 A10 Conv.         - 18
+    "G3D7", # 2SS M6 Conv.          - 19
+    "C1RS", # 2/3LT M6 Coupe V6     - 20
+    "D3DX", # 2/3LT A8 Conv. I4     - 21
+    "E3D7", # 1SS M6 Conv.          - 22
+    "J3D6", # ZL1 M6 Conv.          - 23
+    "A3DS", # 1LT M6 Conv. V6       - 24
+    "C1RX", # 2/3LT M6 Coupe I4     - 25
+    "C3DS", # 2/3LT M6 Conv. V6     - 26
+    "A3DX", # 1LT M6 Conv. I4       - 27
+    "C3DX" # 2/3LT M6 Conv. I4      - 28
 ]

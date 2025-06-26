@@ -58,7 +58,9 @@ mmc_2020 = {
     "1YH07": "CORVETTE Z06",
     "1YH67": "CORVETTE Z06",
     "1YG07": "CORVETTE E-RAY",
-    "1YG67": "CORVETTE E-RAY"
+    "1YG67": "CORVETTE E-RAY",
+    "1YR07": "CORVETTE ZR1",
+    "1YR67": "CORVETTE ZR1"
 }
 
 urlIdent_2019_list = [
