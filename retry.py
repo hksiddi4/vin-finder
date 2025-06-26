@@ -39,7 +39,7 @@ def processVin(vin):
 
                 # Retry if contents is empty
                 if contents == "":
-                    print("Empty content received. Retrying...")
+                    print("\033[91mEmpty content received. Retrying...\033[0m")
                     time.sleep(3)
                     continue
 
@@ -55,7 +55,7 @@ def processVin(vin):
                     try:
                         pdf_text = extractPDF(contentsByte, vin, path)
                     except Exception as e:
-                        print("MuPDF error. Retrying in 3 seconds...")
+                        print("\033[91mMuPDF error. Retrying in 3 seconds...\033[0m")
                         time.sleep(3)
                         continue
                     pdf_info = extractInfo(pdf_text, vin, model)
@@ -68,21 +68,21 @@ def processVin(vin):
                 break
 
             except requests.exceptions.ReadTimeout:
-                print("Timed out, retrying...")
+                print("\033[91mTimed out, retrying...\033[0m")
                 retries += 1
                 time.sleep(120)
         testedVIN += 1
 
     except requests.exceptions.RequestException as e:
         if isinstance(e.__cause__, ConnectionResetError):
-            print(f"ConnectionResetError: {e}.")
+            print(f"\033[91mConnectionResetError: {e}.\033[0m")
             with open(f'{path}/RETRY.txt', "a") as f:
                 f.write(f"{vin}\n")
             time.sleep(10)
             return
         else:
-            print(f"Error: {e}")
-            print("Skipping this VIN.")
+            print(f"\033[91mError: {e}\033[0m")
+            print("\033[30mSkipping this VIN.\033[0m")
             with open(f'{path}/RETRY.txt', "a") as f:
                 f.write(f"{vin}\n")
             return
@@ -282,7 +282,7 @@ while True:
     elif model == "CAMARO":
         model = "CAMARO"
     else:
-        print("\033[31mPlease enter a valid model or check the year.\033[0m\n")
+        print("\033[91mPlease enter a valid model or check the year.\033[0m\n")
         continue
     break
 
@@ -297,7 +297,7 @@ testedVIN = 0
 
 estTime = totalVIN * 2
 time_str = format_time(estTime)
-print(f"ETA: {time_str}")
+print(f"\033[31mETA: {time_str}\033[0m")
 
 startTime = time.time()
 

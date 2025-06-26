@@ -65,7 +65,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
 
                     # Retry if contents is empty
                     if contents == "":
-                        print("Empty content received. Retrying in 3 seconds...")
+                        print("\033[91mEmpty content received. Retrying in 3 seconds...\033[0m")
                         time.sleep(3)
                         continue
 
@@ -81,7 +81,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                         try:
                             pdf_text = extractPDF(contentsByte, updated_vin, path)
                         except Exception as e:
-                            print("MuPDF error. Retrying in 3 seconds...")
+                            print("\033[91mMuPDF error. Retrying in 3 seconds...\033[0m")
                             time.sleep(3)
                             continue
                         pdf_info = extractInfo(pdf_text, updated_vin, model)
@@ -95,7 +95,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                         missing = [field for field in required_fields if not pdf_info.get(field)]
 
                         if missing:
-                            print("Missing fields.")
+                            print("\033[91mMissing fields.\033[0m")
                             with open(f"{path}/RETRY.txt", "a") as f:
                                 f.write(f"{updated_vin}\n")
                         else:
@@ -108,13 +108,13 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
 
                 except requests.exceptions.ReadTimeout:
                     # Retry request
-                    print("Timed out, retrying in 2 minutes...")
+                    print("\033[91mTimed out, retrying in 2 minutes...\033[0m")
                     retries += 1
                     time.sleep(120)
 
         except requests.exceptions.RequestException as e:
             if isinstance(e.__cause__, ConnectionResetError):
-                print(f"ConnectionResetError: {e}.")
+                print(f"\033[91mConnectionResetError: {e}.\033[0m")
                 # Write VIN to RETRY.txt file
                 with open(f'{path}/RETRY.txt', "a") as f:
                     f.write(f"{updated_vin}\n")
@@ -122,7 +122,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                 time.sleep(10)
                 continue
             else:
-                print(f"Error: {e}")
+                print(f"\033[91mError: {e}\033[0m")
                 print("Skipping this VIN.")
                 with open(f'{path}/RETRY.txt', "a") as f:
                     f.write(f"{updated_vin}\n")
@@ -324,14 +324,14 @@ while True: # urlChosenList
             vinChanging = int(vinChanging_input)
             break
         else:
-            print("\033[31mPlease enter a valid 6-digit number.\033[0m\n")
+            print("\033[91mPlease enter a valid 6-digit number.\033[0m\n")
     while True:
         endVIN_input = input('Enter last 6 numbers of the VIN to stop at:\n')
         if endVIN_input.isdigit() and len(endVIN_input) == 6:
             endVIN = int(endVIN_input)
             break
         else:
-            print("\033[31mPlease enter a valid 6-digit number.\033[0m\n")
+            print("\033[91mPlease enter a valid 6-digit number.\033[0m\n")
     
     model = input('Enter model to use:\n').upper()
     if model == "CORVETTE":
@@ -345,7 +345,7 @@ while True: # urlChosenList
             elif start_digit == "1":
                 urlChosenList = globals()["urlIdent_2019_list"]
             else:
-                print("\033[31mInvalid sequence.\033[0m\n")
+                print("\033[91mInvalid sequence.\033[0m\n")
                 continue
         elif int(year) >= 2025 and start_digit == "8":
             urlChosenList = globals()["urlIdent_zr1_list"]
@@ -356,7 +356,7 @@ while True: # urlChosenList
         elif start_digit == "1":
             urlChosenList = urlIdent_list
         else:
-            print("\033[31mInvalid sequence.\033[0m\n")
+            print("\033[91mInvalid sequence.\033[0m\n")
             continue
     elif model == "CAMARO" and 2019 <= int(year) <= 2024:
         urlChosenList = globals()[f"urlIdent_list_{year}"]
@@ -371,7 +371,7 @@ while True: # urlChosenList
     elif model == "CT6":
         urlChosenList = urlIdent_list_ct6
     else:
-        print("\033[31mPlease enter a valid model or check the year.\033[0m\n")
+        print("\033[91mPlease enter a valid model or check the year.\033[0m\n")
         continue
     break
 
@@ -386,7 +386,7 @@ testedVIN = 0
 
 estTime = totalVIN * 2
 estTime = format_time(estTime)
-print(f"ETA: {estTime}")
+print(f"\033[91mETA: {estTime}\033[0m")
 
 startTime = time.time()
 

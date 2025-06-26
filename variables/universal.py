@@ -106,7 +106,7 @@ while True:
     if yearDig:
         break
     else:
-        print("Invalid year.")
+        print("\033[91mInvalid year.\033[0m")
 
 model_data = {
     "CAMARO": {"start_vin": "1G1F", "plant": "0"}, # 0 = Lansing - Grand River
