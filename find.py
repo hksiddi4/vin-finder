@@ -1,6 +1,7 @@
 import json
 import requests
 import time
+import urllib3.exceptions
 from variables.universal import *
 from variables.corvette import *
 from variables.ct import *
@@ -111,6 +112,10 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
                     print("\033[91mTimed out, retrying in 2 minutes...\033[0m")
                     retries += 1
                     time.sleep(120)
+                except urllib3.exceptions.NameResolutionError:
+                    print("\033[91mName resolution failed. Retrying in 2 minutes...\033[0m")
+                    retries += 1
+                    time.sleep(120)
 
         except requests.exceptions.RequestException as e:
             if isinstance(e.__cause__, ConnectionResetError):
@@ -150,7 +155,7 @@ def parse_corvette(text, updated_vin):
 
     for i, line in enumerate(lines):
         if "PRICE*" in line:
-            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(" ","").replace(".00","")
+            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(".00","").strip()
         if "DELIVERED" in line:
             json_data = ' '.join(lines[i + 7:i + 11])
             all_json = json.loads(json_data)
@@ -163,8 +168,8 @@ def parse_corvette(text, updated_vin):
                 "ordernum": all_json["order_number"],
                 "year": all_json["model_year"]
             })
-            mmc_code = all_json["mmc_code"].replace(' ','')
-            all_json["sitedealer_code"] = all_json["sitedealer_code"].replace(' ','')
+            mmc_code = all_json["mmc_code"].strip()
+            all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
 
             for item in info["all_rpos"]:
                 if item in body_dict:
@@ -214,7 +219,7 @@ def parse_camaro(text, updated_vin):
 
     for i, line in enumerate(lines):
         if "PRICE*" in line:
-            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(" ","").replace(".00","")
+            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(".00","").strip()
         if "DELIVERED" in line:
             json_data = ' '.join(lines[i + 7:i + 11])
             all_json = json.loads(json_data)
@@ -227,8 +232,8 @@ def parse_camaro(text, updated_vin):
                 "ordernum": all_json["order_number"],
                 "year": all_json["model_year"]
             })
-            all_json["mmc_code"] = all_json["mmc_code"].replace(' ','')
-            all_json["sitedealer_code"] = all_json["sitedealer_code"].replace(' ','')
+            all_json["mmc_code"] = all_json["mmc_code"].strip()
+            all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
 
             for item in info["all_rpos"]:
                 if item in body_dict:
@@ -279,7 +284,7 @@ def parse_ct(text, updated_vin):
             info["model"] = modeltrim[0]
             info["trim"] = ' '.join(modeltrim[1:]).replace(" AWD", "").replace("3.6L ", "").replace("3,6L LUXURY A TI", "LUXURY")
         if "PRICE*" in line:
-            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(" ","").replace(".00","")
+            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(".00","").strip()
         if "DELIVERED" in line:
             json_data = ' '.join(lines[i + 7:i + 11])
             all_json = json.loads(json_data)
@@ -292,8 +297,8 @@ def parse_ct(text, updated_vin):
                 "ordernum": all_json["order_number"],
                 "year": all_json["model_year"]
             })
-            all_json["mmc_code"] = all_json["mmc_code"].replace(' ','')
-            all_json["sitedealer_code"] = all_json["sitedealer_code"].replace(' ','')
+            all_json["mmc_code"] = all_json["mmc_code"].strip()
+            all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
 
             for item in info["all_rpos"]:
                 if item in colors_dict_ct:
@@ -334,9 +339,9 @@ while True: # urlChosenList
             print("\033[91mPlease enter a valid 6-digit number.\033[0m\n")
     
     model = input('Enter model to use:\n').upper()
+    start_digit = vinChanging_input[0]
     if model == "CORVETTE":
         mmc = mmc_2019 if int(year) == 2019 else mmc_2020
-        start_digit = vinChanging_input[0]
         if int(year) == 2019:
             if start_digit == "8":
                 urlChosenList = globals()["urlIdent_2019_zr1_list"]
@@ -361,12 +366,15 @@ while True: # urlChosenList
     elif model == "CAMARO" and 2019 <= int(year) <= 2024:
         urlChosenList = globals()[f"urlIdent_list_{year}"]
     elif model in ("CT4", "CT5"):
-        if int(year) >= 2022:
-            blackwing = input('Run as Blackwing? (Y/N):\n').upper()
-            if blackwing == "Y":
-                urlChosenList = globals()["urlIdent_blackwing_list_2024"]
+        if int(year) >= 2022 and start_digit in ["2", "4", "5"]:
+            urlChosenList = globals()["urlIdent_blackwing_ct4"]
+        elif int(year) >= 2022 and start_digit in ["6", "8", "9"]:
+            urlChosenList = globals()["urlIdent_blackwing_ct5"]
         elif start_digit == "1":
-            urlChosenList = urlIdent_list_ct45
+            urlChosenList = globals()["urlIdent_list_ct45"]
+        else:
+            print("\033[91mInvalid sequence.\033[0m\n")
+            continue
         model = "CT4-CT5"
     elif model == "CT6":
         urlChosenList = urlIdent_list_ct6

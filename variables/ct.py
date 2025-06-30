@@ -32,7 +32,8 @@ colors_dict_ct = {
     "GSK": "INFRARED TINTCOAT",
     "GXD": "ARGENT SILVER METALLIC",
     "GXF": "MIDNIGHT SKY METALLIC",
-    "GXU": "MIDNIGHT STEEL METALLIC"
+    "GXU": "MIDNIGHT STEEL METALLIC",
+    "GBL": "MAGNUS METAL FROST",
 }
 
 ext_dict = {
@@ -54,14 +55,17 @@ urlIdent_blackwing_list_2023 = [
     "Y5R6" # CT5-V Blackwing
 ]
 
-urlIdent_blackwing_list_2024 = [
+urlIdent_blackwing_ct4 = [
     "75RP", # CT4-V Blackwing A10
     "65RP", # CT4-V Blackwing M6
+]
+
+urlIdent_blackwing_ct5 = [
     "35R6", # CT5-V Blackwing A10
     "25R6", # CT5-V Blackwing M6
 ]
 
-# Manual/Auto/Coupe/Conv. Differentiations - Orderd by 2025 Highest-Lowest
+# Manual/Auto/Coupe/Conv. Differentiations - Ordered by 2025 Highest-Lowest
 urlIdent_list_ct45 = [
     "S5RW", # Premium Luxery/AWD, LGY, CT5
     "P5RK", # Sport/RWD, LSY, CT5

@@ -268,7 +268,7 @@ def parse_ct(text, updated_vin):
     # Check for missing fields
     missing_fields = [field for field, value in info_ordered.items() if value is None]
     if missing_fields:
-        with open(f'{year}/missing_info.txt', "a") as f:
+        with open(f'{path}/missing_info.txt', "a") as f:
             f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
     
     return info_ordered
