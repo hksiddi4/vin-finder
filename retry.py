@@ -39,7 +39,7 @@ def processVin(vin):
 
                 # Retry if contents is empty
                 if contents == "":
-                    print("\033[91mEmpty content received. Retrying...\033[0m")
+                    print("\033[91mEmpty content received. Retrying in 3 seconds...\033[0m")
                     time.sleep(3)
                     continue
 
@@ -68,21 +68,25 @@ def processVin(vin):
                 break
 
             except requests.exceptions.ReadTimeout:
-                print("\033[91mTimed out, retrying...\033[0m")
+                print("\033[91mTimed out, retrying in 2 minutes...\033[0m")
                 retries += 1
                 time.sleep(120)
         testedVIN += 1
 
     except requests.exceptions.RequestException as e:
         if isinstance(e.__cause__, ConnectionResetError):
-            print(f"\033[91mConnectionResetError: {e}.\033[0m")
+            print(f"\033[91mConnectionResetError: {e}. Continue in 10 seconds...\033[0m")
             with open(f'{path}/RETRY.txt', "a") as f:
                 f.write(f"{vin}\n")
             time.sleep(10)
             return
         else:
-            print(f"\033[91mError: {e}\033[0m")
-            print("\033[30mSkipping this VIN.\033[0m")
+            if "NameResolutionError" in str(e):
+                print("\033[91mDNS resolution failed. Waiting 2 minutes before retrying...\033[0m")
+                time.sleep(120)
+            else:
+                print(f"\033[91mError: {e}\033[0m")
+                print("\033[30mSkipping this VIN.\033[0m")
             with open(f'{path}/RETRY.txt', "a") as f:
                 f.write(f"{vin}\n")
             return
