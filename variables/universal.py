@@ -114,6 +114,8 @@ model_data = {
     "CORVETTE": {"start_vin": "1G1Y", "plant": "5"}, # 5 = Bowling Green
     "CT4-CT5": {"start_vin": "1G6D", "plant": "0"},
     "CT6": {"start_vin": "1G6K", "plant": "U"}, # U = Detroit-Hamtramck
+    "HUMMER EV": {"start_vin": "1GT4", "plant": "U"}, # U = Detroit-Hamtramck - KB = Pickup
+    "HUMMER EV SUV": {"start_vin": "1GKB", "plant": "U"}, # U = Detroit-Hamtramck - KB = SUV
     "SILVERADO EV": {"start_vin": "1GC4", "plant": "U"}, # U = Detroit-Hamtramck - 4 = RST
     "SILVERADO EV WT": {"start_vin": "1GC1", "plant": "U"}, # U = Detroit-Hamtramck - 1 = WT
 }
@@ -123,11 +125,13 @@ skip_files_map = {
         f'CAMARO/{year}/skip_camaro.txt',
         f'CT4-CT5/{year}/skip_ct4-ct5.txt'
     ],
+    "HUMMER_SILVERADO_EV": [
+        f'HUMMER EV/{year}/skip_hummer ev.txt',
+        f'SILVERADO EV/{year}/skip_silverado ev.txt'
+    ],
     "CT4-CT5": [f'CT4-CT5/{year}/skip_ct4-ct5.txt'],
     "CORVETTE": [f'CORVETTE/{year}/skip_corvette.txt'],
-    "CT6": [f'CT4-CT5/{year}/skip_cadillac_ct6.txt'],
-    "SILVERADO EV": [f'SILVERADO EV/{year}/skip_silverado ev.txt'],
-    "SILVERADO EV WT": [f'SILVERADO EV/{year}/skip_silverado ev.txt'],
+    "CT6": [f'CT4-CT5/{year}/skip_cadillac_ct6.txt']
 }
 
 engines_dict = {
@@ -144,9 +148,11 @@ engines_dict = {
     "LT7": "5.5L (335 ci) Twin-Turbo V8",
     "LTA": "4.2L, V8, TWIN TURBO",
     "LTG": "2.0L Turbo, 4-cylinder, SIDI, VVT",
+    "EN0": "None",
     "ETI": "Ultium - 20 module pack",
     "EWX": "Ultium - 14 module pack",
     "ETN": "Ultium - 24 module pack",
+    "ETJ": "Ultium - 20 module pack",
 }
 
 trans_dict = {
@@ -170,6 +176,7 @@ trans_dict = {
     "MQ2": "A10",
     "MQA": "A10",
     "MX0": "A10",
+    "MF1": "None",
 }
 
 body_dict = {

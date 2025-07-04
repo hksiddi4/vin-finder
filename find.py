@@ -12,7 +12,10 @@ def extractInfo(text, updated_vin, model):
         "CORVETTE": parse_corvette,
         "CT4-CT5": parse_ct,
         "CAMARO": parse_camaro,
+        "HUMMER EV": parse_hummer_ev,
+        "HUMMER SUV": parse_hummer_ev,
         "SILVERADO EV": parse_silverado_ev,
+        "SILVERADO EV WT": parse_silverado_ev,
     }
     parser = parser_registry.get(model)
 
@@ -32,6 +35,8 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
             files_to_read = skip_files_map["CAMARO_CT4_CT5"]
         else:
             files_to_read = skip_files_map["CT4-CT5"]
+    elif model in ("HUMMER EV", "HUMMER EV SUV", "SILVERADO EV", "SILVERADO EV WT"):
+        files_to_read = skip_files_map.get("HUMMER_SILVERADO_EV")
     else:
         files_to_read = skip_files_map.get(model, [])
 
@@ -390,6 +395,69 @@ def parse_silverado_ev(text, updated_vin):
     
     return info_ordered
 
+def parse_hummer_ev(text, updated_vin):
+    global foundVIN
+
+    foundVIN += 1
+
+    lines = text.split('\n')
+
+    field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
+                   "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
+    
+    info = {
+        "vin": updated_vin,
+        "model": "HUMMER EV",
+        "drivetrain": "4WD",
+        "body": "TRUCK"
+    }
+
+    for i, line in enumerate(lines):
+        if "PRICE*" in line:
+            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(".00","").strip()
+        if "DELIVERED" in line:
+            json_data = ' '.join(lines[i + 7:i + 11])
+            all_json = json.loads(json_data)
+            all_json["Options"] = [option for option in all_json["Options"] if option]
+            info.update({
+                "dealer": lines[i + 1].strip().replace("\u2013", "-"),
+                "location": lines[i + 3].strip(),
+                "json": all_json,
+                "all_rpos": all_json["Options"],
+                "ordernum": all_json["order_number"],
+                "year": all_json["model_year"]
+            })
+            all_json["mmc_code"] = all_json["mmc_code"].strip()
+            mmc_code = all_json["mmc_code"].strip()
+            all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
+
+            for item in info["all_rpos"]:
+                if item in body_dict:
+                    info["body"] = body_dict[item]
+                if item in colors_dict_hummer_ev:
+                    info["exterior_color"] = colors_dict_hummer_ev[item]
+                if item in engines_dict:
+                    info["engine"] = engines_dict[item]
+                if item in trans_dict:
+                    info["transmission"] = trans_dict[item]
+                if item in trim_dict_hummer_ev:
+                    info["trim"] = trim_dict_hummer_ev[item]
+                    if info["trim"] in {"1SE", "1SF", "1SG"}:
+                        info["body"] = "SUV"
+            if mmc_code in mmc:
+                info["model"] = mmc[mmc_code]
+    
+    # Reorder the fields
+    info_ordered = {field: info.get(field, None) for field in field_order}
+
+    # Check for missing fields
+    missing_fields = [field for field, value in info_ordered.items() if value is None]
+    if missing_fields:
+        with open(f'{path}/missing_info.txt', "a") as f:
+            f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
+    
+    return info_ordered
+
 urlChosenList = None
 while True: # urlChosenList
     while True:
@@ -447,6 +515,18 @@ while True: # urlChosenList
         model = "CT4-CT5"
     elif model == "CT6":
         urlChosenList = urlIdent_list_ct6
+    elif model == "HUMMER EV":
+        if int(year) == 2022:
+            urlChosenList = globals()["urlIdent_2022_hummer_ev"]
+        elif int(year) == 2023:
+            urlChosenList = globals()["urlIdent_2023_hummer_ev"]
+        elif int(year) in [2024, 2025]:
+            urlChosenList = globals()["urlIdent_2024_hummer_ev"]
+        elif int(year) == 2026:
+            urlChosenList = globals()["urlIdent_2026_hummer_ev"]
+        else:
+            print("\033[91mInvalid sequence.\033[0m\n")
+            continue
     elif model in ("SILVERADO EV", "SILVERADO EV WT"):
         if start_digit in ["3", "4"]:
             urlChosenList = globals()["urlIdent_silverado_ev"]
