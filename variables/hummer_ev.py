@@ -17,14 +17,14 @@ colors_dict_hummer_ev = {
 
 trim_dict_hummer_ev = {
     # BOTH?
-    "3VL": "2X",
-    "1SE": "2 SUV",
-    "1SF": "2X SUV",
-    "1SG": "3X SUV",
-    "1SB": "2 PICKUP",
-    "1SC": "2X PICKUP",
-    "1SD": "3X PICKUP",
-    "FH1": "EDITION 1"
+    "3VL": "2X 3VL", # Delete if none come about
+    "1SE": "2", # SUV
+    "1SF": "2X", # SUV
+    "1SG": "3X", # SUV
+    "1SB": "2", # Pickup
+    "1SC": "2X", # Pickup
+    "1SD": "3X", # Pickup
+    "FH1": "EDITION 1",
 }
 
 mmc = {
@@ -33,23 +33,29 @@ mmc = {
 }
 
 urlIdent_2022_hummer_ev = {
-    ""
+    "0FDA" # Edition 1
 }
 
-urlIdent_2023_hummer_ev = {
-    "",
-    "",
-    "",
-    "",
-    "",
-    "0FDA"
+urlIdent_2023_hummer_ev = { # Why they did this, I have no idea
+    "0DDA", # 3X Pickup
+    "0DDB", # 3X Pickup
+    "0FDA", # Edition 1 Pickup
 }
 
 urlIdent_2024_hummer_ev = {
-    "0NDE",
-    "0RDC",
-    "0BDD",
-    "0FDA"
+    "0NDE", # 2X SUV
+    "0BDD", # 2X Pickup
+    "0RDC", # 3X SUV
+    "0SDC", # 3X SUV - "OMEGA Edition"
+    "0FDA", # Edition 1 SUV
+}
+
+urlIdent_2025_hummer_ev = {
+    "0NDE", # 2X SUV
+    "0BDD", # 2X Pickup
+    "0DDA", # 3X Pickup
+    "0DDB", # 3X Pickup
+    "0RDC", # 3X SUV
 }
 
 urlIdent_2026_hummer_ev = {

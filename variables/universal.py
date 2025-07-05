@@ -129,6 +129,7 @@ skip_files_map = {
         f'HUMMER EV/{year}/skip_hummer ev.txt',
         f'SILVERADO EV/{year}/skip_silverado ev.txt'
     ],
+    "HUMMER_EV": [f'HUMMER EV/{year}/skip_hummer ev.txt'],
     "CT4-CT5": [f'CT4-CT5/{year}/skip_ct4-ct5.txt'],
     "CORVETTE": [f'CORVETTE/{year}/skip_corvette.txt'],
     "CT6": [f'CT4-CT5/{year}/skip_cadillac_ct6.txt']

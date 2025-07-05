@@ -6,6 +6,8 @@ from variables.universal import *
 from variables.corvette import *
 from variables.ct import *
 from variables.camaro import *
+from variables.hummer_ev import *
+from variables.silverado_ev import *
 
 def extractInfo(text, updated_vin, model):
     parser_registry = {
@@ -36,7 +38,10 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
         else:
             files_to_read = skip_files_map["CT4-CT5"]
     elif model in ("HUMMER EV", "HUMMER EV SUV", "SILVERADO EV", "SILVERADO EV WT"):
-        files_to_read = skip_files_map.get("HUMMER_SILVERADO_EV")
+        if 2024 <= int(year):
+            files_to_read = skip_files_map.get("HUMMER_SILVERADO_EV")
+        else:
+            files_to_read = skip_files_map.get("HUMMER_EV")
     else:
         files_to_read = skip_files_map.get(model, [])
 
@@ -397,21 +402,17 @@ def parse_silverado_ev(text, updated_vin):
 
 def parse_hummer_ev(text, updated_vin):
     global foundVIN
-
     foundVIN += 1
 
     lines = text.split('\n')
-
     field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
-    
     info = {
         "vin": updated_vin,
         "model": "HUMMER EV",
         "drivetrain": "4WD",
         "body": "TRUCK"
     }
-
     for i, line in enumerate(lines):
         if "PRICE*" in line:
             info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(".00","").strip()
@@ -444,6 +445,8 @@ def parse_hummer_ev(text, updated_vin):
                     info["trim"] = trim_dict_hummer_ev[item]
                     if info["trim"] in {"1SE", "1SF", "1SG"}:
                         info["body"] = "SUV"
+            if "FH1" in info["all_rpos"]:
+                info["trim"] = trim_dict_hummer_ev["FH1"]
             if mmc_code in mmc:
                 info["model"] = mmc[mmc_code]
     
