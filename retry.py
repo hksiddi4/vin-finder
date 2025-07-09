@@ -118,7 +118,7 @@ def parse_corvette(text, updated_vin):
 
     for i, line in enumerate(lines):
         if "PRICE*" in line:
-            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(" ","").replace(".00","")
+            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(".00","").strip()
         if "DELIVERED" in line:
             json_data = ' '.join(lines[i + 7:i + 11])
             all_json = json.loads(json_data)
@@ -131,8 +131,8 @@ def parse_corvette(text, updated_vin):
                 "ordernum": all_json["order_number"],
                 "year": all_json["model_year"]
             })
-            mmc_code = all_json["mmc_code"].replace(' ','')
-            all_json["sitedealer_code"] = all_json["sitedealer_code"].replace(' ','')
+            mmc_code = all_json["mmc_code"].strip()
+            all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
 
             for item in info["all_rpos"]:
                 if item in body_dict:

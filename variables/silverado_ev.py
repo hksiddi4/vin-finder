@@ -9,12 +9,7 @@ trim_dict_silverado_ev = {
 }
 
 mmc_2020 = {
-    "CT35843": "", # RST MAX RANGE
-    "": "",
-    "": "",
-    "": "",
-    "": "",
-    "": "",
+    "CT35843": "", # e4WD Short Bed Crew Cab
 }
 
 urlIdent_silverado_ev_2024 = [

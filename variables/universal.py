@@ -114,8 +114,11 @@ model_data = {
     "CORVETTE": {"start_vin": "1G1Y", "plant": "5"}, # 5 = Bowling Green
     "CT4-CT5": {"start_vin": "1G6D", "plant": "0"},
     "CT6": {"start_vin": "1G6K", "plant": "U"}, # U = Detroit-Hamtramck
-    "HUMMER EV": {"start_vin": "1GT4", "plant": "U"}, # U = Detroit-Hamtramck - KB = Pickup
-    "HUMMER EV SUV": {"start_vin": "1GKB", "plant": "U"}, # U = Detroit-Hamtramck - KB = SUV
+    "HUMMER EV": [ # U = Detroit-Hamtramck
+        {"start_vin": "1GKB", "plant": "U"}, # KB = SUV
+        {"start_vin": "1GT4", "plant": "U"}, # T = Pickup | 4 - 24-Module / Class 3 Weight
+        {"start_vin": "1GT1", "plant": "U"}, # T = Pickup | 1 - 20-Module / Class 2H Weight
+    ],
     "SILVERADO EV": {"start_vin": "1GC4", "plant": "U"}, # U = Detroit-Hamtramck - 4 = RST
     "SILVERADO EV WT": {"start_vin": "1GC1", "plant": "U"}, # U = Detroit-Hamtramck - 1 = WT
 }
@@ -183,4 +186,7 @@ trans_dict = {
 body_dict = {
     "CM8": "CONVERTIBLE",
     "CM9": "CONVERTIBLE",
+    "1SE": "SUV",
+    "1SF": "SUV",
+    "1SG": "SUV",
 }

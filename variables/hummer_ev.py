@@ -37,9 +37,9 @@ urlIdent_2022_hummer_ev = {
 }
 
 urlIdent_2023_hummer_ev = { # Why they did this, I have no idea
+    "0FDA", # Edition 1 Pickup
     "0DDA", # 3X Pickup
     "0DDB", # 3X Pickup
-    "0FDA", # Edition 1 Pickup
 }
 
 urlIdent_2024_hummer_ev = {

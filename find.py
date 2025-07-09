@@ -27,10 +27,8 @@ def extractInfo(text, updated_vin, model):
         raise ValueError(f"Unsupported model: {model}")
 
 # Main vin processing ---------------------------------------------------------------------------
-def processVin(urlIdent, vinChanging, endVIN, yearDig):
+def processVin(urlIdent, vinChanging, endVIN, yearDig, startVIN, plant):
     global testedVIN, foundVIN
-    startVIN = model_data.get(model, {}).get("start_vin")
-    plant = model_data.get(model, {}).get("plant")
 
     if model in ("CAMARO", "CT4", "CT5"):
         if 2020 <= int(year) <= 2024:
@@ -60,7 +58,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig):
             continue
         try:
             # Build the URL (first half + identify trim/gear + check digit + model year + plant location + sequence number)
-            matchedVIN = startVIN + urlIdent + "X" + yearDig + plant + str(vinChanging)
+            matchedVIN = startVIN + urlIdent + "X" + yearDig + plant + str(vinChanging).zfill(6)
             updated_vin = calculate_check_digit(matchedVIN)
             newUrl = urlFirst + urlIdent + updated_vin[8:11] + str(vinChanging).zfill(6)
 
@@ -428,7 +426,6 @@ def parse_hummer_ev(text, updated_vin):
                 "ordernum": all_json["order_number"],
                 "year": all_json["model_year"]
             })
-            all_json["mmc_code"] = all_json["mmc_code"].strip()
             mmc_code = all_json["mmc_code"].strip()
             all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
 
@@ -443,8 +440,6 @@ def parse_hummer_ev(text, updated_vin):
                     info["transmission"] = trans_dict[item]
                 if item in trim_dict_hummer_ev:
                     info["trim"] = trim_dict_hummer_ev[item]
-                    if info["trim"] in {"1SE", "1SF", "1SG"}:
-                        info["body"] = "SUV"
             if "FH1" in info["all_rpos"]:
                 info["trim"] = trim_dict_hummer_ev["FH1"]
             if mmc_code in mmc:
@@ -479,6 +474,12 @@ while True: # urlChosenList
             print("\033[91mPlease enter a valid 6-digit number.\033[0m\n")
     
     model = input('Enter model to use:\n').upper()
+    model_entries = model_data.get(model)
+    if not model_entries:
+        print("\033[91mModel not found in model_data.\033[0m")
+        continue
+    if not isinstance(model_entries, list):
+        model_entries = [model_entries]
     start_digit = vinChanging_input[0]
     if model == "CORVETTE":
         mmc = mmc_2019 if int(year) == 2019 else mmc_2020
@@ -545,10 +546,12 @@ while True: # urlChosenList
 
 path = f"{model}/{year}"
 
+startList = len(model_entries)
 urlList = len(urlChosenList)
 
-totalVIN = ((int(endVIN_input) + 1) - int(vinChanging_input)) * int(urlList)
+totalVIN = (((int(endVIN_input) + 1) - int(vinChanging_input)) * int(urlList)) * int(startList)
 totalIdent = 1
+totalStart = 1
 foundVIN = 0
 testedVIN = 0
 
@@ -559,11 +562,16 @@ print(f"\033[91mETA: {estTime}\033[0m")
 startTime = time.time()
 
 # Process request through all variations of trim/gears
-for urlIdent in urlChosenList:
-    print(f"Testing configuration ({str(totalIdent)}/{str(urlList)}): {urlIdent} -------------------------------")
-    processVin(urlIdent, vinChanging, endVIN, yearDig)
-    print("")
-    totalIdent += 1
+for config in model_entries:
+    startVIN = config["start_vin"]
+    plant = config["plant"]
+    for urlIdent in urlChosenList:
+        print(f"Testing configuration ({totalIdent}/{urlList}): {urlIdent} | ({totalStart}/{startList}): {startVIN}")
+        processVin(urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
+        totalIdent += 1
+        print("")
+    totalStart += 1
+    totalIdent = 1
 
 endTime = time.time()
 elapsedTime = endTime - startTime
@@ -572,4 +580,4 @@ currentTime = time.strftime("%H:%M:%S", time.localtime())
 
 print(f"Ended: {currentTime}")
 print(f"Estimated time: {estTime} - Elapsed time: {time_str}")
-print(f"Tested {testedVIN}/{totalVIN} VIN(s) - Found Found \033[93m{foundVIN}\033[0m match(es)")
+print(f"Tested {testedVIN}/{totalVIN} VIN(s) - Found \033[93m{foundVIN}\033[0m match(es)")
