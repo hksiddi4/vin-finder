@@ -17,7 +17,6 @@ def extractInfo(text, updated_vin, model):
         "HUMMER EV": parse_hummer_ev,
         "HUMMER SUV": parse_hummer_ev,
         "SILVERADO EV": parse_silverado_ev,
-        "SILVERADO EV WT": parse_silverado_ev,
     }
     parser = parser_registry.get(model)
 
@@ -337,24 +336,20 @@ def parse_ct(text, updated_vin):
 
 def parse_silverado_ev(text, updated_vin):
     global foundVIN
-
     foundVIN += 1
 
     lines = text.split('\n')
-
     field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
-    
     info = {
         "vin": updated_vin,
         "model": "SILVERADO EV",
-        "drivetrain": "AWD",
+        "drivetrain": "4WD",
         "body": "TRUCK"
     }
-
     for i, line in enumerate(lines):
         if "PRICE*" in line:
-            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(".00","").strip()
+            info["msrp"] = lines[i + 1].replace("$","").replace(",","").replace(".00","").strip()
         if "DELIVERED" in line:
             json_data = ' '.join(lines[i + 7:i + 11])
             all_json = json.loads(json_data)
@@ -367,8 +362,7 @@ def parse_silverado_ev(text, updated_vin):
                 "ordernum": all_json["order_number"],
                 "year": all_json["model_year"]
             })
-            all_json["mmc_code"] = all_json["mmc_code"].strip()
-            mmc_code = all_json["mmc_code"].strip()
+            mmc_code = all_json["mmc_code"] = all_json["mmc_code"].strip()
             all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
 
             for item in info["all_rpos"]:
@@ -382,8 +376,6 @@ def parse_silverado_ev(text, updated_vin):
                     info["transmission"] = trans_dict[item]
                 if item in trim_dict_silverado_ev:
                     info["trim"] = trim_dict_silverado_ev[item]
-                if item == "HP1":
-                    info["drivetrain"] = "AWD"
             if mmc_code in mmc:
                 info["model"] = mmc[mmc_code]
     
@@ -413,7 +405,7 @@ def parse_hummer_ev(text, updated_vin):
     }
     for i, line in enumerate(lines):
         if "PRICE*" in line:
-            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(".00","").strip()
+            info["msrp"] = lines[i + 1].replace("$","").replace(",","").replace(".00","").strip()
         if "DELIVERED" in line:
             json_data = ' '.join(lines[i + 7:i + 11])
             all_json = json.loads(json_data)
@@ -478,9 +470,14 @@ while True: # urlChosenList
     if not model_entries:
         print("\033[91mModel not found in model_data.\033[0m")
         continue
-    if not isinstance(model_entries, list):
-        model_entries = [model_entries]
     start_digit = vinChanging_input[0]
+    if isinstance(model_entries.get("start_vin"), dict):
+        selected_start_vin = model_entries["start_vin"].get(start_digit)
+        if not selected_start_vin:
+            print("\033[91mInvalid sequence.\033[0m\n")
+            continue
+    else:
+        selected_start_vin = model_entries["start_vin"]
     if model == "CORVETTE":
         mmc = mmc_2019 if int(year) == 2019 else mmc_2020
         if int(year) == 2019:
@@ -546,6 +543,9 @@ while True: # urlChosenList
 
 path = f"{model}/{year}"
 
+if not isinstance(model_entries, list):
+    model_entries = [model_entries]
+
 startList = len(model_entries)
 urlList = len(urlChosenList)
 
@@ -563,7 +563,7 @@ startTime = time.time()
 
 # Process request through all variations of trim/gears
 for config in model_entries:
-    startVIN = config["start_vin"]
+    startVIN = selected_start_vin
     plant = config["plant"]
     for urlIdent in urlChosenList:
         print(f"Testing configuration ({totalIdent}/{urlList}): {urlIdent} | ({totalStart}/{startList}): {startVIN}")

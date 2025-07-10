@@ -16,8 +16,6 @@ colors_dict_hummer_ev = {
 }
 
 trim_dict_hummer_ev = {
-    # BOTH?
-    "3VL": "2X 3VL", # Delete if none come about
     "1SE": "2", # SUV
     "1SF": "2X", # SUV
     "1SG": "3X", # SUV
@@ -59,8 +57,6 @@ urlIdent_2025_hummer_ev = {
 }
 
 urlIdent_2026_hummer_ev = {
-    # BOTH?
-    "3VL",
     "",
     "",
     "",

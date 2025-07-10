@@ -285,21 +285,17 @@ def parse_ct(text, updated_vin):
 
 def parse_silverado_ev(text, updated_vin):
     global foundVIN
-
     foundVIN += 1
 
     lines = text.split('\n')
-
     field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
-    
     info = {
         "vin": updated_vin,
         "model": "SILVERADO EV",
-        "drivetrain": "AWD",
+        "drivetrain": "4WD",
         "body": "TRUCK"
     }
-
     for i, line in enumerate(lines):
         if "PRICE*" in line:
             info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(".00","").strip()
@@ -315,7 +311,6 @@ def parse_silverado_ev(text, updated_vin):
                 "ordernum": all_json["order_number"],
                 "year": all_json["model_year"]
             })
-            all_json["mmc_code"] = all_json["mmc_code"].strip()
             mmc_code = all_json["mmc_code"].strip()
             all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
 
@@ -330,8 +325,6 @@ def parse_silverado_ev(text, updated_vin):
                     info["transmission"] = trans_dict[item]
                 if item in trim_dict_silverado_ev:
                     info["trim"] = trim_dict_silverado_ev[item]
-                if item == "HP1":
-                    info["drivetrain"] = "AWD"
             if mmc_code in mmc:
                 info["model"] = mmc[mmc_code]
     
@@ -417,6 +410,8 @@ while True:
         model = "CAMARO"
     elif model in ("HUMMER EV", "HUMMER EV SUV"):
         model = "HUMMER EV"
+    elif model in ("SILVERADO EV", "SILVERADO EV WT"):
+        model = "SILVERADO EV"
     else:
         print("\033[91mPlease enter a valid model or check the year.\033[0m\n")
         continue

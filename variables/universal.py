@@ -119,8 +119,14 @@ model_data = {
         {"start_vin": "1GT4", "plant": "U"}, # T = Pickup | 4 - 24-Module / Class 3 Weight
         {"start_vin": "1GT1", "plant": "U"}, # T = Pickup | 1 - 20-Module / Class 2H Weight
     ],
-    "SILVERADO EV": {"start_vin": "1GC4", "plant": "U"}, # U = Detroit-Hamtramck - 4 = RST
-    "SILVERADO EV WT": {"start_vin": "1GC1", "plant": "U"}, # U = Detroit-Hamtramck - 1 = WT
+    "SILVERADO EV": {
+        "start_vin": {
+            "2": "1GC1",  # WT
+            "3": "1GC4",  # RST
+            "4": "1GC4"
+        },
+        "plant": "U"
+    },
 }
 
 skip_files_map = {
