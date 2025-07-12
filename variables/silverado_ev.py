@@ -28,9 +28,10 @@ urlIdent_silverado_ev_2024 = [
 ]
 
 urlIdent_silverado_ev = [
-    "0ZEF", # RST LT
-    "01ED", # RST Ext. Range
-    "02EL", # RST Max Range
+    #"0ZEF", # RST LT
+    #"01ED", # RST Ext. Range
+    #"02EL", # RST Max Range
+    "0ZEL", # RST
 ]
 
 urlIdent_silverado_evwt = [
