@@ -529,10 +529,13 @@ while True: # urlChosenList
             print("\033[91mInvalid sequence.\033[0m\n")
             continue
     elif model in ("SILVERADO EV", "SILVERADO EV WT"):
-        if start_digit in ["3", "4"]:
-            urlChosenList = globals()["urlIdent_silverado_ev"]
-        elif start_digit in ["2"]:
-            urlChosenList = globals()["urlIdent_silverado_evwt"]
+        if int(year) == 2024:
+            if start_digit in ["3", "4"]:
+                urlChosenList = globals()["urlIdent_silverado_ev"]
+            elif start_digit in ["2"]:
+                urlChosenList = globals()["urlIdent_silverado_evwt"]
+        elif int(year) >= 2025:
+            urlChosenList = globals()["urlIdent_silverado_ev_2025"]
         else:
             print("\033[91mInvalid sequence.\033[0m\n")
             continue
