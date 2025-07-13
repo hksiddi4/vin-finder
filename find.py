@@ -569,6 +569,10 @@ for config in model_entries:
     startVIN = selected_start_vin
     plant = config["plant"]
     for urlIdent in urlChosenList:
+        if model == "SILVERADO EV" and urlIdent == "02EL":
+            startVIN = "1GC4"
+        else:
+            startVIN = config.get("start_vin", {}).get(start_digit, selected_start_vin)
         print(f"Testing configuration ({totalIdent}/{urlList}): {urlIdent} | ({totalStart}/{startList}): {startVIN}")
         processVin(urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
         totalIdent += 1

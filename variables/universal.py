@@ -123,7 +123,7 @@ model_data = {
         "start_vin": {
             "2": "1GC1",  # WT
             "3": "1GC4",  # RST
-            "4": "1GC4"
+            "4": "1GC1"
         },
         "plant": "U"
     },
