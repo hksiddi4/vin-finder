@@ -36,9 +36,9 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig, startVIN, plant):
             files_to_read = skip_files_map["CAMARO_CT4_CT5"]
         else:
             files_to_read = skip_files_map["CT4-CT5"]
-    elif model in ("HUMMER EV", "HUMMER EV SUV", "SILVERADO EV", "SILVERADO EV WT"):
+    elif model in ("HUMMER EV", "HUMMER EV SUV", "SILVERADO EV", "SILVERADO EV WT", "SIERRA EV"):
         if 2024 <= int(year):
-            files_to_read = skip_files_map.get("HUMMER_SILVERADO_EV")
+            files_to_read = skip_files_map.get("HUMMER_SILVERADO_SIERRA_EV")
         else:
             files_to_read = skip_files_map.get("HUMMER_EV")
     else:
@@ -642,6 +642,8 @@ for config in model_entries:
     for urlIdent in urlChosenList:
         if model == "SILVERADO EV" and urlIdent == "02EL":
             startVIN = "1GC4"
+        if model == "SIERRA EV" and urlIdent == "0MED":
+            startVIN = "1GT1"
         else:
             startVIN = config.get("start_vin", selected_start_vin)
         print(f"Testing configuration ({totalIdent}/{urlList}): {urlIdent} | ({totalStart}/{startList}): {startVIN}")

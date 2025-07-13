@@ -1,9 +1,14 @@
 colors_dict_sierra_ev = {
     "GNO": "THUNDERSTORM GRAY",
+    "GAB": "DARK EMBER TINTCOAT",
+    "GAI": "DEEP OCEAN METALLIC",
+    "GAZ": "SUMMIT WHITE",
+    "GBA": "ONYX BLACK",
+    "GLG": "MOONLIGHT MATTE",
 }
 
 trim_dict_sierra_ev = {
-    "5SD": "DENALI EDITION 1",
+    #"5SD": "DENALI EDITION 1",
     "5SB": "DENALI STANDARD RANGE",
     "5SC": "DENALI EXTENDED RANGE",
     "5SD": "DENALI MAX RANGE",
