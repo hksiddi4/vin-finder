@@ -8,6 +8,7 @@ from variables.ct import *
 from variables.camaro import *
 from variables.hummer_ev import *
 from variables.silverado_ev import *
+from variables.sierra_ev import *
 
 def extractInfo(text, updated_vin, model):
     parser_registry = {
@@ -17,6 +18,7 @@ def extractInfo(text, updated_vin, model):
         "HUMMER EV": parse_hummer_ev,
         "HUMMER SUV": parse_hummer_ev,
         "SILVERADO EV": parse_silverado_ev,
+        "SIERRA EV": parse_sierra_ev,
     }
     parser = parser_registry.get(model)
 
@@ -390,6 +392,62 @@ def parse_silverado_ev(text, updated_vin):
     
     return info_ordered
 
+def parse_sierra_ev(text, updated_vin):
+    global foundVIN
+    foundVIN += 1
+
+    lines = text.split('\n')
+    field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
+                   "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
+    info = {
+        "vin": updated_vin,
+        "model": "SIERRA EV",
+        "drivetrain": "4WD",
+        "body": "TRUCK"
+    }
+    for i, line in enumerate(lines):
+        if "PRICE*" in line:
+            info["msrp"] = lines[i + 1].replace("$","").replace(",","").replace(".00","").strip()
+        if "DELIVERED" in line:
+            json_data = ' '.join(lines[i + 7:i + 11])
+            all_json = json.loads(json_data)
+            all_json["Options"] = [option for option in all_json["Options"] if option]
+            info.update({
+                "dealer": lines[i + 1].strip().replace("\u2013", "-"),
+                "location": lines[i + 3].strip(),
+                "json": all_json,
+                "all_rpos": all_json["Options"],
+                "ordernum": all_json["order_number"],
+                "year": all_json["model_year"]
+            })
+            mmc_code = all_json["mmc_code"] = all_json["mmc_code"].strip()
+            all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
+
+            for item in info["all_rpos"]:
+                if item in body_dict:
+                    info["body"] = body_dict[item]
+                if item in colors_dict_sierra_ev:
+                    info["exterior_color"] = colors_dict_sierra_ev[item]
+                if item in engines_dict:
+                    info["engine"] = engines_dict[item]
+                if item in trans_dict:
+                    info["transmission"] = trans_dict[item]
+                if item in trim_dict_sierra_ev:
+                    info["trim"] = trim_dict_sierra_ev[item]
+            if mmc_code in mmc:
+                info["model"] = mmc[mmc_code]
+    
+    # Reorder the fields
+    info_ordered = {field: info.get(field, None) for field in field_order}
+
+    # Check for missing fields
+    missing_fields = [field for field, value in info_ordered.items() if value is None]
+    if missing_fields:
+        with open(f'{path}/missing_info.txt', "a") as f:
+            f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
+    
+    return info_ordered
+
 def parse_hummer_ev(text, updated_vin):
     global foundVIN
     foundVIN += 1
@@ -470,14 +528,18 @@ while True: # urlChosenList
     if not model_entries:
         print("\033[91mModel not found in model_data.\033[0m")
         continue
+    if not isinstance(model_entries, list):
+            model_entries = [model_entries]
+
     start_digit = vinChanging_input[0]
-    if isinstance(model_entries.get("start_vin"), dict):
-        selected_start_vin = model_entries["start_vin"].get(start_digit)
+
+    if isinstance(model_entries[0].get("start_vin"), dict):
+        selected_start_vin = model_entries[0]["start_vin"].get(start_digit)
         if not selected_start_vin:
             print("\033[91mInvalid sequence.\033[0m\n")
             continue
     else:
-        selected_start_vin = model_entries["start_vin"]
+        selected_start_vin = model_entries[0]["start_vin"]
     if model == "CORVETTE":
         mmc = mmc_2019 if int(year) == 2019 else mmc_2020
         if int(year) == 2019:
@@ -539,6 +601,16 @@ while True: # urlChosenList
         else:
             print("\033[91mInvalid sequence.\033[0m\n")
             continue
+    elif model == "SIERRA EV":
+        if int(year) == 2024:
+            urlChosenList = globals()["urlIdent_sierra_ev"]
+        elif int(year) == 2025:
+            urlChosenList = globals()["urlIdent_sierra_ev_2025"]
+        elif int(year) == 2026:
+            urlChosenList = globals()["urlIdent_sierra_ev_2026"]
+        else:
+            print("\033[91mInvalid sequence.\033[0m\n")
+            continue
     else:
         print("\033[91mPlease enter a valid model or check the year.\033[0m\n")
         continue
@@ -566,13 +638,12 @@ startTime = time.time()
 
 # Process request through all variations of trim/gears
 for config in model_entries:
-    startVIN = selected_start_vin
     plant = config["plant"]
     for urlIdent in urlChosenList:
         if model == "SILVERADO EV" and urlIdent == "02EL":
             startVIN = "1GC4"
         else:
-            startVIN = config.get("start_vin", {}).get(start_digit, selected_start_vin)
+            startVIN = config.get("start_vin", selected_start_vin)
         print(f"Testing configuration ({totalIdent}/{urlList}): {urlIdent} | ({totalStart}/{startList}): {startVIN}")
         processVin(urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
         totalIdent += 1

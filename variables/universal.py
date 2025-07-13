@@ -110,23 +110,17 @@ while True:
         print("\033[91mInvalid year.\033[0m")
 
 model_data = {
-    "CAMARO": {"start_vin": "1G1F", "plant": "0"}, # 0 = Lansing - Grand River
-    "CORVETTE": {"start_vin": "1G1Y", "plant": "5"}, # 5 = Bowling Green
+    "CAMARO": {"start_vin": "1G1F", "plant": "0"},
+    "CORVETTE": {"start_vin": "1G1Y", "plant": "5"},
     "CT4-CT5": {"start_vin": "1G6D", "plant": "0"},
-    "CT6": {"start_vin": "1G6K", "plant": "U"}, # U = Detroit-Hamtramck
-    "HUMMER EV": [ # U = Detroit-Hamtramck
-        {"start_vin": "1GKB", "plant": "U"}, # KB = SUV
-        {"start_vin": "1GT4", "plant": "U"}, # T = Pickup | 4 - 24-Module / Class 3 Weight
-        {"start_vin": "1GT1", "plant": "U"}, # T = Pickup | 1 - 20-Module / Class 2H Weight
+    "CT6": {"start_vin": "1G6K", "plant": "U"},
+    "HUMMER EV": [
+        {"start_vin": "1GKB", "plant": "U"},
+        {"start_vin": "1GT4", "plant": "U"},
+        {"start_vin": "1GT1", "plant": "U"},
     ],
-    "SILVERADO EV": {
-        "start_vin": {
-            "2": "1GC1",  # WT
-            "3": "1GC4",  # RST
-            "4": "1GC1"
-        },
-        "plant": "U"
-    },
+    "SILVERADO EV": {"start_vin": "1GC1", "plant": "U"},
+    "SIERRA EV": {"start_vin": "1GT4", "plant": "U"},
 }
 
 skip_files_map = {
@@ -136,7 +130,8 @@ skip_files_map = {
     ],
     "HUMMER_SILVERADO_EV": [
         f'HUMMER EV/{year}/skip_hummer ev.txt',
-        f'SILVERADO EV/{year}/skip_silverado ev.txt'
+        f'SILVERADO EV/{year}/skip_silverado ev.txt',
+        f'SIERRA EV/{year}/skip_sierra ev.txt'
     ],
     "HUMMER_EV": [f'HUMMER EV/{year}/skip_hummer ev.txt'],
     "CT4-CT5": [f'CT4-CT5/{year}/skip_ct4-ct5.txt'],

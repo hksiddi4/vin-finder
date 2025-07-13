@@ -5,7 +5,10 @@ colors_dict_silverado_ev = {
     "GAG": "HABANERO ORANGE",
     "GJV": "RIPTIDE BLUE METALLIC",
     "GLG": "ZEPHYR BLUE MATTE METALLIC",
-    "GAI": "BLUE SMOKE METALLIC"
+    "GAI": "BLUE SMOKE METALLIC",
+    "G42": "WHITE SANDS",
+    "G4J": "POLAR WHITE TRICOAT",
+    "GBL": "MAGNUS GRAY MATTE METALLIC",
 }
 
 trim_dict_silverado_ev = {
@@ -41,3 +44,13 @@ urlIdent_silverado_ev_2025 = [
     "0WEL", # WT Max Range
 ]
 
+urlIdent_silverado_ev_2026 = [
+    "", # 4WT Standard Range
+    "", # 5WT EXT. RANGE
+    "", # 8WT MAX RANGE
+    "0YEH", # 2LT STANDARD RANGE
+    "0ZED", # 3LT EXT. RANGE
+    "00EL", # 4LT MAX RANGE
+    "03ED", # TRAIL BOSS EXT. RANGE
+    "05EL", # TRAIL BOSS MAX RANGE
+]
