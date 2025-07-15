@@ -109,6 +109,19 @@ while True:
     else:
         print("\033[91mInvalid year.\033[0m")
 
+# Plant Codes ----------------------- As of July 2025 ---------------------------------
+# 0 = Lansing Grand River Assembly                  : Camaro, CT4-CT5
+# 1 = Wentzville Assembly                           : Colorado, Express, Canyon, Savana
+# 4 = Orion Assembly                                : Sierra Denali EV, Silverado - Sierra Denali EV isn't right?
+# 5 = Bowling Green Assembly                        : Corvette
+# F = Fairfax II Assembly                           : Bolt EV (Starting Nov. '25)
+# F = Flint Truck Assembly                          : Silverado HD, Sierra HD, Sierra HD Denali, HD ZR2, HD ZR2 Bison, HD Trail Boss, HD AT4X, HD AT4X AEV
+# J = Lansing Delta Township Assembly               : Enclave, Traverse, Acadia
+# R = Arlington Assembly                            : Tahoe, Suburban, Yukon, Yukon XL, Escalade, Escalade-V
+# U = Factory Zero (Detroit-Hamtramck Assembly)     : Hummer EV (Pickup and SUV), Silverado EV, Sierra EV, Escalade IQ
+# Z = Fort Wayne Assembly                           : Silverado 1500, Sierra 1500
+# Z = Spring Hill Manufacturing                     : XT5, XT6, Lyriq, Vistiq
+
 model_data = {
     "CAMARO": {"start_vin": "1G1F", "plant": "0"},
     "CORVETTE": {"start_vin": "1G1Y", "plant": "5"},
@@ -121,6 +134,7 @@ model_data = {
     ],
     "SILVERADO EV": {"start_vin": "1GC1", "plant": "U"},
     "SIERRA EV": {"start_vin": "1GT4", "plant": "U"},
+    "ESCALADE IQ": {"start_vin": "1GYT", "plant": "U"},
 }
 
 skip_files_map = {
@@ -128,10 +142,11 @@ skip_files_map = {
         f'CAMARO/{year}/skip_camaro.txt',
         f'CT4-CT5/{year}/skip_ct4-ct5.txt'
     ],
-    "HUMMER_SILVERADO_SIERRA_EV": [
+    "HUMMER_SILVERADO_SIERRA_ESCALADEIQ_EV": [
         f'HUMMER EV/{year}/skip_hummer ev.txt',
         f'SILVERADO EV/{year}/skip_silverado ev.txt',
-        f'SIERRA EV/{year}/skip_sierra ev.txt'
+        f'SIERRA EV/{year}/skip_sierra ev.txt',
+        f'ESCALADE IQ/{year}/skip_escalade iq.txt'
     ],
     "HUMMER_EV": [f'HUMMER EV/{year}/skip_hummer ev.txt'],
     "CT4-CT5": [f'CT4-CT5/{year}/skip_ct4-ct5.txt'],
