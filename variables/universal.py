@@ -125,7 +125,8 @@ while True:
 model_data = {
     "CAMARO": {"start_vin": "1G1F", "plant": "0"},
     "CORVETTE": {"start_vin": "1G1Y", "plant": "5"},
-    "CT4-CT5": {"start_vin": "1G6D", "plant": "0"},
+    "CT4": {"start_vin": "1G6D", "plant": "0"},
+    "CT5": {"start_vin": "1G6D", "plant": "0"},
     "CT6": {"start_vin": "1G6K", "plant": "U"},
     "HUMMER EV": [
         {"start_vin": "1GKB", "plant": "U"},
@@ -147,6 +148,11 @@ skip_files_map = {
         f'SILVERADO EV/{year}/skip_silverado ev.txt',
         f'SIERRA EV/{year}/skip_sierra ev.txt',
         f'ESCALADE IQ/{year}/skip_escalade iq.txt'
+    ],
+    "HUMMER_SILVERADO_SIERRA_EV": [
+        f'HUMMER EV/{year}/skip_hummer ev.txt',
+        f'SILVERADO EV/{year}/skip_silverado ev.txt',
+        f'SIERRA EV/{year}/skip_sierra ev.txt'
     ],
     "HUMMER_EV": [f'HUMMER EV/{year}/skip_hummer ev.txt'],
     "CT4-CT5": [f'CT4-CT5/{year}/skip_ct4-ct5.txt'],

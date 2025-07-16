@@ -12,37 +12,28 @@ from variables.sierra_ev import *
 from variables.escalade_iq import *
 
 def extractInfo(text, updated_vin, model):
-    parser_registry = {
-        "CORVETTE": parse_corvette,
-        "CT4-CT5": parse_ct,
-        "CAMARO": parse_camaro,
-        "HUMMER EV": parse_hummer_ev,
-        "HUMMER SUV": parse_hummer_ev,
-        "SILVERADO EV": parse_silverado_ev,
-        "SIERRA EV": parse_sierra_ev,
-        "ESCALADE IQ": parse_escalade_iq,
-    }
-    parser = parser_registry.get(model)
-
-    if parser:
-        return parser(text, updated_vin)
-    else:
+    config = model_configs.get(model)
+    if not config:
         raise ValueError(f"Unsupported model: {model}")
+    return parse_generic(text, updated_vin, config)
 
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(urlIdent, vinChanging, endVIN, yearDig, startVIN, plant):
     global testedVIN, foundVIN
+    mYear = int(year)
 
     if model in ("CAMARO", "CT4", "CT5"):
-        if 2020 <= int(year) <= 2024:
+        if 2020 <= mYear <= 2024:
             files_to_read = skip_files_map["CAMARO_CT4_CT5"]
         else:
             files_to_read = skip_files_map["CT4-CT5"]
-    elif model in ("HUMMER EV", "HUMMER EV SUV", "SILVERADO EV", "SILVERADO EV WT", "SIERRA EV", "ESCALADE IQ"):
-        if 2024 <= int(year):
-            files_to_read = skip_files_map.get("HUMMER_SILVERADO_SIERRA_ESCALADEIQ_EV")
-        else:
+    elif model in ("HUMMER EV", "SILVERADO EV", "SIERRA EV", "ESCALADE IQ"):
+        if model == "HUMMER EV" and 2022 <= mYear <= 2023:
             files_to_read = skip_files_map.get("HUMMER_EV")
+        elif mYear == 2024:
+            files_to_read = skip_files_map.get("HUMMER_SILVERADO_SIERRA_EV")
+        elif mYear >= 2025:
+            files_to_read = skip_files_map.get("HUMMER_SILVERADO_SIERRA_ESCALADEIQ_EV")
     else:
         files_to_read = skip_files_map.get(model, [])
 
@@ -55,10 +46,16 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig, startVIN, plant):
 
     # Keep going until a specific stopping point
     while vinChanging <= endVIN:
-        if vinChanging in skipping:
-            print("\033[30mExisting sequence, skipping\033[0m")
+        skip_count = 0
+        # Count consecutive skips
+        while vinChanging <= endVIN and vinChanging in skipping:
+            skip_count += 1
             vinChanging += 1
-            continue
+        if skip_count > 0:
+            print(f"\033[30mExisting sequence{'s' if skip_count > 1 else ''}, skipped {skip_count} VIN{'s' if skip_count > 1 else ''}.\033[0m")
+            # After skipping block, continue with next iteration to process non-skipped VIN
+            if vinChanging > endVIN:
+                break
         try:
             # Build the URL (first half + identify trim/gear + check digit + model year + plant location + sequence number)
             matchedVIN = startVIN + urlIdent + "X" + yearDig + plant + str(vinChanging).zfill(6)
@@ -152,147 +149,19 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig, startVIN, plant):
         except KeyboardInterrupt:
             break
 
-def parse_corvette(text, updated_vin):
+def parse_generic(text, updated_vin, config):
     global foundVIN
-
     foundVIN += 1
 
     lines = text.split('\n')
 
-    field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
-                   "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
-    
     info = {
         "vin": updated_vin,
-        "model": "CORVETTE",
-        "drivetrain": "RWD",
-        "body": "COUPE"
+        "model": config["model_name"],
+        "drivetrain": config.get("default_drivetrain"),
+        "body": config.get("default_body"),
     }
 
-    for i, line in enumerate(lines):
-        if "PRICE*" in line:
-            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(".00","").strip()
-        if "DELIVERED" in line:
-            json_data = ' '.join(lines[i + 7:i + 11])
-            all_json = json.loads(json_data)
-            all_json["Options"] = [option for option in all_json["Options"] if option]
-            info.update({
-                "dealer": lines[i + 1].strip().replace("\u2013", "-"),
-                "location": lines[i + 3].strip(),
-                "json": all_json,
-                "all_rpos": all_json["Options"],
-                "ordernum": all_json["order_number"],
-                "year": all_json["model_year"]
-            })
-            all_json["mmc_code"] = all_json["mmc_code"].strip()
-            mmc_code = all_json["mmc_code"].strip()
-            all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
-
-            for item in info["all_rpos"]:
-                if item in body_dict:
-                    info["body"] = body_dict[item]
-                if item in colors_dict_corvette:
-                    info["exterior_color"] = colors_dict_corvette[item]
-                if item in engines_dict:
-                    info["engine"] = engines_dict[item]
-                if item in trans_dict:
-                    info["transmission"] = trans_dict[item]
-                if item in trim_dict_corvette:
-                    info["trim"] = trim_dict_corvette[item]
-                if item == "HP1":
-                    info["drivetrain"] = "AWD"
-            if mmc_code in mmc:
-                info["model"] = mmc[mmc_code]
-                if mmc_code == "1YG07" or mmc_code == "1YG67":
-                    info["drivetrain"] = "AWD"
-    
-    # Reorder the fields
-    info_ordered = {field: info.get(field, None) for field in field_order}
-
-    # Check for missing fields
-    missing_fields = [field for field, value in info_ordered.items() if value is None]
-    if missing_fields:
-        with open(f'{path}/missing_info.txt', "a") as f:
-            f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
-    
-    return info_ordered
-
-def parse_camaro(text, updated_vin):
-    global foundVIN
-
-    foundVIN += 1
-
-    lines = text.split('\n')
-    
-    field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
-                   "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
-    
-    info = {
-        "vin": updated_vin,
-        "model": "CAMARO",
-        "drivetrain": "RWD",
-        "body": "COUPE"
-    }
-
-    for i, line in enumerate(lines):
-        if "PRICE*" in line:
-            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(".00","").strip()
-        if "DELIVERED" in line:
-            json_data = ' '.join(lines[i + 7:i + 11])
-            all_json = json.loads(json_data)
-            all_json["Options"] = [option for option in all_json["Options"] if option]
-            info.update({
-                "dealer": lines[i + 1].strip().replace("\u2013", "-"),
-                "location": lines[i + 3].strip(),
-                "json": all_json,
-                "all_rpos": all_json["Options"],
-                "ordernum": all_json["order_number"],
-                "year": all_json["model_year"]
-            })
-            all_json["mmc_code"] = all_json["mmc_code"].strip()
-            all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
-
-            for item in info["all_rpos"]:
-                if item in body_dict:
-                    info["body"] = body_dict[item]
-                if item in colors_dict_camaro:
-                    info["exterior_color"] = colors_dict_camaro[item]
-                if item in engines_dict:
-                    info["engine"] = engines_dict[item]
-                if item in trans_dict:
-                    info["transmission"] = trans_dict[item]
-                if item in trim_dict_camaro:
-                    info["trim"] = trim_dict_camaro[item]
-            if info.get("engine") == "2.0L Turbo, 4-cylinder, SIDI, VVT" or (info.get("year") == "2019" and info.get("engine") == "3.6L V6, DI, VVT"):
-                info["transmission"] = "A8"
-            
-    
-    # Reorder the fields
-    info_ordered = {field: info.get(field, None) for field in field_order}
-
-    # Check for missing fields
-    missing_fields = [field for field, value in info_ordered.items() if value is None]
-    if missing_fields:
-        with open(f'{path}/missing_info.txt', "a") as f:
-            f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
-    
-    return info_ordered
-
-def parse_ct(text, updated_vin):
-    global foundVIN
-    
-    foundVIN += 1
-
-    lines = text.split('\n')
-    
-    field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
-                   "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
-    
-    info = {
-        "vin": updated_vin,
-        "body": "SEDAN"
-    }
-    
     for i, line in enumerate(lines):
         if any(f"{year} {suffix}" in line for suffix in ["CT4 ", "CT5 ", "CT6 "]):
             model_info = ' '.join(line.strip().split())
@@ -301,285 +170,123 @@ def parse_ct(text, updated_vin):
             info["model"] = modeltrim[0]
             info["trim"] = ' '.join(modeltrim[1:]).replace(" AWD", "").replace("3.6L ", "").replace("3,6L LUXURY A TI", "LUXURY")
         if "PRICE*" in line:
-            info["msrp"] = lines[i + 1].strip().replace("$","").replace(",","").replace(".00","").strip()
+            info["msrp"] = lines[i + 1].replace("$", "").replace(",", "").replace(".00", "").strip()
         if "DELIVERED" in line:
             json_data = ' '.join(lines[i + 7:i + 11])
             all_json = json.loads(json_data)
-            all_json["Options"] = [option for option in all_json["Options"] if option]
+            all_json["Options"] = [opt for opt in all_json["Options"] if opt]
             info.update({
                 "dealer": lines[i + 1].strip().replace("\u2013", "-"),
                 "location": lines[i + 3].strip(),
                 "json": all_json,
                 "all_rpos": all_json["Options"],
                 "ordernum": all_json["order_number"],
-                "year": all_json["model_year"]
-            })
-            all_json["mmc_code"] = all_json["mmc_code"].strip()
-            all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
-
-            for item in info["all_rpos"]:
-                if item in colors_dict_ct:
-                    info["exterior_color"] = colors_dict_ct[item]
-                if item in engines_dict:
-                    info["engine"] = engines_dict[item]
-                if item in trans_dict:
-                    info["transmission"] = trans_dict[item]
-                if item in ext_dict:
-                    info["drivetrain"] = ext_dict[item]
-    
-    # Reorder the fields
-    info_ordered = {field: info.get(field, None) for field in field_order}
-
-    # Check for missing fields
-    missing_fields = [field for field, value in info_ordered.items() if value is None]
-    if missing_fields:
-        with open(f'{path}/missing_info.txt', "a") as f:
-            f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
-    
-    return info_ordered
-
-def parse_silverado_ev(text, updated_vin):
-    global foundVIN
-    foundVIN += 1
-
-    lines = text.split('\n')
-    field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
-                   "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
-    info = {
-        "vin": updated_vin,
-        "model": "SILVERADO EV",
-        "drivetrain": "4WD",
-        "body": "TRUCK"
-    }
-    for i, line in enumerate(lines):
-        if "PRICE*" in line:
-            info["msrp"] = lines[i + 1].replace("$","").replace(",","").replace(".00","").strip()
-        if "DELIVERED" in line:
-            json_data = ' '.join(lines[i + 7:i + 11])
-            all_json = json.loads(json_data)
-            all_json["Options"] = [option for option in all_json["Options"] if option]
-            info.update({
-                "dealer": lines[i + 1].strip().replace("\u2013", "-"),
-                "location": lines[i + 3].strip(),
-                "json": all_json,
-                "all_rpos": all_json["Options"],
-                "ordernum": all_json["order_number"],
-                "year": all_json["model_year"]
+                "year": all_json["model_year"],
             })
             mmc_code = all_json["mmc_code"] = all_json["mmc_code"].strip()
             all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
 
             for item in info["all_rpos"]:
-                if item in body_dict:
-                    info["body"] = body_dict[item]
-                if item in colors_dict_silverado_ev:
-                    info["exterior_color"] = colors_dict_silverado_ev[item]
+                if item in config["body_dict"]:
+                    info["body"] = config["body_dict"][item]
+                if item in config["color_dict"]:
+                    info["exterior_color"] = config["color_dict"][item]
                 if item in engines_dict:
                     info["engine"] = engines_dict[item]
                 if item in trans_dict:
                     info["transmission"] = trans_dict[item]
-                if item in trim_dict_silverado_ev:
-                    info["trim"] = trim_dict_silverado_ev[item]
-            if mmc_code in mmc:
-                info["model"] = mmc[mmc_code]
-    
-    # Reorder the fields
-    info_ordered = {field: info.get(field, None) for field in field_order}
-
-    # Check for missing fields
-    missing_fields = [field for field, value in info_ordered.items() if value is None]
-    if missing_fields:
-        with open(f'{path}/missing_info.txt', "a") as f:
-            f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
-    
-    return info_ordered
-
-def parse_sierra_ev(text, updated_vin):
-    global foundVIN
-    foundVIN += 1
-
-    lines = text.split('\n')
-    field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
-                   "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
-    info = {
-        "vin": updated_vin,
-        "model": "SIERRA EV",
-        "drivetrain": "4WD",
-        "body": "TRUCK"
-    }
-    for i, line in enumerate(lines):
-        if "PRICE*" in line:
-            info["msrp"] = lines[i + 1].replace("$","").replace(",","").replace(".00","").strip()
-        if "DELIVERED" in line:
-            json_data = ' '.join(lines[i + 7:i + 11])
-            all_json = json.loads(json_data)
-            all_json["Options"] = [option for option in all_json["Options"] if option]
-            info.update({
-                "dealer": lines[i + 1].strip().replace("\u2013", "-"),
-                "location": lines[i + 3].strip(),
-                "json": all_json,
-                "all_rpos": all_json["Options"],
-                "ordernum": all_json["order_number"],
-                "year": all_json["model_year"]
-            })
-            mmc_code = all_json["mmc_code"] = all_json["mmc_code"].strip()
-            all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
-
-            for item in info["all_rpos"]:
-                if item in body_dict:
-                    info["body"] = body_dict[item]
-                if item in colors_dict_sierra_ev:
-                    info["exterior_color"] = colors_dict_sierra_ev[item]
-                if item in engines_dict:
-                    info["engine"] = engines_dict[item]
-                if item in trans_dict:
-                    info["transmission"] = trans_dict[item]
-                if item in trim_dict_sierra_ev:
-                    info["trim"] = trim_dict_sierra_ev[item]
-            if mmc_code in mmc:
-                info["model"] = mmc[mmc_code]
-    
-    # Reorder the fields
-    info_ordered = {field: info.get(field, None) for field in field_order}
-
-    # Check for missing fields
-    missing_fields = [field for field, value in info_ordered.items() if value is None]
-    if missing_fields:
-        with open(f'{path}/missing_info.txt', "a") as f:
-            f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
-    
-    return info_ordered
-
-def parse_hummer_ev(text, updated_vin):
-    global foundVIN
-    foundVIN += 1
-
-    lines = text.split('\n')
-    field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
-                   "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
-    info = {
-        "vin": updated_vin,
-        "model": "HUMMER EV",
-        "drivetrain": "4WD",
-        "body": "TRUCK"
-    }
-    for i, line in enumerate(lines):
-        if "PRICE*" in line:
-            info["msrp"] = lines[i + 1].replace("$","").replace(",","").replace(".00","").strip()
-        if "DELIVERED" in line:
-            json_data = ' '.join(lines[i + 7:i + 11])
-            all_json = json.loads(json_data)
-            all_json["Options"] = [option for option in all_json["Options"] if option]
-            info.update({
-                "dealer": lines[i + 1].strip().replace("\u2013", "-"),
-                "location": lines[i + 3].strip(),
-                "json": all_json,
-                "all_rpos": all_json["Options"],
-                "ordernum": all_json["order_number"],
-                "year": all_json["model_year"]
-            })
-            mmc_code = all_json["mmc_code"].strip()
-            all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
-
-            for item in info["all_rpos"]:
-                if item in body_dict:
-                    info["body"] = body_dict[item]
-                if item in colors_dict_hummer_ev:
-                    info["exterior_color"] = colors_dict_hummer_ev[item]
-                if item in engines_dict:
-                    info["engine"] = engines_dict[item]
-                if item in trans_dict:
-                    info["transmission"] = trans_dict[item]
-                if item in trim_dict_hummer_ev:
-                    info["trim"] = trim_dict_hummer_ev[item]
+                if item in config["trim_dict"]:
+                    info["trim"] = config["trim_dict"][item]
+                if item == "HP1":
+                    info["drivetrain"] = "AWD"
+            if info.get("engine") == "2.0L Turbo, 4-cylinder, SIDI, VVT" or (info.get("year") == "2019" and info.get("engine") == "3.6L V6, DI, VVT"):
+                info["transmission"] = "A8"
             if "FH1" in info["all_rpos"]:
                 info["trim"] = trim_dict_hummer_ev["FH1"]
             if mmc_code in mmc:
                 info["model"] = mmc[mmc_code]
-    
-    # Reorder the fields
-    info_ordered = {field: info.get(field, None) for field in field_order}
+                if mmc_code == "1YG07" or mmc_code == "1YG67":
+                    info["drivetrain"] = "AWD"
 
-    # Check for missing fields
-    missing_fields = [field for field, value in info_ordered.items() if value is None]
-    if missing_fields:
-        with open(f'{path}/missing_info.txt', "a") as f:
-            f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
-    
-    return info_ordered
-
-def parse_escalade_iq(text, updated_vin):
-    global foundVIN
-    foundVIN += 1
-
-    lines = text.split('\n')
+    # Reorder and check missing fields as before
     field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
-    info = {
-        "vin": updated_vin,
-        "model": "ESCALADE IQ",
-        "drivetrain": "4WD",
-        "body": "SUV"
-    }
-    for i, line in enumerate(lines):
-        if "PRICE*" in line:
-            info["msrp"] = lines[i + 1].replace("$","").replace(",","").replace(".00","").strip()
-        if "DELIVERED" in line:
-            json_data = ' '.join(lines[i + 7:i + 11])
-            all_json = json.loads(json_data)
-            all_json["Options"] = [option for option in all_json["Options"] if option]
-            info.update({
-                "dealer": lines[i + 1].strip().replace("\u2013", "-"),
-                "location": lines[i + 3].strip(),
-                "json": all_json,
-                "all_rpos": all_json["Options"],
-                "ordernum": all_json["order_number"],
-                "year": all_json["model_year"]
-            })
-            mmc_code = all_json["mmc_code"] = all_json["mmc_code"].strip()
-            all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
 
-            for item in info["all_rpos"]:
-                if item in body_dict:
-                    info["body"] = body_dict[item]
-                if item in colors_dict_escalade_iq:
-                    info["exterior_color"] = colors_dict_escalade_iq[item]
-                if item in engines_dict:
-                    info["engine"] = engines_dict[item]
-                if item in trans_dict:
-                    info["transmission"] = trans_dict[item]
-                if item in trim_dict_escalade_iq:
-                    info["trim"] = trim_dict_escalade_iq[item]
-            if mmc_code in mmc:
-                info["model"] = mmc[mmc_code]
-    
-    # Reorder the fields
     info_ordered = {field: info.get(field, None) for field in field_order}
 
-    # Check for missing fields
     missing_fields = [field for field, value in info_ordered.items() if value is None]
     if missing_fields:
         with open(f'{path}/missing_info.txt', "a") as f:
             f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
-    
+
     return info_ordered
+
+model_configs = {
+    "ESCALADE IQ": {
+        "model_name": "ESCALADE IQ",
+        "default_drivetrain": "4WD",
+        "default_body": "SUV",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_escalade_iq,
+        "trim_dict": trim_dict_escalade_iq,
+    },
+    "HUMMER EV": {
+        "model_name": "HUMMER EV",
+        "default_drivetrain": "4WD",
+        "default_body": "TRUCK",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_hummer_ev,
+        "trim_dict": trim_dict_hummer_ev,
+    },
+    "SIERRA EV": {
+        "model_name": "SIERRA EV",
+        "default_drivetrain": "4WD",
+        "default_body": "TRUCK",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_sierra_ev,
+        "trim_dict": trim_dict_sierra_ev,
+    },
+    "SILVERADO EV": {
+        "model_name": "SILVERADO EV",
+        "default_drivetrain": "4WD",
+        "default_body": "TRUCK",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_silverado_ev,
+        "trim_dict": trim_dict_silverado_ev,
+    },
+    "CT": {
+        "default_body": "SEDAN",
+        "color_dict": colors_dict_ct,
+    },
+    "CAMARO": {
+        "model_name": "CAMARO",
+        "default_drivetrain": "RWD",
+        "default_body": "COUPE",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_camaro,
+        "trim_dict": trim_dict_camaro,
+    },
+    "CORVETTE": {
+        "model_name": "CORVETTE",
+        "default_drivetrain": "RWD",
+        "default_body": "COUPE",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_corvette,
+        "trim_dict": trim_dict_corvette,
+    },
+}
+
+def get_six_digit_input(prompt):
+    while True:
+        value = input(prompt)
+        if value.isdigit() and len(value) == 6:
+            return int(value)
+        print("\033[91mPlease enter a valid 6-digit number.\033[0m\n")
 
 urlChosenList = None
 while True: # urlChosenList
-    while True:
-        vinChanging_input = input('Enter last 6 numbers of the VIN to start at:\n')
-        if vinChanging_input.isdigit() and len(vinChanging_input) == 6:
-            vinChanging = int(vinChanging_input)
-            break
-        else:
-            print("\033[91mPlease enter a valid 6-digit number.\033[0m\n")
-    while True:
-        endVIN_input = input('Enter last 6 numbers of the VIN to stop at:\n')
-        if endVIN_input.isdigit() and len(endVIN_input) == 6:
-            endVIN = int(endVIN_input)
-            break
-        else:
-            print("\033[91mPlease enter a valid 6-digit number.\033[0m\n")
+    vinChanging = get_six_digit_input('Enter last 6 numbers of the VIN to start at:\n')
+    endVIN = get_six_digit_input('Enter last 6 numbers of the VIN to stop at:\n')
     
     model = input('Enter model to use:\n').upper()
     model_entries = model_data.get(model)
@@ -589,7 +296,7 @@ while True: # urlChosenList
     if not isinstance(model_entries, list):
             model_entries = [model_entries]
 
-    start_digit = vinChanging_input[0]
+    start_digit = str(vinChanging)[0]
 
     if isinstance(model_entries[0].get("start_vin"), dict):
         selected_start_vin = model_entries[0]["start_vin"].get(start_digit)
@@ -684,7 +391,7 @@ if not isinstance(model_entries, list):
 startList = len(model_entries)
 urlList = len(urlChosenList)
 
-totalVIN = (((int(endVIN_input) + 1) - int(vinChanging_input)) * int(urlList)) * int(startList)
+totalVIN = (((int(endVIN) + 1) - int(vinChanging)) * int(urlList)) * int(startList)
 totalIdent = 1
 totalStart = 1
 foundVIN = 0
@@ -720,4 +427,4 @@ currentTime = time.strftime("%H:%M:%S", time.localtime())
 
 print(f"Ended: {currentTime}")
 print(f"Estimated time: {estTime} - Elapsed time: {time_str}")
-print(f"Tested {testedVIN}/{totalVIN} VIN(s) - Found \033[93m{foundVIN}\033[0m match(es)")
+print(f"Tested {testedVIN}/{totalVIN} VIN{'s' if testedVIN > 1 else ''} - Found \033[93m{foundVIN}\033[0m match{'es' if foundVIN > 1 else ''}")
