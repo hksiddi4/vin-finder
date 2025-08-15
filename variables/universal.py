@@ -118,6 +118,7 @@ while True:
 # F = Flint Truck Assembly                          : Silverado HD, Sierra HD, Sierra HD Denali, HD ZR2, HD ZR2 Bison, HD Trail Boss, HD AT4X, HD AT4X AEV
 # J = Lansing Delta Township Assembly               : Enclave, Traverse, Acadia
 # R = Arlington Assembly                            : Tahoe, Suburban, Yukon, Yukon XL, Escalade, Escalade-V
+# S = Ramos Arizpe Assembly                         : OPTIQ, Blazer EV, Equinox EV, Equinox, Blazer - Hundreds of thousands of sequence...
 # U = Factory Zero (Detroit-Hamtramck Assembly)     : Hummer EV (Pickup and SUV), Silverado EV, Sierra EV, Escalade IQ
 # Z = Fort Wayne Assembly                           : Silverado 1500, Sierra 1500
 # Z = Spring Hill Manufacturing                     : XT5, XT6, Lyriq, Vistiq
