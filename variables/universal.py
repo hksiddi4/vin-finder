@@ -148,7 +148,7 @@ skip_files_map = {
         f'HUMMER EV/{year}/skip_hummer ev.txt',
         f'SILVERADO EV/{year}/skip_silverado ev.txt',
         f'SIERRA EV/{year}/skip_sierra ev.txt',
-        f'ESCALADE IQ/{year}/skip_escalade iq.txt'
+        #f'ESCALADE IQ/{year}/skip_escalade iq.txt' # Repeating sequence in Hummer/Escalade IQ
     ],
     "HUMMER_SILVERADO_SIERRA_EV": [
         f'HUMMER EV/{year}/skip_hummer ev.txt',

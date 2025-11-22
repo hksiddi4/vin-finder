@@ -18,7 +18,7 @@ def extractInfo(text, updated_vin, model):
     return parse_generic(text, updated_vin, config)
 
 # Main vin processing ---------------------------------------------------------------------------
-def processVin(urlIdent, vinChanging, endVIN, yearDig, startVIN, plant):
+def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant):
     global testedVIN, foundVIN
     mYear = int(year)
 
@@ -68,7 +68,7 @@ def processVin(urlIdent, vinChanging, endVIN, yearDig, startVIN, plant):
             while retries < max_retries:
                 try:
                     # Get Request
-                    contentsGet = requests.get(newUrl, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36', 'Accept-Language': 'en-US'}, timeout=120)
+                    contentsGet = session.get(newUrl, timeout=10)
                     contentsByte = contentsGet.content
                     contents = contentsGet.text
                     time.sleep(1)
@@ -203,6 +203,11 @@ def parse_generic(text, updated_vin, config):
                 info["transmission"] = "A8"
             if "FH1" in info["all_rpos"]:
                 info["trim"] = trim_dict_hummer_ev["FH1"]
+            if info["model"] == "HUMMER EV":
+                if info["body"] == "TRUCK":
+                    info["model"] = "HUMMER EV PICKUP"
+                elif info["body"] == "SUV":
+                    info["model"] = "HUMMER EV SUV"
             if mmc_code in mmc:
                 info["model"] = mmc[mmc_code]
                 if mmc_code == "1YG07" or mmc_code == "1YG67":
@@ -397,28 +402,36 @@ totalStart = 1
 foundVIN = 0
 testedVIN = 0
 
-estTime = totalVIN * 2
+estTime = totalVIN * 1.3939
 estTime = format_time(estTime)
 print(f"\033[91mETA: {estTime}\033[0m")
 
 startTime = time.time()
 
-# Process request through all variations of trim/gears
-for config in model_entries:
-    plant = config["plant"]
-    for urlIdent in urlChosenList:
-        if model == "SILVERADO EV" and urlIdent == "02EL":
-            startVIN = "1GC4"
-        if model == "SIERRA EV" and urlIdent == "0MED":
-            startVIN = "1GT1"
-        else:
-            startVIN = config.get("start_vin", selected_start_vin)
-        print(f"Testing configuration ({totalIdent}/{urlList}): {urlIdent} | ({totalStart}/{startList}): {startVIN}")
-        processVin(urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
-        totalIdent += 1
-        print("")
-    totalStart += 1
-    totalIdent = 1
+with requests.Session() as session:
+    # 2. Set default headers on the session (removes them from the loop)
+    session.headers.update({
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US'
+    })
+
+    # Process request through all variations of trim/gears
+    for config in model_entries:
+        plant = config["plant"]
+        for urlIdent in urlChosenList:
+            if model == "SILVERADO EV" and urlIdent == "02EL":
+                startVIN = "1GC4"
+            if model == "SIERRA EV" and urlIdent == "0MED":
+                startVIN = "1GT1"
+            else:
+                startVIN = config.get("start_vin", selected_start_vin)
+            print(f"Testing configuration ({totalIdent}/{urlList}): {urlIdent} | ({totalStart}/{startList}): {startVIN}")
+            # 3. Pass the session object to processVin
+            processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
+            totalIdent += 1
+            print("")
+        totalStart += 1
+        totalIdent = 1
 
 endTime = time.time()
 elapsedTime = endTime - startTime

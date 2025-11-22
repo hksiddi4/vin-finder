@@ -22,7 +22,7 @@ trim_dict_hummer_ev = {
     "1SB": "2", # Pickup
     "1SC": "2X", # Pickup
     "1SD": "3X", # Pickup
-    "FH1": "EDITION 1",
+    #"FH1": "EDITION 1", # 2022 & 2024 only
 }
 
 mmc = {
@@ -46,6 +46,7 @@ urlIdent_2024_hummer_ev = {
     "0RDC", # 3X SUV
     "0SDC", # 3X SUV - "OMEGA Edition"
     "0FDA", # Edition 1 SUV
+    "0DDA", # Missing one, must redo all with this one.
 }
 
 urlIdent_2025_hummer_ev = {
