@@ -332,6 +332,7 @@ while True: # urlChosenList
             model_entries = [model_entries]
 
     start_digit = str(vinChanging)[0]
+    second_digit = str(vinChanging)[1]
 
     if isinstance(model_entries[0].get("start_vin"), dict):
         selected_start_vin = model_entries[0]["start_vin"].get(start_digit)
@@ -367,9 +368,15 @@ while True: # urlChosenList
         urlChosenList = globals()[f"urlIdent_list_{year}"]
     elif model in ("CT4", "CT5"):
         if int(year) >= 2022 and start_digit in ["2", "4", "5"]:
-            urlChosenList = globals()["urlIdent_blackwing_ct4"]
+            if second_digit == "1":
+                urlChosenList = globals()["urlIdent_blackwing_ct4_a10"]
+            elif second_digit == "6":
+                urlChosenList = globals()["urlIdent_blackwing_ct4_m6"]
         elif int(year) >= 2022 and start_digit in ["6", "8", "9"]:
-            urlChosenList = globals()["urlIdent_blackwing_ct5"]
+            if second_digit == "1":
+                urlChosenList = globals()["urlIdent_blackwing_ct5_a10"]
+            elif second_digit == "6":
+                urlChosenList = globals()["urlIdent_blackwing_ct5_m6"]
         elif start_digit == "1":
             urlChosenList = globals()["urlIdent_list_ct45"]
         else:

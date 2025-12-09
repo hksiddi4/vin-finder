@@ -55,13 +55,19 @@ urlIdent_blackwing_list_2023 = [
     "Y5R6" # CT5-V Blackwing
 ]
 
-urlIdent_blackwing_ct4 = [
+urlIdent_blackwing_ct4_a10 = [
     "75RP", # CT4-V Blackwing A10
+]
+
+urlIdent_blackwing_ct4_m6 = [
     "65RP", # CT4-V Blackwing M6
 ]
 
-urlIdent_blackwing_ct5 = [
+urlIdent_blackwing_ct5_a10 = [
     "35R6", # CT5-V Blackwing A10
+]
+
+urlIdent_blackwing_ct5_m6 = [
     "25R6", # CT5-V Blackwing M6
 ]
 
