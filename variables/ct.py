@@ -101,3 +101,12 @@ urlIdent_list_ct6 = [
     "V5RJ", # Platinum / LTA
     "W5RJ" # V-Series / LTA
 ]
+
+trim_dict_ct = {
+    "1SF": "V-Series",
+    "1SP": "V-Series Blackwing",
+    "1SV": "V-Series Blackwing",
+    "1SB": "LUXURY",
+    "1SD": "PREMIUM LUXURY",
+    "1SE": "SPORT",
+}

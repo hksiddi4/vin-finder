@@ -86,7 +86,12 @@ def writeCSV(pdf_info, path, model):
         return
     fieldnames = pdf_info.keys()
 
-    with open(f"{path}/{year}_{model.lower()}.csv", "a", newline='') as csvfile:
+    if model in ("CT4", "CT5"):
+        fullPath = f"{path}/{year}_ct4-ct5.csv"
+    else:
+        fullPath = f"{path}/{year}_{model.lower()}.csv" 
+
+    with open(fullPath, "a", newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writerow(pdf_info)
 
@@ -157,8 +162,8 @@ skip_files_map = {
     ],
     "HUMMER_EV": [f'HUMMER EV/{year}/skip_hummer ev.txt'],
     "CT4-CT5": [f'CT4-CT5/{year}/skip_ct4-ct5.txt'],
+    "CT6": [f'CT4-CT5/{year}/skip_cadillac_ct6.txt'],
     "CORVETTE": [f'CORVETTE/{year}/skip_corvette.txt'],
-    "CT6": [f'CT4-CT5/{year}/skip_cadillac_ct6.txt']
 }
 
 engines_dict = {

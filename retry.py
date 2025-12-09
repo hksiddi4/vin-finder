@@ -46,7 +46,11 @@ def processVin(vin):
                     print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
                 # If request returns not a json content = window sticker found
                 except json.decoder.JSONDecodeError:
-                    with open(f"{path}/{model.lower()}_{year}.txt", "a") as f:
+                    if model in ("CT4", "CT5"):
+                        fullPath = f"{path}/ct4-ct5_{year}.txt"
+                    else:
+                        fullPath = f"{path}/{model.lower()}_{year}.txt"
+                    with open(fullPath, "a") as f:
                         f.write(f"{vin}\n")
                     print("\033[33mMatch Found For VIN: [" + vin + "].\033[0m")
                     try:
@@ -58,7 +62,11 @@ def processVin(vin):
                     pdf_info = extractInfo(pdf_text, vin, model)
 
                     # Append only the last 6 digits of the VIN to the list and file
-                    with open(f"{path}/skip_{model.lower()}.txt", "a") as file:
+                    if model in ("CT4", "CT5"):
+                        fullPath = f"{path}/skip_ct4-ct5.txt"
+                    else:
+                        fullPath = f"{path}/{model.lower()}.txt"
+                    with open(fullPath, "a") as file:
                         file.write(f"{vin[-6:]}\n")
                     
                     writeCSV(pdf_info, path, model)
@@ -129,7 +137,10 @@ def parse_generic(text, updated_vin, config):
 
             for item in info["all_rpos"]:
                 if item in config["body_dict"]:
-                    info["body"] = config["body_dict"][item]
+                    if model in ("CT4", "CT5"):
+                        info["body"] = "SEDAN"
+                    else:
+                        info["body"] = config["body_dict"][item]
                 if item in config["color_dict"]:
                     info["exterior_color"] = config["color_dict"][item]
                 if item in engines_dict:
@@ -138,12 +149,17 @@ def parse_generic(text, updated_vin, config):
                     info["transmission"] = trans_dict[item]
                 if item in config["trim_dict"]:
                     info["trim"] = config["trim_dict"][item]
-                if item == "HP1":
+                if item == "HP1" or item == "F46":
                     info["drivetrain"] = "AWD"
             if info.get("engine") == "2.0L Turbo, 4-cylinder, SIDI, VVT" or (info.get("year") == "2019" and info.get("engine") == "3.6L V6, DI, VVT"):
                 info["transmission"] = "A8"
             if "FH1" in info["all_rpos"]:
                 info["trim"] = trim_dict_hummer_ev["FH1"]
+            if info["model"] == "HUMMER EV":
+                if info["body"] == "TRUCK":
+                    info["model"] = "HUMMER EV PICKUP"
+                elif info["body"] == "SUV":
+                    info["model"] = "HUMMER EV SUV"
             if mmc_code in mmc:
                 info["model"] = mmc[mmc_code]
                 if mmc_code == "1YG07" or mmc_code == "1YG67":
@@ -195,8 +211,27 @@ model_configs = {
         "color_dict": colors_dict_silverado_ev,
         "trim_dict": trim_dict_silverado_ev,
     },
-    "CT": {
+    "CT4": {
+        "model_name": "CT4",
+        "default_drivetrain": "RWD",
         "default_body": "SEDAN",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_ct,
+        "trim_dict": trim_dict_ct,
+    },
+    "CT5": {
+        "model_name": "CT5",
+        "default_drivetrain": "RWD",
+        "default_body": "SEDAN",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_ct,
+        "trim_dict": trim_dict_ct,
+    },
+    "CT6": {
+        "model_name": "CT6",
+        "default_drivetrain": "RWD",
+        "default_body": "SEDAN",
+        "body_dict": body_dict,
         "color_dict": colors_dict_ct,
     },
     "CAMARO": {
@@ -218,7 +253,7 @@ model_configs = {
 }
 
 model_map = {
-    "CT4": "CT4-CT5", "CT5": "CT4-CT5",
+    "CT4": "CT4", "CT5": "CT5",
     "CAMARO": "CAMARO",
     "HUMMER EV": "HUMMER EV",
     "SILVERADO EV": "SILVERADO EV",
@@ -238,6 +273,8 @@ while True:
         print("\033[91mPlease enter a valid model or check the year.\033[0m\n")
 
 path = f"{model}/{year}"
+if model in ("CT4", "CT5"):
+    path = f"CT4-CT5/{year}"
 
 with open(f"{path}/RETRY.txt", 'r') as file:
     lines = file.readlines()

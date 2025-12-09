@@ -85,7 +85,11 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                         print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
                     # If request returns not a JSON content = window sticker found
                     except json.decoder.JSONDecodeError:
-                        with open(f"{path}/{model.lower()}_{year}.txt", "a") as f:
+                        if model in ("CT4", "CT5"):
+                            fullPath = f"{path}/ct4-ct5_{year}.txt"
+                        else:
+                            fullPath = f"{path}/{model.lower()}_{year}.txt"
+                        with open(fullPath, "a") as f:
                             f.write(f"{updated_vin}\n")
                         print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
                         try:
@@ -98,7 +102,11 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                         
                         # Append only the last 6 digits of the VIN to the list and file
                         skipping.append(int(updated_vin[-6:]))
-                        with open(f"{path}/skip_{model.lower()}.txt", "a") as file:
+                        if model in ("CT4", "CT5"):
+                            fullPath = f"{path}/skip_ct4-ct5.txt"
+                        else:
+                            fullPath = f"{path}/{model.lower()}.txt"
+                        with open(fullPath, "a") as file:
                             file.write(f"{updated_vin[-6:].zfill(6)}\n")
                         
                         required_fields = ["trim", "engine", "transmission", "dealer"]
@@ -188,7 +196,10 @@ def parse_generic(text, updated_vin, config):
 
             for item in info["all_rpos"]:
                 if item in config["body_dict"]:
-                    info["body"] = config["body_dict"][item]
+                    if model in ("CT4", "CT5"):
+                        info["body"] = "SEDAN"
+                    else:
+                        info["body"] = config["body_dict"][item]
                 if item in config["color_dict"]:
                     info["exterior_color"] = config["color_dict"][item]
                 if item in engines_dict:
@@ -197,7 +208,7 @@ def parse_generic(text, updated_vin, config):
                     info["transmission"] = trans_dict[item]
                 if item in config["trim_dict"]:
                     info["trim"] = config["trim_dict"][item]
-                if item == "HP1":
+                if item == "HP1" or item == "F46":
                     info["drivetrain"] = "AWD"
             if info.get("engine") == "2.0L Turbo, 4-cylinder, SIDI, VVT" or (info.get("year") == "2019" and info.get("engine") == "3.6L V6, DI, VVT"):
                 info["transmission"] = "A8"
@@ -259,8 +270,27 @@ model_configs = {
         "color_dict": colors_dict_silverado_ev,
         "trim_dict": trim_dict_silverado_ev,
     },
-    "CT": {
+    "CT4": {
+        "model_name": "CT4",
+        "default_drivetrain": "RWD",
         "default_body": "SEDAN",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_ct,
+        "trim_dict": trim_dict_ct,
+    },
+    "CT5": {
+        "model_name": "CT5",
+        "default_drivetrain": "RWD",
+        "default_body": "SEDAN",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_ct,
+        "trim_dict": trim_dict_ct,
+    },
+    "CT6": {
+        "model_name": "CT6",
+        "default_drivetrain": "RWD",
+        "default_body": "SEDAN",
+        "body_dict": body_dict,
         "color_dict": colors_dict_ct,
     },
     "CAMARO": {
@@ -345,7 +375,6 @@ while True: # urlChosenList
         else:
             print("\033[91mInvalid sequence.\033[0m\n")
             continue
-        model = "CT4-CT5"
     elif model == "CT6":
         urlChosenList = urlIdent_list_ct6
     elif model == "HUMMER EV":
@@ -389,6 +418,8 @@ while True: # urlChosenList
     break
 
 path = f"{model}/{year}"
+if model in ("CT4", "CT5"):
+    path = f"CT4-CT5/{year}"
 
 if not isinstance(model_entries, list):
     model_entries = [model_entries]
