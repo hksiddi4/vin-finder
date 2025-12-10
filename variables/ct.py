@@ -142,9 +142,9 @@ urlIdent_list_ct6 = [
 ]
 
 trim_dict_ct = {
-    "1SF": "V-Series",
-    "1SP": "V-Series Blackwing",
-    "1SV": "V-Series Blackwing",
+    "1SF": "V-SERIES",
+    "1SP": "V-SERIES BLACKWING",
+    "1SV": "V-SERIES BLACKWING",
     "1SB": "LUXURY",
     "1SD": "PREMIUM LUXURY",
     "1SE": "SPORT",
