@@ -378,7 +378,10 @@ while True: # urlChosenList
             elif second_digit == "6":
                 urlChosenList = globals()["urlIdent_blackwing_ct5_m6"]
         elif start_digit == "1":
-            urlChosenList = globals()["urlIdent_list_ct45"]
+            if int(year) < 2025:
+                urlChosenList = globals()["urlIdent_list_ct45_2020"]
+            elif int(year) >= 2025:
+                urlChosenList = globals()["urlIdent_list_ct45_2025"]
         else:
             print("\033[91mInvalid sequence.\033[0m\n")
             continue

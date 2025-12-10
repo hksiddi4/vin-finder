@@ -72,7 +72,7 @@ urlIdent_blackwing_ct5_m6 = [
 ]
 
 # Manual/Auto/Coupe/Conv. Differentiations - Ordered by 2025 Highest-Lowest
-urlIdent_list_ct45 = [
+urlIdent_list_ct45_2020 = [
     "S5RW", # Premium Luxery/AWD, LGY, CT5
     "P5RK", # Sport/RWD, LSY, CT5
     "S5RK", # Premium Luxery/AWD, LSY, CT5
@@ -98,6 +98,39 @@ urlIdent_list_ct45 = [
     "D5RL", # V-Series/RWD, L3B, CT4
     "F5RL", # Premium Luxery/AWD, L3B, CT4
     "B5RL" # Premium Luxery/RWD, L3B, CT4
+]
+
+urlIdent_list_ct45_2025 = [
+    "S5RW", # Premium Luxery/AWD, LGY, CT5
+    "P5RK", # Sport/RWD, LSY, CT5
+    "S5RK", # Premium Luxery/AWD, LSY, CT5
+    "U5RK", # Sport/AWD, LSY, CT5
+    "N5RW", # Premium Luxery/RWD, LGY, CT5
+    "N5RK", # Premium Luxery/RWD, LSY, CT5
+    "V5RW", # V-Series/AWD, LGY, CT5
+    "W5RK", # Luxery/RWD, LSY, CT5
+    "T5RW", # Premium Luxery/AWD, LGY, CT5
+    "J5RK", # Luxery/RWD, LSY (w/o 8speaker), CT4
+    "T5RK", # Premium Luxery/AWD, LSY, CT5
+    "X5RK", # Luxery/AWD, LSY, CT5
+    "R5RW", # V-Series/RWD, LGY, CT5
+    "K5RK", # Luxery/AWD, LSY, CT4
+    "A5RK", # Luxery/RWD, LSY (w/ 8 speaker), CT4
+    "B5RK", # Premium Luxery/RWD, LSY, CT4
+    "F5RK", # Premium Luxery/AWD, LSY, CT4
+    "G5RK", # Sport/AWD, LSY, CT4
+    "C5RK", # Sport/RWD, LSY, CT4
+    "H5RL", # V-Series/AWD, L3B, CT4
+    "E5RK", # Luxery/AWD, LSY, CT4
+    "D5RL", # V-Series/RWD, L3B, CT4
+    "F5RL", # Premium Luxery/AWD, L3B, CT4
+    "B5RL" # Premium Luxery/RWD, L3B, CT4
+]
+
+test = [
+    "W5RK",
+    "Z5RW",
+    "Z5RK"
 ]
 
 # CT6
