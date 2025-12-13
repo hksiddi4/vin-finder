@@ -105,7 +105,7 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                         if model in ("CT4", "CT5"):
                             fullPath = f"{path}/skip_ct4-ct5.txt"
                         else:
-                            fullPath = f"{path}/{model.lower()}.txt"
+                            fullPath = f"{path}/skip_{model.lower()}.txt"
                         with open(fullPath, "a") as file:
                             file.write(f"{updated_vin[-6:].zfill(6)}\n")
                         

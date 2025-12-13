@@ -26,6 +26,8 @@ colors_dict_corvette = {
     "GVR": "CACTI GREEN",
     "GXA": "SEA WOLF GRAY TRICOAT",
     "GXL": "HYSTERIA PURPLE METALLIC",
+    "GKA": "BLADE SILVER METALLIC",
+    "G4Z": "ROSWELL GREEN METALLIC",
 }
 
 trim_dict_corvette = {
