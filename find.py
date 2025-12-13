@@ -221,7 +221,7 @@ def parse_generic(text, updated_vin, config):
                     info["model"] = "HUMMER EV SUV"
             if mmc_code in mmc:
                 info["model"] = mmc[mmc_code]
-                if mmc_code == "1YG07" or mmc_code == "1YG67":
+                if mmc_code in ("1YG07", "1YG67", "1YS07", "1YS67"):
                     info["drivetrain"] = "AWD"
 
     # Reorder and check missing fields as before
@@ -353,6 +353,8 @@ while True: # urlChosenList
             else:
                 print("\033[91mInvalid sequence.\033[0m\n")
                 continue
+        elif int(year) >= 2026 and start_digit == "7":
+            urlChosenList = globals()["urlIdent_zr1x_list"]
         elif int(year) >= 2025 and start_digit == "8":
             urlChosenList = globals()["urlIdent_zr1_list"]
         elif int(year) >= 2024 and start_digit == "5":
