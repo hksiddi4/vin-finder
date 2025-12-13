@@ -77,6 +77,7 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                     if contents == "":
                         print("\033[91mEmpty content received. Retrying in 3 seconds...\033[0m")
                         time.sleep(3)
+                        retries += 1
                         continue
 
                     try:
@@ -85,39 +86,48 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                         print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
                     # If request returns not a JSON content = window sticker found
                     except json.decoder.JSONDecodeError:
+                        print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
                         if model in ("CT4", "CT5"):
                             fullPath = f"{path}/ct4-ct5_{year}.txt"
                         else:
                             fullPath = f"{path}/{model.lower()}_{year}.txt"
                         with open(fullPath, "a") as f:
                             f.write(f"{updated_vin}\n")
-                        print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
                         try:
                             pdf_text = extractPDF(contentsByte, updated_vin, path)
-                        except Exception as e:
-                            print("\033[91mMuPDF error. Retrying in 3 seconds...\033[0m")
-                            time.sleep(3)
-                            continue
-                        pdf_info = extractInfo(pdf_text, updated_vin, model)
-                        
-                        # Append only the last 6 digits of the VIN to the list and file
-                        skipping.append(int(updated_vin[-6:]))
-                        if model in ("CT4", "CT5"):
-                            fullPath = f"{path}/skip_ct4-ct5.txt"
-                        else:
-                            fullPath = f"{path}/skip_{model.lower()}.txt"
-                        with open(fullPath, "a") as file:
-                            file.write(f"{updated_vin[-6:].zfill(6)}\n")
-                        
-                        required_fields = ["trim", "engine", "transmission", "dealer"]
-                        missing = [field for field in required_fields if not pdf_info.get(field)]
+                            pdf_info = extractInfo(pdf_text, updated_vin, model)
+                            
+                            required_fields = ["trim", "engine", "transmission", "dealer"]
+                            missing = [field for field in required_fields if not pdf_info.get(field)]
 
-                        if missing:
-                            print("\033[91mMissing fields.\033[0m")
-                            with open(f"{path}/RETRY.txt", "a") as f:
-                                f.write(f"{updated_vin}\n")
-                        else:
-                            writeCSV(pdf_info, path, model)
+                            if missing:
+                                print("\033[91mMissing fields.\033[0m")
+                                with open(f"{path}/RETRY.txt", "a") as f:
+                                    f.write(f"{updated_vin}\n")
+                            else:
+                                writeCSV(pdf_info, path, model)
+
+                            # Append only the last 6 digits of the VIN to the list and file
+                            skipping.append(int(updated_vin[-6:]))
+                            if model in ("CT4", "CT5"):
+                                fullPath = f"{path}/skip_ct4-ct5.txt"
+                            else:
+                                fullPath = f"{path}/skip_{model.lower()}.txt"
+                            with open(fullPath, "a") as file:
+                                file.write(f"{updated_vin[-6:].zfill(6)}\n")
+
+                            break
+                        except Exception as e:
+                            if retries < max_retries - 1:
+                                print("\033[91mMuPDF error. Retrying in 3 seconds...\033[0m")
+                                retries += 1
+                                time.sleep(3)
+                                continue
+                            else:
+                                print(f"\033[91mMuPDF error: {e}. Skipping this VIN.\033[0m")
+                                with open(f'{path}/RETRY.txt', "a") as f:
+                                    f.write(f"{updated_vin} (PDF/JSON)\n")
+                                break
 
                     # Increment VIN by 1
                     vinChanging += 1
@@ -353,7 +363,7 @@ while True: # urlChosenList
             else:
                 print("\033[91mInvalid sequence.\033[0m\n")
                 continue
-        elif int(year) >= 2026 and start_digit == "7":
+        elif int(year) >= 2026 and start_digit in ("7", "9"):
             urlChosenList = globals()["urlIdent_zr1x_list"]
         elif int(year) >= 2025 and start_digit == "8":
             urlChosenList = globals()["urlIdent_zr1_list"]

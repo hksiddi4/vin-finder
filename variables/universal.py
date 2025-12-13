@@ -191,6 +191,7 @@ trans_dict = {
     "M1K": "DCT8",
     "M1L": "DCT8",
     "M1M": "DCT8",
+    "MLP": "DCT8",
     "M5N": "A8",
     "M5U": "A8",
     "MEK": "M7",
