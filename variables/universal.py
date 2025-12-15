@@ -215,6 +215,7 @@ trans_dict = {
 body_dict = {
     "CM8": "CONVERTIBLE",
     "CM9": "CONVERTIBLE",
+    "CFC": "CONVERTIBLE",
     "1SE": "SUV",
     "1SF": "SUV",
     "1SG": "SUV",
