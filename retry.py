@@ -233,6 +233,7 @@ model_configs = {
         "default_body": "SEDAN",
         "body_dict": body_dict,
         "color_dict": colors_dict_ct,
+        "trim_dict": trim_dict_ct,
     },
     "CAMARO": {
         "model_name": "CAMARO",
@@ -253,7 +254,7 @@ model_configs = {
 }
 
 model_map = {
-    "CT4": "CT4", "CT5": "CT5",
+    "CT4": "CT4", "CT5": "CT5", "CT6": "CT6",
     "CAMARO": "CAMARO",
     "HUMMER EV": "HUMMER EV",
     "SILVERADO EV": "SILVERADO EV",

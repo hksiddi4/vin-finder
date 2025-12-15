@@ -126,8 +126,8 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                             else:
                                 print(f"\033[91mMuPDF error: {e}. Skipping this VIN.\033[0m")
                                 with open(f'{path}/RETRY.txt', "a") as f:
-                                    f.write(f"{updated_vin} (PDF/JSON)\n")
-                                break
+                                    f.write(f"{updated_vin}\n")
+                                continue
 
                     # Increment VIN by 1
                     vinChanging += 1
@@ -302,6 +302,7 @@ model_configs = {
         "default_body": "SEDAN",
         "body_dict": body_dict,
         "color_dict": colors_dict_ct,
+        "trim_dict": trim_dict_ct,
     },
     "CAMARO": {
         "model_name": "CAMARO",
