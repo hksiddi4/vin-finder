@@ -169,6 +169,7 @@ skip_files_map = {
 engines_dict = {
     "L3B": "2.7L TURBO",
     "LF4": "3.6L V6 TWIN TURBO SIDI, DOHC, VVT",
+    "LGW": "3.0L V6 TWIN TURBO DI, DOHC, VVT",
     "LGX": "3.6L V6, DI, VVT",
     "LGY": "3.0L TWIN TURBO V6, SIDI",
     "LSY": "2.0L TURBO, 4-CYL, SIDI",

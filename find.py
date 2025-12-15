@@ -206,7 +206,7 @@ def parse_generic(text, updated_vin, config):
 
             for item in info["all_rpos"]:
                 if item in config["body_dict"]:
-                    if model in ("CT4", "CT5"):
+                    if model in ("CT4", "CT5", "CT6"):
                         info["body"] = "SEDAN"
                     else:
                         info["body"] = config["body_dict"][item]
@@ -220,7 +220,7 @@ def parse_generic(text, updated_vin, config):
                     info["trim"] = config["trim_dict"][item]
                 if item == "HP1" or item == "F46":
                     info["drivetrain"] = "AWD"
-            if info.get("engine") == "2.0L Turbo, 4-cylinder, SIDI, VVT" or (info.get("year") == "2019" and info.get("engine") == "3.6L V6, DI, VVT"):
+            if info.get("model") == "CAMARO" and (info.get("engine") == "2.0L Turbo, 4-cylinder, SIDI, VVT" or (info.get("year") == "2019" and info.get("engine") == "3.6L V6, DI, VVT")):
                 info["transmission"] = "A8"
             if "FH1" in info["all_rpos"]:
                 info["trim"] = trim_dict_hummer_ev["FH1"]
@@ -398,7 +398,13 @@ while True: # urlChosenList
             print("\033[91mInvalid sequence.\033[0m\n")
             continue
     elif model == "CT6":
-        urlChosenList = urlIdent_list_ct6
+        if int(year) == 2019:
+            urlChosenList = globals()["urlIdent_list_ct6_2019"]
+        elif int(year) == 2020:
+            urlChosenList = globals()["urlIdent_list_ct6_2020"]
+        else:
+            print("\033[91mInvalid sequence.\033[0m\n")
+            continue
     elif model == "HUMMER EV":
         if int(year) == 2022:
             urlChosenList = globals()["urlIdent_2022_hummer_ev"]

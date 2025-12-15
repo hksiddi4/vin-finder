@@ -34,11 +34,7 @@ colors_dict_ct = {
     "GXF": "MIDNIGHT SKY METALLIC",
     "GXU": "MIDNIGHT STEEL METALLIC",
     "GBL": "MAGNUS METAL FROST",
-}
-
-ext_dict = {
-    "F46": "AWD",
-    "RWL": "RWD"
+    "GMU": "BRONZE DUNE METALLIC",
 }
 
 urlIdent_blackwing_list_2022 = [
@@ -127,14 +123,18 @@ urlIdent_list_ct45_2025 = [
     "B5RL" # Premium Luxery/RWD, L3B, CT4
 ]
 
-test = [
-    "W5RK",
-    "Z5RW",
-    "Z5RK"
+# CT6
+urlIdent_list_ct6_2019 = [
+    "C5RK", # Luxury / 2.0L
+    "B5RS", # Luxury / LGX
+    "D5RS", # Premium Luxury / LGX
+    "T5R6", # Platinum / 3.0L TT
+    "N5R6", # Sport / 3.0L TT
+    "V5RJ", # Platinum / LTA
+    "W5RJ" # V-Series / LTA
 ]
 
-# CT6
-urlIdent_list_ct6 = [
+urlIdent_list_ct6_2020 = [
     "B5RS", # Luxury / LGX
     "E5RS", # Premium Luxury / LGX
     "V5RJ", # Platinum / LTA
@@ -142,10 +142,14 @@ urlIdent_list_ct6 = [
 ]
 
 trim_dict_ct = {
+    "1SA": "LUXURY", # 2019 Only
+    "1SB": "LUXURY",
+    "1SC": "PREMIUM LUXURY",
+    "1SD": "PREMIUM LUXURY",
+    "1SN": "PLATINUM",
+    "1SJ": "SPORT", # 2019 Only
+    "1SE": "SPORT",
     "1SF": "V-SERIES",
     "1SP": "V-SERIES BLACKWING",
     "1SV": "V-SERIES BLACKWING",
-    "1SB": "LUXURY",
-    "1SD": "PREMIUM LUXURY",
-    "1SE": "SPORT",
 }
