@@ -77,6 +77,7 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                     if contents == "":
                         print("\033[91mEmpty content received. Retrying in 3 seconds...\033[0m")
                         time.sleep(3)
+                        contentsGet.close()
                         retries += 1
                         continue
 
