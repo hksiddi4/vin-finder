@@ -344,7 +344,6 @@ while True: # urlChosenList
             model_entries = [model_entries]
 
     start_digit = str(vinChanging)[0]
-    second_digit = str(vinChanging)[1]
 
     if isinstance(model_entries[0].get("start_vin"), dict):
         selected_start_vin = model_entries[0]["start_vin"].get(start_digit)
@@ -367,13 +366,13 @@ while True: # urlChosenList
                 continue
         elif int(year) >= 2026 and start_digit in ("7", "9"):
             urlChosenList = globals()["urlIdent_zr1x_list"]
-        elif int(year) >= 2025 and start_digit == "8":
+        elif int(year) >= 2025 and start_digit in ("4", "8"):
             urlChosenList = globals()["urlIdent_zr1_list"]
-        elif int(year) >= 2024 and start_digit == "5":
+        elif int(year) >= 2024 and start_digit in ("2", "5"):
             urlChosenList = globals()["urlIdent_eray_list"]
-        elif int(year) >= 2023 and start_digit == "6":
+        elif int(year) >= 2023 and start_digit in ("3", "6"):
             urlChosenList = globals()["urlIdent_z06_list"]
-        elif start_digit == "1":
+        elif start_digit in ("0", "1"):
             urlChosenList = urlIdent_list
         else:
             print("\033[91mInvalid sequence.\033[0m\n")
@@ -381,6 +380,7 @@ while True: # urlChosenList
     elif model == "CAMARO" and 2019 <= int(year) <= 2024:
         urlChosenList = globals()[f"urlIdent_list_{year}"]
     elif model in ("CT4", "CT5"):
+        second_digit = str(vinChanging)[1]
         if int(year) >= 2022 and start_digit in ["2", "4", "5"]:
             if second_digit == "1":
                 urlChosenList = globals()["urlIdent_blackwing_ct4_a10"]
