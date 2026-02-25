@@ -141,6 +141,7 @@ model_data = {
     ],
     "SILVERADO EV": {"start_vin": "1GC1", "plant": "U"},
     "SIERRA EV": {"start_vin": "1GT4", "plant": "U"},
+    "ESCALADE": {"start_vin": "1GYS", "plant": "R"},
     "ESCALADE IQ": {"start_vin": "1GYT", "plant": "U"},
 }
 
@@ -164,10 +165,12 @@ skip_files_map = {
     "CT4-CT5": [f'CT4-CT5/{year}/skip_ct4-ct5.txt'],
     "CT6": [f'CT6/{year}/skip_ct6.txt'],
     "CORVETTE": [f'CORVETTE/{year}/skip_corvette.txt'],
+    "ESCALADE": [f'ESCALADE/{year}/skip_escalade.txt'],
 }
 
 engines_dict = {
     "L3B": "2.7L TURBO",
+    "L87": "6.2L V8",
     "LF4": "3.6L V6 TWIN TURBO SIDI, DOHC, VVT",
     "LGW": "3.0L V6 TWIN TURBO DI, DOHC, VVT",
     "LGX": "3.6L V6, DI, VVT",
@@ -200,10 +203,12 @@ trans_dict = {
     "MEP": "M7",
     "MG9": "M6",
     "MHA": "A8",
+    "MHO": "A10",
     "MHS": "A10",
     "MHU": "A10",
     "MHW": "A10",
     "MHX": "A10",
+    "MQC": "A10",
     "MJK": "M6",
     "MLH": "DCT8",
     "MN6": "M6",

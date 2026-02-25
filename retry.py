@@ -8,6 +8,7 @@ from variables.camaro import *
 from variables.hummer_ev import *
 from variables.silverado_ev import *
 from variables.sierra_ev import *
+from variables.escalade import *
 from variables.escalade_iq import *
 
 def extractInfo(text, updated_vin, model):
@@ -151,6 +152,8 @@ def parse_generic(text, updated_vin, config):
                     info["trim"] = config["trim_dict"][item]
                 if item == "HP1" or item == "F46":
                     info["drivetrain"] = "AWD"
+                if item == "C6G":
+                    info["drivetrain"] = "4WD"
             if info.get("engine") == "2.0L Turbo, 4-cylinder, SIDI, VVT" or (info.get("year") == "2019" and info.get("engine") == "3.6L V6, DI, VVT"):
                 info["transmission"] = "A8"
             if "FH1" in info["all_rpos"]:
@@ -186,6 +189,14 @@ model_configs = {
         "body_dict": body_dict,
         "color_dict": colors_dict_escalade_iq,
         "trim_dict": trim_dict_escalade_iq,
+    },
+    "ESCALADE": {
+        "model_name": "ESCALADE",
+        "default_drivetrain": "RWD",
+        "default_body": "SUV",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_escalade,
+        "trim_dict": trim_dict_escalade,
     },
     "HUMMER EV": {
         "model_name": "HUMMER EV",
@@ -260,6 +271,7 @@ model_map = {
     "SILVERADO EV": "SILVERADO EV",
     "SIERRA EV": "SIERRA EV",
     "ESCALADE IQ": "ESCALADE IQ",
+    "ESCALADE": "ESCALADE",
 }
 
 while True:

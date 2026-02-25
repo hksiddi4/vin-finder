@@ -9,6 +9,7 @@ from variables.camaro import *
 from variables.hummer_ev import *
 from variables.silverado_ev import *
 from variables.sierra_ev import *
+from variables.escalade import *
 from variables.escalade_iq import *
 
 def extractInfo(text, updated_vin, model):
@@ -219,8 +220,10 @@ def parse_generic(text, updated_vin, config):
                     info["transmission"] = trans_dict[item]
                 if item in config["trim_dict"]:
                     info["trim"] = config["trim_dict"][item]
-                if item == "HP1" or item == "F46":
+                if item == "HP1" or item == "F46" or item == "C3F":
                     info["drivetrain"] = "AWD"
+                if item == "C6G":
+                    info["drivetrain"] = "4WD"
             if info.get("model") == "CAMARO" and (info.get("engine") == "2.0L Turbo, 4-cylinder, SIDI, VVT" or (info.get("year") == "2019" and info.get("engine") == "3.6L V6, DI, VVT")):
                 info["transmission"] = "A8"
             if "FH1" in info["all_rpos"]:
@@ -256,6 +259,14 @@ model_configs = {
         "body_dict": body_dict,
         "color_dict": colors_dict_escalade_iq,
         "trim_dict": trim_dict_escalade_iq,
+    },
+    "ESCALADE": {
+        "model_name": "ESCALADE",
+        "default_drivetrain": "RWD",
+        "default_body": "SUV",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_escalade,
+        "trim_dict": trim_dict_escalade,
     },
     "HUMMER EV": {
         "model_name": "HUMMER EV",
@@ -440,7 +451,15 @@ while True: # urlChosenList
         else:
             print("\033[91mInvalid sequence.\033[0m\n")
             continue
-    elif model == "ESCALADE IQ":
+    elif model == "ESCALADE":
+        if int(year) >= 2021:
+            urlChosenList = globals()["urlIdent_escalade"]
+        elif int(year) >= 2019:
+            urlChosenList = globals()["urlIdent_escalade_2019"]
+        else:
+            print("\033[91mInvalid sequence.\033[0m\n")
+            continue
+    elif model == "ESCALADE IQ":    
         urlChosenList = globals()["urlIdent_escalade_iq"]
     else:
         print("\033[91mPlease enter a valid model or check the year.\033[0m\n")
