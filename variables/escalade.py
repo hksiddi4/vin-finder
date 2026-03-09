@@ -27,26 +27,27 @@ mmc = {
     "6K10706": "ESCALADE", # V-Series 
 }
 
-urlIdent_escalade = [ # 2025+
-    "8AKL", # RWD 1SA
+urlIdent_escalade = [ # 2025+ Ordered by Gemini Pro by occurnace descending
+    "9GRL", # 4WD Sport Platinum
+    "9FRL", # 4WD Sport
+    "9DRL", # 4WD Premium Luxury Platinum
+    "9BRL", # 4WD Premium Luxury
+    "9HR9", # V-Sport
+    "9ERL", # 4WD Sport
+    "9CRL", # 4WD Premium Luxury
+    "8GRL", # RWD Sport Platinum
+    "8BRL", # RWD Premium Luxury
+    "8ERL", # RWD Sport
+    "8CRL", # RWD Premium Luxury
+    "8DRL", # RWD Premium Luxury Platinum
     "8ARL", # RWD 1SA
+    # No XXKX found yet
+    "8AKL", # RWD 1SA
     "8BKL", # RWD Luxury
     "8CKL", # RWD Luxury
     "9CKL", # 4WD Luxury
-    "8BRL", # RWD Premium Luxury
-    "8CRL", # RWD Premium Luxury
-    "9BRL", # 4WD Premium Luxury
-    "9CRL", # 4WD Premium Luxury
-    "8ERL", # RWD Sport
     "8EKL", # RWD Sport
     "8FKL", # RWD Sport
-    "9ERL", # 4WD Sport
-    "9FRL", # 4WD Sport
     "8DKL", # RWD Premium Luxury Platinum
-    "8DRL", # RWD Premium Luxury Platinum
-    "9DRL", # 4WD Premium Luxury Platinum
-    "8GRL", # RWD Sport Platinum
     "8GKL", # RWD Sport Platinum
-    "9GRL", # 4WD Sport Platinum
-    "9HR9", # V-Sport
 ]

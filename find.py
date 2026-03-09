@@ -240,7 +240,7 @@ def parse_generic(text, updated_vin, config):
 
     # Reorder and check missing fields as before
     field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
-                   "exterior_color", "msrp", "dealer", "location", "ordernum", "json", "all_rpos"]
+                   "exterior_color", "msrp", "dealer", "location", "ordernum", "json"]
 
     info_ordered = {field: info.get(field, None) for field in field_order}
 
