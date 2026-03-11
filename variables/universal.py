@@ -131,6 +131,8 @@ while True:
 model_data = {
     "CAMARO": {"start_vin": "1G1F", "plant": "0"},
     "CORVETTE": {"start_vin": "1G1Y", "plant": "5"},
+    "ATS": {"start_vin": "1G6A", "plant": "0"},
+    "CTS": {"start_vin": "1G6A", "plant": "0"},
     "CT4": {"start_vin": "1G6D", "plant": "0"},
     "CT5": {"start_vin": "1G6D", "plant": "0"},
     "CT6": {"start_vin": "1G6K", "plant": "U"},
@@ -146,6 +148,10 @@ model_data = {
 }
 
 skip_files_map = {
+    "CAMARO_ATS_CTS": [
+        f'CAMARO/{year}/skip_camaro.txt',
+        f'ATS-CTS/{year}/skip_ats-cts.txt'
+    ],
     "CAMARO_CT4_CT5": [
         f'CAMARO/{year}/skip_camaro.txt',
         f'CT4-CT5/{year}/skip_ct4-ct5.txt'

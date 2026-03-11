@@ -4,6 +4,7 @@ import time
 import urllib3.exceptions
 from variables.universal import *
 from variables.corvette import *
+from variables.a_cts import *
 from variables.ct import *
 from variables.camaro import *
 from variables.hummer_ev import *
@@ -23,8 +24,10 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
     global testedVIN, foundVIN
     mYear = int(year)
 
-    if model in ("CAMARO", "CT4", "CT5"):
-        if 2020 <= mYear <= 2024:
+    if model in ("CAMARO", "CT4", "CT5", "ATS", "CTS"):
+        if model in ("CAMARO", "ATS", "CTS") and mYear == 2019:
+            files_to_read = skip_files_map["CAMARO_ATS_CTS"]
+        elif 2020 <= mYear <= 2024:
             files_to_read = skip_files_map["CAMARO_CT4_CT5"]
         else:
             files_to_read = skip_files_map["CT4-CT5"]
@@ -91,6 +94,8 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                         print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
                         if model in ("CT4", "CT5"):
                             fullPath = f"{path}/ct4-ct5_{year}.txt"
+                        elif model in ("ATS", "CTS"):
+                            fullPath = f"{path}/ats-cts_{year}.txt"
                         else:
                             fullPath = f"{path}/{model.lower()}_{year}.txt"
                         with open(fullPath, "a") as f:
@@ -113,6 +118,8 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                             skipping.append(int(updated_vin[-6:]))
                             if model in ("CT4", "CT5"):
                                 fullPath = f"{path}/skip_ct4-ct5.txt"
+                            elif model in ("ATS", "CTS"):
+                                fullPath = f"{path}/skip_ats-cts.txt"
                             else:
                                 fullPath = f"{path}/skip_{model.lower()}.txt"
                             with open(fullPath, "a") as file:
@@ -292,6 +299,22 @@ model_configs = {
         "color_dict": colors_dict_silverado_ev,
         "trim_dict": trim_dict_silverado_ev,
     },
+    "ATS": {
+        "model_name": "ATS",
+        "default_drivetrain": "RWD",
+        "default_body": "COUPE",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_a_cts,
+        "trim_dict": trim_dict_a_cts,
+    },
+    "CTS": {
+        "model_name": "CTS",
+        "default_drivetrain": "RWD",
+        "default_body": "SEDAN",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_a_cts,
+        "trim_dict": trim_dict_a_cts,
+    },
     "CT4": {
         "model_name": "CT4",
         "default_drivetrain": "RWD",
@@ -390,6 +413,26 @@ while True: # urlChosenList
             continue
     elif model == "CAMARO" and 2019 <= int(year) <= 2024:
         urlChosenList = globals()[f"urlIdent_list_{year}"]
+    elif model in ("ATS", "CTS"): # Work on refactoring this to ATS/CTS
+        second_digit = str(vinChanging)[1]
+        if int(year) >= 2022 and start_digit in ["2", "4", "5"]:
+            if second_digit == "1":
+                urlChosenList = globals()["urlIdent_blackwing_ct4_a10"]
+            elif second_digit == "6":
+                urlChosenList = globals()["urlIdent_blackwing_ct4_m6"]
+        elif int(year) >= 2022 and start_digit in ["6", "8", "9"]:
+            if second_digit == "1":
+                urlChosenList = globals()["urlIdent_blackwing_ct5_a10"]
+            elif second_digit == "6":
+                urlChosenList = globals()["urlIdent_blackwing_ct5_m6"]
+        elif start_digit == "1":
+            if int(year) < 2025:
+                urlChosenList = globals()["urlIdent_list_ct45_2020"]
+            elif int(year) >= 2025:
+                urlChosenList = globals()["urlIdent_list_ct45_2025"]
+        else:
+            print("\033[91mInvalid sequence.\033[0m\n")
+            continue
     elif model in ("CT4", "CT5"):
         second_digit = str(vinChanging)[1]
         if int(year) >= 2022 and start_digit in ["2", "4", "5"]:
@@ -469,6 +512,8 @@ while True: # urlChosenList
 path = f"{model}/{year}"
 if model in ("CT4", "CT5"):
     path = f"CT4-CT5/{year}"
+elif model in ("ATS", "CTS"):
+    path = f"ATS-CTS/{year}"
 
 if not isinstance(model_entries, list):
     model_entries = [model_entries]
