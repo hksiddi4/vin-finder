@@ -199,7 +199,7 @@ def parse_generic(text, updated_vin, config):
         if "PRICE*" in line:
             info["msrp"] = lines[i + 1].replace("$", "").replace(",", "").replace(".00", "").strip()
         if "DELIVERED" in line:
-            json_data = ' '.join(lines[i + 7:i + 11])
+            json_data = ' '.join(lines[i + 7:])
             all_json = json.loads(json_data)
             all_json["Options"] = [opt for opt in all_json["Options"] if opt]
             info.update({
