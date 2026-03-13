@@ -123,7 +123,6 @@ def parse_generic(text, updated_vin, config):
             info["msrp"] = lines[i + 1].replace("$", "").replace(",", "").replace(".00", "").strip()
         if "DELIVERED" in line:
             json_data = ' '.join(lines[i + 7:])
-            print(json_data)
             all_json = json.loads(json_data)
             all_json["Options"] = [opt for opt in all_json["Options"] if opt]
             info.update({
