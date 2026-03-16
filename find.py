@@ -38,6 +38,11 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
             files_to_read = skip_files_map.get("HUMMER_SILVERADO_SIERRA_EV")
         elif mYear >= 2025:
             files_to_read = skip_files_map.get("HUMMER_SILVERADO_SIERRA_ESCALADEIQ_EV")
+    elif model in ("TAHOE", "SUBURBAN", "YUKON", "CHANGE_ME"):
+        if mYear <= 2020:
+            files_to_read = skip_files_map.get("")
+        elif mYear >= 2021:
+            files_to_read = skip_files_map.get("T1XX")
     else:
         files_to_read = skip_files_map.get(model, [])
 
@@ -259,6 +264,14 @@ def parse_generic(text, updated_vin, config):
     return info_ordered
 
 model_configs = {
+    "TAHOE": {
+        "model_name": "TAHOE",
+        "default_drivetrain": "RWD",
+        "default_body": "SUV",
+        "body_dict": body_dict,
+        #"color_dict": colors_dict_tahoe,
+        #"trim_dict": trim_dict_tahoe,
+    },
     "ESCALADE IQ": {
         "model_name": "ESCALADE IQ",
         "default_drivetrain": "4WD",
@@ -564,5 +577,7 @@ time_str = format_time(elapsedTime)
 currentTime = time.strftime("%H:%M:%S", time.localtime())
 
 print(f"Ended: {currentTime}")
-print(f"Estimated time: {estTime} - Elapsed time: {time_str}")
+print(f"ETA: {estTime}")
+print(f"Actual: {time_str}")
+print(f"Start: {vinChanging} - End: {endVIN}")
 print(f"Tested {testedVIN}/{totalVIN} VIN{'s' if testedVIN > 1 else ''} - Found \033[93m{foundVIN}\033[0m match{'es' if foundVIN > 1 else ''}")
