@@ -130,7 +130,6 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                             with open(fullPath, "a") as file:
                                 file.write(f"{updated_vin[-6:].zfill(6)}\n")
 
-                            break
                         except Exception as e:
                             if retries < max_retries - 1:
                                 print("\033[91mMuPDF error. Retrying in 3 seconds...\033[0m")
