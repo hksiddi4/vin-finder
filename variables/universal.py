@@ -96,6 +96,7 @@ def writeCSV(pdf_info, path, model):
         writer.writerow(pdf_info)
 
 years = {
+    '2027': 'V',
     '2026': 'T',
     '2025': 'S',
     '2024': 'R',
