@@ -108,6 +108,18 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                         try:
                             pdf_text = extractPDF(contentsByte, updated_vin, path)
                             pdf_info = extractInfo(pdf_text, updated_vin, model)
+
+                            actual_json_vin = pdf_info.get("json", {}).get("vin")
+
+                            if actual_json_vin and updated_vin != actual_json_vin:
+                                print(f"\033[91mDATA INTEGRITY ERROR: Requested {updated_vin}, sticker is {actual_json_vin}.\033[0m")
+                                with open(f"{path}/RETRY.txt", "a") as f:
+                                    f.write(f"{updated_vin} - VIN MISMATCH (Metadata: {actual_json_vin})\n")
+                                
+                                # Increment and break the retry loop to skip this bad sticker
+                                vinChanging += 1
+                                testedVIN += 1
+                                break
                             
                             required_fields = ["trim", "engine", "transmission", "dealer"]
                             missing = [field for field in required_fields if not pdf_info.get(field)]
