@@ -28,6 +28,7 @@ colors_dict_corvette = {
     "GXL": "HYSTERIA PURPLE METALLIC",
     "GKA": "BLADE SILVER METALLIC",
     "G4Z": "ROSWELL GREEN METALLIC",
+    "GRF": "BLADE SILVER MATTE",
 }
 
 trim_dict_corvette = {
@@ -65,6 +66,8 @@ mmc_2020 = {
     "1YR67": "CORVETTE ZR1",
     "1YS07": "CORVETTE ZR1X",
     "1YS67": "CORVETTE ZR1X",
+    #"": "CORVETTE GRAND SPORT",
+    #"": "CORVETTE GRAND SPORT X",
 }
 
 urlIdent_2019_list = [
