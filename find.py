@@ -426,8 +426,10 @@ while True: # urlChosenList
             urlChosenList = globals()["urlIdent_zr1x_list"]
         elif int(year) >= 2025 and start_digit in ("4", "8"):
             urlChosenList = globals()["urlIdent_zr1_list"]
-        elif int(year) >= 2024 and start_digit in ("2", "5"):
+        elif int(year) >= 2024 and int(year) <= 2026 and start_digit in ("2", "5"):
             urlChosenList = globals()["urlIdent_eray_list"]
+        elif int(year) >= 2027 and start_digit in ("2", "5"):
+            urlChosenList = globals()["urlIdent_eray_list"] # Modify to Grand Sport X
         elif int(year) >= 2023 and start_digit in ("3", "6"):
             urlChosenList = globals()["urlIdent_z06_list"]
         elif start_digit in ("0", "1"):
