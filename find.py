@@ -114,6 +114,8 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                             if actual_json_vin and updated_vin != actual_json_vin:
                                 print(f"\033[91mDATA INTEGRITY ERROR: Requested {updated_vin}, sticker is {actual_json_vin}.\033[0m")
                                 with open(f"{path}/RETRY.txt", "a") as f:
+                                    f.write(f"{updated_vin}\n")
+                                with open(f"{path}/missing_info.txt", "a") as f:
                                     f.write(f"{updated_vin} - VIN MISMATCH (Metadata: {actual_json_vin})\n")
                                 
                                 # Increment and break the retry loop to skip this bad sticker
