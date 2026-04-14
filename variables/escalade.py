@@ -51,3 +51,16 @@ urlIdent_escalade = [ # 2025+ Ordered by Gemini Pro by occurnace descending
     "8DKL", # RWD Premium Luxury Platinum
     "8GKL", # RWD Sport Platinum
 ]
+
+urlIdent_escalade_esv = [ # 2025+ Ordered by Gemini Pro by occurnace descending
+    "9PRL", # 4WD Sport
+    "9NRL", # 4WD Sport
+    "9JRL", # 4WD Luxury
+    "9LRL", # 4WD Premium Luxury
+    "9KRL", # 4WD Premium Luxury
+    "9RRL", # 4WD Sport Platinum
+    "8RRL", # RWD Sport Platinum
+    "8MRL", # RWD Premium Luxury Platinum
+    "9MRL", # 4WD Premium Luxury Platinum
+    "9SR9", # AWD V-Series
+]

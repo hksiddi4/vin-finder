@@ -173,6 +173,7 @@ skip_files_map = {
     "CT6": [f'CT6/{year}/skip_ct6.txt'],
     "CORVETTE": [f'CORVETTE/{year}/skip_corvette.txt'],
     "ESCALADE": [f'ESCALADE/{year}/skip_escalade.txt'],
+    "ESCALADE ESV": [f'ESCALADE/{year}/skip_escalade.txt'],
     "T1XX": [
         f'ESCALADE/{year}/skip_escalade.txt',
         f'TAHOE/{year}/skip_tahoe.txt',

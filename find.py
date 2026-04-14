@@ -301,6 +301,14 @@ model_configs = {
         "color_dict": colors_dict_escalade,
         "trim_dict": trim_dict_escalade,
     },
+    "ESCALADE ESV": {
+        "model_name": "ESCALADE ESV",
+        "default_drivetrain": "RWD",
+        "default_body": "SUV",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_escalade,
+        "trim_dict": trim_dict_escalade,
+    },
     "HUMMER EV": {
         "model_name": "HUMMER EV",
         "default_drivetrain": "4WD",
@@ -523,6 +531,8 @@ while True: # urlChosenList
             print("\033[91mInvalid sequence.\033[0m\n")
             continue
     elif model == "ESCALADE":
+        if model == "ESCALADE ESV":
+            urlChosenList = globals()["urlIdent_escalade_esv"]
         if int(year) >= 2021:
             urlChosenList = globals()["urlIdent_escalade"]
         elif int(year) >= 2019:
