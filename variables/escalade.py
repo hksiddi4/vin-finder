@@ -28,39 +28,35 @@ mmc = {
 }
 
 urlIdent_escalade = [ # 2025+ Ordered by Gemini Pro by occurnace descending
-    "9GRL", # 4WD Sport Platinum
-    "9FRL", # 4WD Sport
-    "9DRL", # 4WD Premium Luxury Platinum
-    "9BRL", # 4WD Premium Luxury
-    "9HR9", # V-Sport
-    "9ERL", # 4WD Sport
-    "9CRL", # 4WD Premium Luxury
-    "8GRL", # RWD Sport Platinum
-    "8BRL", # RWD Premium Luxury
-    "8ERL", # RWD Sport
-    "8CRL", # RWD Premium Luxury
-    "8DRL", # RWD Premium Luxury Platinum
-    "8ARL", # RWD 1SA
-    # No XXKX found yet
-    "8AKL", # RWD 1SA
-    "8BKL", # RWD Luxury
-    "8CKL", # RWD Luxury
-    "9CKL", # 4WD Luxury
-    "8EKL", # RWD Sport
-    "8FKL", # RWD Sport
-    "8DKL", # RWD Premium Luxury Platinum
-    "8GKL", # RWD Sport Platinum
+    # "9GRL", # 4WD Sport Platinum
+    # "9FRL", # 4WD Sport
+    # "9DRL", # 4WD Platinum
+    # "9BRL", # 4WD Premium Luxury
+    # "9HR9", # V-Sport
+    # "9ERL", # 4WD Sport
+    # "9CRL", # 4WD Premium Luxury
+    # "8GRL", # RWD Sport Platinum
+    # "8BRL", # RWD Premium Luxury
+    # "8ERL", # RWD Sport
+    # "8CRL", # RWD Premium Luxury
+    # "8DRL", # RWD Platinum
+    # "8ARL", # RWD Luxury
+    "9ARL", # 4WD Luxury
+    "8FRL", # RWD Sport
+    "9RRL", # 4WD Sport Platinum
 ]
 
 urlIdent_escalade_esv = [ # 2025+ Ordered by Gemini Pro by occurnace descending
+    "8JRL", # RWD Luxury
+    "9JRL", # 4WD Luxury
+    "9KRL", # 4WD Luxury/Premium Luxury
+    "8KRL", # RWD Premium Luxury
+    "9LRL", # 4WD Premium Luxury
+    "8MRL", # RWD Platinum
+    "9MRL", # 4WD Platinum
     "9PRL", # 4WD Sport
     "9NRL", # 4WD Sport
-    "9JRL", # 4WD Luxury
-    "9LRL", # 4WD Premium Luxury
-    "9KRL", # 4WD Premium Luxury
     "9RRL", # 4WD Sport Platinum
-    "8RRL", # RWD Sport Platinum
-    "8MRL", # RWD Premium Luxury Platinum
-    "9MRL", # 4WD Premium Luxury Platinum
+    "4SK9", # 4WD V-Series
     "9SR9", # AWD V-Series
 ]
