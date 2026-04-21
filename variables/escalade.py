@@ -28,19 +28,19 @@ mmc = {
 }
 
 urlIdent_escalade = [ # 2025+ Ordered by Gemini Pro by occurnace descending
-    # "9GRL", # 4WD Sport Platinum
-    # "9FRL", # 4WD Sport
-    # "9DRL", # 4WD Platinum
-    # "9BRL", # 4WD Premium Luxury
-    # "9HR9", # V-Sport
-    # "9ERL", # 4WD Sport
-    # "9CRL", # 4WD Premium Luxury
-    # "8GRL", # RWD Sport Platinum
-    # "8BRL", # RWD Premium Luxury
-    # "8ERL", # RWD Sport
-    # "8CRL", # RWD Premium Luxury
-    # "8DRL", # RWD Platinum
-    # "8ARL", # RWD Luxury
+    "9GRL", # 4WD Sport Platinum
+    "9FRL", # 4WD Sport
+    "9DRL", # 4WD Platinum
+    "9BRL", # 4WD Premium Luxury
+    "9HR9", # V-Sport
+    "9ERL", # 4WD Sport
+    "9CRL", # 4WD Premium Luxury
+    "8GRL", # RWD Sport Platinum
+    "8BRL", # RWD Premium Luxury
+    "8ERL", # RWD Sport
+    "8CRL", # RWD Premium Luxury
+    "8DRL", # RWD Platinum
+    "8ARL", # RWD Luxury
     "9ARL", # 4WD Luxury
     "8FRL", # RWD Sport
 ]

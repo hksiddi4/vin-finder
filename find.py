@@ -530,11 +530,12 @@ while True: # urlChosenList
         else:
             print("\033[91mInvalid sequence.\033[0m\n")
             continue
-    elif model == "ESCALADE":
-        if model == "ESCALADE ESV":
-            urlChosenList = globals()["urlIdent_escalade_esv"]
+    elif model in ["ESCALADE", "ESCALADE ESV"]:
         if int(year) >= 2021:
-            urlChosenList = globals()["urlIdent_escalade"]
+            if model == "ESCALADE ESV":
+                urlChosenList = globals()["urlIdent_escalade_esv"]
+            else:
+                urlChosenList = globals()["urlIdent_escalade"]
         elif int(year) >= 2019:
             urlChosenList = globals()["urlIdent_escalade_2019"]
         else:

@@ -145,6 +145,7 @@ model_data = {
     "SILVERADO EV": {"start_vin": "1GC1", "plant": "U"},
     "SIERRA EV": {"start_vin": "1GT4", "plant": "U"},
     "ESCALADE": {"start_vin": "1GYS", "plant": "R"},
+    "ESCALADE ESV": {"start_vin": "1GYS", "plant": "R"},
     "ESCALADE IQ": {"start_vin": "1GYT", "plant": "U"},
 }
 
