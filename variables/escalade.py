@@ -43,7 +43,6 @@ urlIdent_escalade = [ # 2025+ Ordered by Gemini Pro by occurnace descending
     # "8ARL", # RWD Luxury
     "9ARL", # 4WD Luxury
     "8FRL", # RWD Sport
-    "9RRL", # 4WD Sport Platinum
 ]
 
 urlIdent_escalade_esv = [ # 2025+ Ordered by Gemini Pro by occurnace descending
