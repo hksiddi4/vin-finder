@@ -101,6 +101,8 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                             fullPath = f"{path}/ct4-ct5_{year}.txt"
                         elif model in ("ATS", "CTS"):
                             fullPath = f"{path}/ats-cts_{year}.txt"
+                        elif model == "ESCALADE ESV":
+                            fullPath = f"{path}/escalade_{year}.txt"
                         else:
                             fullPath = f"{path}/{model.lower()}_{year}.txt"
                         with open(fullPath, "a") as f:
@@ -139,6 +141,8 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                                 fullPath = f"{path}/skip_ct4-ct5.txt"
                             elif model in ("ATS", "CTS"):
                                 fullPath = f"{path}/skip_ats-cts.txt"
+                            elif model == "ESCALADE ESV":
+                                fullPath = f"{path}/skip_escalade.txt"
                             else:
                                 fullPath = f"{path}/skip_{model.lower()}.txt"
                             with open(fullPath, "a") as file:
@@ -553,6 +557,8 @@ if model in ("CT4", "CT5"):
     path = f"CT4-CT5/{year}"
 elif model in ("ATS", "CTS"):
     path = f"ATS-CTS/{year}"
+elif model == "ESCALADE ESV":
+    path = f"ESCALADE/{year}"
 
 if not isinstance(model_entries, list):
     model_entries = [model_entries]

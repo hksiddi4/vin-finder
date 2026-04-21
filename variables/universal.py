@@ -88,6 +88,8 @@ def writeCSV(pdf_info, path, model):
 
     if model in ("CT4", "CT5"):
         fullPath = f"{path}/{year}_ct4-ct5.csv"
+    elif model == "ESCALADE ESV":
+        fullPath = f"{path}/{year}_escalade.csv"
     else:
         fullPath = f"{path}/{year}_{model.lower()}.csv" 
 
