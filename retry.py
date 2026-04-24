@@ -49,6 +49,8 @@ def processVin(vin):
                 except json.decoder.JSONDecodeError:
                     if model in ("CT4", "CT5"):
                         fullPath = f"{path}/ct4-ct5_{year}.txt"
+                    elif model == "ESCALADE ESV":
+                        fullPath = f"{path}/escalade_{year}.txt"
                     else:
                         fullPath = f"{path}/{model.lower()}_{year}.txt"
                     with open(fullPath, "a") as f:
@@ -65,6 +67,8 @@ def processVin(vin):
                     # Append only the last 6 digits of the VIN to the list and file
                     if model in ("CT4", "CT5"):
                         fullPath = f"{path}/skip_ct4-ct5.txt"
+                    elif model == "ESCALADE ESV":
+                        fullPath = f"{path}/skip_escalade.txt"
                     else:
                         fullPath = f"{path}/skip_{model.lower()}.txt"
                     with open(fullPath, "a") as file:
@@ -198,6 +202,14 @@ model_configs = {
         "color_dict": colors_dict_escalade,
         "trim_dict": trim_dict_escalade,
     },
+    "ESCALADE ESV": {
+        "model_name": "ESCALADE ESV",
+        "default_drivetrain": "RWD",
+        "default_body": "SUV",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_escalade,
+        "trim_dict": trim_dict_escalade,
+    },
     "HUMMER EV": {
         "model_name": "HUMMER EV",
         "default_drivetrain": "4WD",
@@ -271,7 +283,7 @@ model_map = {
     "SILVERADO EV": "SILVERADO EV",
     "SIERRA EV": "SIERRA EV",
     "ESCALADE IQ": "ESCALADE IQ",
-    "ESCALADE": "ESCALADE",
+    "ESCALADE": "ESCALADE", "ESCALADE ESV": "ESCALADE ESV",
 }
 
 while True:
@@ -288,6 +300,8 @@ while True:
 path = f"{model}/{year}"
 if model in ("CT4", "CT5"):
     path = f"CT4-CT5/{year}"
+elif model == "ESCALADE ESV":
+    path = f"ESCALADE/{year}"
 
 with open(f"{path}/RETRY.txt", 'r') as file:
     lines = file.readlines()
