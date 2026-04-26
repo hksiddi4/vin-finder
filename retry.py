@@ -1,6 +1,7 @@
 import json
 import requests
 import time
+import os
 from variables.universal import *
 from variables.corvette import *
 from variables.ct import *
@@ -20,6 +21,8 @@ def extractInfo(text, updated_vin, model):
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(vin):
     global testedVIN
+    sticker_folder = os.path.join(path, "Window Stickers")
+    pdf_filename = os.path.join(sticker_folder, f"{vin}.pdf")
     urlFirst = f"https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin="
     try:
         newUrl = urlFirst + vin
@@ -37,14 +40,14 @@ def processVin(vin):
 
                 # Retry if contents is empty
                 if contents == "":
-                    print("\033[91mEmpty content received. Retrying in 3 seconds...\033[0m")
+                    print("\033[91mEmpty content. Retrying in 3 seconds...\033[0m")
                     time.sleep(3)
                     continue
 
                 try:
                     # If json content found = no window sticker
                     jsonCont = json.loads(contents)
-                    print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
+                    print("\033[30m" + vin + "\033[0m")
                 # If request returns not a json content = window sticker found
                 except json.decoder.JSONDecodeError:
                     if model in ("CT4", "CT5"):
@@ -55,7 +58,12 @@ def processVin(vin):
                         fullPath = f"{path}/{model.lower()}_{year}.txt"
                     with open(fullPath, "a") as f:
                         f.write(f"{vin}\n")
-                    print("\033[33mMatch Found For VIN: [" + vin + "].\033[0m")
+                    print("\033[33m" + vin + "\033[0m")
+                    
+                    os.makedirs(sticker_folder, exist_ok=True)
+                    with open(pdf_filename, "wb") as f:
+                        f.write(contentsByte)
+
                     try:
                         pdf_text = extractPDF(contentsByte, vin, path)
                     except Exception as e:

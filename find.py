@@ -1,6 +1,7 @@
 import json
 import requests
 import time
+import os
 import urllib3.exceptions
 from variables.universal import *
 from variables.corvette import *
@@ -23,6 +24,8 @@ def extractInfo(text, updated_vin, model):
 def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant):
     global testedVIN, foundVIN
     mYear = int(year)
+    sticker_folder = os.path.join(path, "Window Stickers")
+    pdf_filename = os.path.join(sticker_folder, f"{vin}.pdf")
 
     if model in ("CAMARO", "CT4", "CT5", "ATS", "CTS"):
         if model in ("CAMARO", "ATS", "CTS") and mYear == 2019:
@@ -61,7 +64,7 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
             skip_count += 1
             vinChanging += 1
         if skip_count > 0:
-            print(f"\033[30mExisting sequence{'s' if skip_count > 1 else ''}, skipped {skip_count} VIN{'s' if skip_count > 1 else ''}.\033[0m")
+            print(f"\033[30mSkipped {skip_count} VIN{'s' if skip_count > 1 else ''}.\033[0m")
             # After skipping block, continue with next iteration to process non-skipped VIN
             if vinChanging > endVIN:
                 break
@@ -84,7 +87,7 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
 
                     # Retry if contents is empty
                     if contents == "":
-                        print("\033[91mEmpty content received. Retrying in 3 seconds...\033[0m")
+                        print("\033[91mEmpty content. Retrying in 3 seconds...\033[0m")
                         time.sleep(3)
                         contentsGet.close()
                         retries += 1
@@ -93,10 +96,10 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                     try:
                         # If JSON content found = no window sticker
                         jsonCont = json.loads(contents)
-                        print("\033[30m" + jsonCont["errorMessage"] + "\033[0m")
+                        print("\033[30m" + updated_vin + "\033[0m")
                     # If request returns not a JSON content = window sticker found
                     except json.decoder.JSONDecodeError:
-                        print("\033[33mMatch Found For VIN: [" + updated_vin + "].\033[0m")
+                        print("\033[33m" + updated_vin + "\033[0m")
                         if model in ("CT4", "CT5"):
                             fullPath = f"{path}/ct4-ct5_{year}.txt"
                         elif model in ("ATS", "CTS"):
@@ -107,6 +110,10 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                             fullPath = f"{path}/{model.lower()}_{year}.txt"
                         with open(fullPath, "a") as f:
                             f.write(f"{updated_vin}\n")
+
+                        os.makedirs(sticker_folder, exist_ok=True)
+                        with open(pdf_filename, "wb") as f:
+                            f.write(contentsByte)
                         try:
                             pdf_text = extractPDF(contentsByte, updated_vin, path)
                             pdf_info = extractInfo(pdf_text, updated_vin, model)
