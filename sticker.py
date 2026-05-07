@@ -4,6 +4,7 @@ import time
 import os
 import sys
 from variables.universal import *
+from variables.corvette import *
 
 # Main vin processing ---------------------------------------------------------------------------
 def processVin(vin):
@@ -20,7 +21,7 @@ def processVin(vin):
         while retries < max_retries:
             try:
                 # Get Request
-                contentsGet = requests.get(newUrl, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36', 'Accept-Language': 'en-US'}, timeout=120)
+                contentsGet = requests.get(newUrl, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0 ', 'Accept-Language': 'en-US'}, timeout=120)
                 contentsByte = contentsGet.content
                 contents = contentsGet.text
                 time.sleep(1)
@@ -50,7 +51,6 @@ def processVin(vin):
             f.write(f"{vin}\n")
         return
 
-# Model Selection Logic (Kept as is)
 model_map = {
     "CT4": "CT4", "CT5": "CT5", "CT6": "CT6",
     "CAMARO": "CAMARO",
@@ -81,12 +81,10 @@ elif model == "ESCALADE ESV":
 with open(f"{path}/RETRY.txt", 'r') as file:
     lines = [line.strip() for line in file.readlines()]
 
-# --- PRE-PROCESSING & PROGRESS BAR LOGIC ---
 totalVIN = len(lines)
 foundVIN = 0
 testedVIN = 0
 
-# 1. Filter existing PDFs
 sticker_folder = os.path.join(path, "Window Stickers")
 to_process = []
 skipped_count = 0
@@ -97,13 +95,9 @@ for vin in lines:
     else:
         to_process.append(vin)
 
-# 2. Inform user of skips
 if skipped_count > 0:
     print(f"\033[33mSkipping {skipped_count} VIN(s) (Already downloaded).\033[0m")
-    foundVIN += skipped_count
-    testedVIN += skipped_count
 
-# 3. Process remaining with progress bar
 active_total = len(to_process)
 if active_total > 0:
     estTime = active_total * 2
@@ -135,4 +129,4 @@ time_str = format_time(elapsedTime)
 currentTime = time.strftime("%H:%M:%S", time.localtime())
 
 print(f"\nEnded: {currentTime} - Elapsed time: {time_str}")
-print(f"Tested {testedVIN}/{totalVIN} VIN(s) - Found \033[93m{foundVIN}\033[0m match(es)")
+print(f"Tested {testedVIN}/{active_total} VIN(s) - Found \033[93m{foundVIN}\033[0m match(es)")

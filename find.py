@@ -586,9 +586,8 @@ print(f"\033[91mETA: {estTime}\033[0m")
 startTime = time.time()
 
 with requests.Session() as session:
-    # 2. Set default headers on the session (removes them from the loop)
     session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0', 
         'Accept-Language': 'en-US'
     })
 
@@ -603,7 +602,6 @@ with requests.Session() as session:
             else:
                 startVIN = config.get("start_vin", selected_start_vin)
             print(f"Testing configuration ({totalIdent}/{urlList}): {urlIdent} | ({totalStart}/{startList}): {startVIN}")
-            # 3. Pass the session object to processVin
             processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
             totalIdent += 1
             print("")

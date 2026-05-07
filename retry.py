@@ -33,7 +33,7 @@ def processVin(vin):
         while retries < max_retries:
             try:
                 # Get Request
-                contentsGet = requests.get(newUrl, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36', 'Accept-Language': 'en-US'}, timeout=120)
+                contentsGet = requests.get(newUrl, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0 ', 'Accept-Language': 'en-US'}, timeout=120)
                 contentsByte = contentsGet.content
                 contents = contentsGet.text
                 time.sleep(1)
