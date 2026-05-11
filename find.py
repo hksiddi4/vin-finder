@@ -25,7 +25,6 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
     global testedVIN, foundVIN
     mYear = int(year)
     sticker_folder = os.path.join(path, "Window Stickers")
-    pdf_filename = os.path.join(sticker_folder, f"{vin}.pdf")
 
     if model in ("CAMARO", "CT4", "CT5", "ATS", "CTS"):
         if model in ("CAMARO", "ATS", "CTS") and mYear == 2019:
@@ -72,6 +71,7 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
             # Build the URL (first half + identify trim/gear + check digit + model year + plant location + sequence number)
             matchedVIN = startVIN + urlIdent + "X" + yearDig + plant + str(vinChanging).zfill(6)
             updated_vin = calculate_check_digit(matchedVIN)
+            pdf_filename = os.path.join(sticker_folder, f"{updated_vin}.pdf")
             newUrl = urlFirst + urlIdent + updated_vin[8:11] + str(vinChanging).zfill(6)
 
             max_retries = 3
@@ -96,10 +96,10 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                     try:
                         # If JSON content found = no window sticker
                         jsonCont = json.loads(contents)
-                        print("\033[30m" + updated_vin + "\033[0m")
+                        print("\033[30m" + updated_vin + "\033[0m " + f"({totalIdent}/{urlList}): {urlIdent} | ({totalStart}/{startList}): {startVIN}")
                     # If request returns not a JSON content = window sticker found
                     except json.decoder.JSONDecodeError:
-                        print("\033[33m" + updated_vin + "\033[0m")
+                        print("\033[33m" + updated_vin + "\033[0m " + f"({totalIdent}/{urlList}): {urlIdent} | ({totalStart}/{startList}): {startVIN}")
                         if model in ("CT4", "CT5"):
                             fullPath = f"{path}/ct4-ct5_{year}.txt"
                         elif model in ("ATS", "CTS"):
