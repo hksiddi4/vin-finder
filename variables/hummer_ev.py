@@ -22,7 +22,7 @@ trim_dict_hummer_ev = {
     "1SB": "2", # Pickup
     "1SC": "2X", # Pickup
     "1SD": "3X", # Pickup
-    #"FH1": "EDITION 1", # 2022 & 2024 only
+    "FH1": "EDITION 1", # 2022 & 2024 only
 }
 
 mmc = {
