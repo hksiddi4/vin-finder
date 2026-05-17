@@ -35,6 +35,8 @@ colors_dict_ct = {
     "GXU": "MIDNIGHT STEEL METALLIC",
     "GBL": "MAGNUS METAL FROST",
     "GMU": "BRONZE DUNE METALLIC",
+    "G4J": "VIBRANT WHITE TRICOAT",
+    "G3Y": "DEEP OCEAN TINTCOAT",
 }
 
 urlIdent_blackwing_list_2022 = [

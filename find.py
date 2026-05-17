@@ -76,6 +76,7 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
 
             max_retries = 3
             retries = 0
+            delays = [3, 10, 30]
 
             while retries < max_retries:
                 try:
@@ -87,8 +88,8 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
 
                     # Retry if contents is empty
                     if contents == "":
-                        print("\033[91mEmpty content. Retrying in 3 seconds...\033[0m")
-                        time.sleep(3)
+                        print(f"\033[91mEmpty content. Retrying in {delays[retries]} seconds...\033[0m")
+                        time.sleep(delays[retries])
                         contentsGet.close()
                         retries += 1
                         continue
@@ -277,7 +278,6 @@ def parse_generic(text, updated_vin, config):
     # Reorder and check missing fields as before
     field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json"]
-
     info_ordered = {field: info.get(field, None) for field in field_order}
 
     missing_fields = [field for field, value in info_ordered.items() if value is None]
@@ -450,7 +450,7 @@ while True: # urlChosenList
         elif int(year) >= 2024 and int(year) <= 2026 and start_digit in ("2", "5"):
             urlChosenList = globals()["urlIdent_eray_list"]
         elif int(year) >= 2027 and start_digit in ("2", "5"):
-            urlChosenList = globals()["urlIdent_eray_list"] # Modify to Grand Sport X
+            urlChosenList = globals()["urlIdent_gsx_list"] # Modify to Grand Sport X
         elif int(year) >= 2023 and start_digit in ("3", "6"):
             urlChosenList = globals()["urlIdent_z06_list"]
         elif start_digit in ("0", "1"):

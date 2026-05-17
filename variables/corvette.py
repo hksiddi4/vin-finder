@@ -29,6 +29,7 @@ colors_dict_corvette = {
     "GKA": "BLADE SILVER METALLIC",
     "G4Z": "ROSWELL GREEN METALLIC",
     "GRF": "BLADE SILVER MATTE",
+    "GEC": "PITCH GRAY METALLIC",
 }
 
 trim_dict_corvette = {
@@ -58,6 +59,8 @@ mmc_2019 = {
 mmc_2020 = {
     "1YC07": "CORVETTE STINGRAY",
     "1YC67": "CORVETTE STINGRAY",
+    "1YE07": "CORVETTE GRAND SPORT",
+    "1YE67": "CORVETTE GRAND SPORT",
     "1YH07": "CORVETTE Z06",
     "1YH67": "CORVETTE Z06",
     "1YG07": "CORVETTE E-RAY",
@@ -66,8 +69,6 @@ mmc_2020 = {
     "1YR67": "CORVETTE ZR1",
     "1YS07": "CORVETTE ZR1X",
     "1YS67": "CORVETTE ZR1X",
-    #"": "CORVETTE GRAND SPORT",
-    #"": "CORVETTE GRAND SPORT X",
 }
 
 urlIdent_2019_list = [
