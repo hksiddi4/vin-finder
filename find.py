@@ -275,6 +275,9 @@ def parse_generic(text, updated_vin, config):
                 if mmc_code in ("1YG07", "1YG67", "1YS07", "1YS67"):
                     info["drivetrain"] = "AWD"
 
+    if "json" in info and isinstance(info["json"], dict):
+        info["json"] = json.dumps(info["json"])
+
     # Reorder and check missing fields as before
     field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json"]
