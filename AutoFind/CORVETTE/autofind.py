@@ -4,6 +4,7 @@ import time
 import sys
 import os
 import urllib3.exceptions
+from datetime import datetime
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from variables.universal import *
@@ -30,7 +31,7 @@ def extractInfo(text, updated_vin, model):
 def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant, totalIdent, urlList):
     global testedVIN, foundVIN
     sticker_folder = os.path.join(path, "Window Stickers")
-    
+
     files_to_read = skip_files_map.get(model, [])
     skipping = []
     for file_path in files_to_read:
@@ -48,9 +49,9 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant,
         while vinChanging <= endVIN and vinChanging in skipping:
             skip_count += 1
             vinChanging += 1
-        
+
         if skip_count > 0:
-            print(f"\033[30mSkipped {skip_count} already found VINs.\033[0m")
+            print(f"Skipped {skip_count} VINs.")
             if vinChanging > endVIN: break
 
         try:
@@ -59,7 +60,7 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant,
             pdf_filename = os.path.join(sticker_folder, f"{updated_vin}.pdf")
             newUrl = urlFirst + urlIdent + updated_vin[8:11] + str(vinChanging).zfill(6)
 
-            max_retries, retries = 3, 0
+            max_retries, retries, delays = 3, 0, [3, 10, 30]
 
             while retries < max_retries:
                 try:
@@ -69,17 +70,17 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant,
                     time.sleep(1)
 
                     if not contents:
-                        print("\033[91mEmpty content. Retrying...\033[0m")
-                        time.sleep(3)
+                        print(f"Empty content. Retrying in {delays[retries]}...")
+                        time.sleep(delays[retries])
                         retries += 1
                         continue
 
                     try:
                         json.loads(contents)
-                        print(f"\033[30m{updated_vin}\033[0m ({totalIdent}/{urlList})")
+                        print(f"{updated_vin} ({totalIdent}/{urlList})")
                     except json.decoder.JSONDecodeError:
-                        print(f"\033[33m{updated_vin}\033[0m - ({totalIdent}/{urlList})")
-                        
+                        print(f"{updated_vin} ({totalIdent}/{urlList}) - FOUND")
+
                         fullPath = os.path.join(path, f"{model.lower()}_{year}.txt")
                         with open(fullPath, "a") as f:
                             f.write(f"{updated_vin}\n")
@@ -87,9 +88,9 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant,
                         os.makedirs(sticker_folder, exist_ok=True)
                         with open(pdf_filename, "wb") as f:
                             f.write(contentsByte)
-                        
+
                         try:
-                            pdf_text = extractPDF(contentsByte) # Clean in-memory parsing
+                            pdf_text = extractPDF(contentsByte)
                             pdf_info = extractInfo(pdf_text, updated_vin, model)
                             writeCSV(pdf_info, path, model, year)
 
@@ -99,20 +100,20 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant,
                             skipping.append(vinChanging)
 
                         except Exception as e:
-                            print(f"\033[91mExtraction Error: {e}\033[0m")
+                            print(f"Extraction Error: {e}")
 
                     vinChanging += 1
                     testedVIN += 1
                     break
 
                 except requests.exceptions.ReadTimeout:
-                    print("\033[91mTimeout. Waiting...\033[0m")
+                    print("Timeout. Waiting...")
                     time.sleep(30)
                     retries += 1
 
         except KeyboardInterrupt:
             return "stop"
-            
+
     return "continue"
 
 def parse_generic(text, updated_vin, config):
@@ -142,7 +143,7 @@ def parse_generic(text, updated_vin, config):
                 "ordernum": all_json.get("order_number"),
                 "year": all_json.get("model_year"),
             })
-            
+
             mmc_code = all_json["mmc_code"] = all_json["mmc_code"].strip()
             all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
 
@@ -154,8 +155,11 @@ def parse_generic(text, updated_vin, config):
                 if item in config["trim_dict"]: info["trim"] = config["trim_dict"][item]
                 if item in ["HP1", "F46", "C3F"] or mmc_code in ("1YG07", "1YG67", "1YS07", "1YS67"): 
                     info["drivetrain"] = "AWD"
-            if mmc_code in mmc_2020: 
+            if mmc_code in mmc_2020:
                 info["model"] = mmc_2020[mmc_code]
+
+    if "json" in info and isinstance(info["json"], dict):
+        info["json"] = json.dumps(info["json"])
 
     field_order = ["vin", "year", "model", "body", "trim", "engine", "transmission", "drivetrain",
                    "exterior_color", "msrp", "dealer", "location", "ordernum", "json"]
@@ -179,18 +183,21 @@ if __name__ == "__main__":
         with open(skip_file_path, 'r') as f:
             found_sequences = [int(line.strip()) for line in f if line.strip().isdigit()]
 
+    current_time = datetime.now().strftime("%B %d, %Y | ") + datetime.now().strftime("%I:%M %p").lstrip('0')
+    print(f"\n{current_time}")
+
     if found_sequences:
         last_known_seq = max(found_sequences)
-        print(f"\033[94mLast known production sequence: {last_known_seq:06d}\033[0m")
+        print(f"Last sequence: {last_known_seq:06d}")
     else:
-        print("\033[91mNo sequences found in skip file. Using default 150000.\033[0m")
-        last_known_seq = 150000
+        print("No sequences found in skip file. Using default 900001.")
+        last_known_seq = 900001
 
-    searchRange = 5
-    vinChanging = max(1, last_known_seq - searchRange)
+    searchRange = 100
+    vinChanging = max(900001, last_known_seq - searchRange)
     endVIN = min(999999, last_known_seq + searchRange)
 
-    print(f"Automated Search Range: \033[93m{vinChanging:06d}\033[0m to \033[93m{endVIN:06d}\033[0m")
+    print(f"Search Range: {vinChanging:06d} to {endVIN:06d}\n")
 
     start_digit = str(vinChanging).zfill(6)[0]
     int_year = int(year)
@@ -202,7 +209,7 @@ if __name__ == "__main__":
     else:
         urlChosenList = urlIdent_list
         if start_digit not in ("0", "1"):
-            print("\033[91mWarning: Sequence digit doesn't match trim list. Defaulting to base list.\033[0m")
+            print("Warning: Sequence digit doesn't match trim list. Defaulting to base list.")
 
     urlList = len(urlChosenList)
     totalIdent = 1
@@ -214,10 +221,12 @@ if __name__ == "__main__":
         for urlIdent in urlChosenList:
             print(f"Testing: {urlIdent} ({totalIdent}/{urlList})")
             status = processVin(session, urlIdent, vinChanging, endVIN, yearDig, "1G1Y", "5", totalIdent, urlList)
-            if status == "stop": 
+            if status == "stop":
                 break
             totalIdent += 1
 
     elapsedTime = time.time() - startTime
     print(f"\nCompleted in: {format_time(elapsedTime)}")
     print(f"Found: {foundVIN} | Tested: {testedVIN}")
+    print("----------------------------------------------------------------------------")
+    print("")
