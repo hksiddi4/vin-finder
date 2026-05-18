@@ -47,7 +47,11 @@ def extractPDF(contentsByte):
         return None
 
 def writeCSV(pdf_info, path, model, year):
-    if pdf_info is None: return
+    if not pdf_info: return
+    if model in ("CT4", "CT5"):
+        model = "CT4-CT5"
+    elif model == "ESCALADE ESV":
+        model = "ESCALADE"
     fullPath = os.path.join(path, f"{year}_{model.lower()}.csv")
     file_exists = os.path.isfile(fullPath)
     with open(fullPath, "a", newline='', encoding='utf-8') as csvfile:
@@ -56,26 +60,78 @@ def writeCSV(pdf_info, path, model, year):
         writer.writerow(pdf_info)
 
 # Global Config
-years = {'2027': 'V', '2026': 'T', '2025': 'S', '2024': 'R'}
+years = {'2027': 'V', '2026': 'T', '2025': 'S'}
 year = '2026'
 yearDig = years.get(year)
 
 model_data = {
     "CORVETTE": {"start_vin": "1G1Y", "plant": "5"},
+    "CT4": {"start_vin": "1G6D", "plant": "0"},
+    "CT5": {"start_vin": "1G6D", "plant": "0"},
 }
 
 skip_files_map = {
     "CORVETTE": [f'{year}/skip_corvette.txt'],
+    "CT4-CT5": [f'{year}/skip_ct4-ct5.txt'],
 }
 
 engines_dict = {
-    "LT2": "6.2L V8 DI", "LS6": "6.7L V8 DI",
-    "LT6": "5.5L V8 DI", "LT7": "5.5L (335 ci) Twin-Turbo V8",
+    "L3B": "2.7L TURBO",
+    "L87": "6.2L V8",
+    "LF4": "3.6L V6 TWIN TURBO SIDI, DOHC, VVT",
+    "LGW": "3.0L V6 TWIN TURBO DI, DOHC, VVT",
+    "LGX": "3.6L V6, DI, VVT",
+    "LGY": "3.0L TWIN TURBO V6, SIDI",
+    "LSY": "2.0L TURBO, 4-CYL, SIDI",
+    "LT1": "6.2L (376 ci) V8 DI",
+    "LT2": "6.2L V8 DI",
+    "LT4": "6.2L SUPERCHARGED V8",
+    "LT5": "6.2L SUPERCHARGED V8 TPI",
+    "LS6": "6.7L V8 DI",
+    "LT6": "5.5L V8 DI",
+    "LT7": "5.5L (335 ci) Twin-Turbo V8",
+    "LTA": "4.2L, V8, TWIN TURBO",
+    "LTG": "2.0L Turbo, 4-cylinder, SIDI, VVT",
+    "EN0": "None",
+    "ETI": "Ultium - 20 module pack",
+    "EWX": "Ultium - 14 module pack",
+    "ETN": "Ultium - 24 module pack",
+    "ETJ": "Ultium - 20 module pack",
 }
 
 trans_dict = {
-    "M1K": "DCT8", "M1L": "DCT8", "M1M": "DCT8", 
-    "M1N": "DCT8", "MLP": "DCT8", "MLH": "DCT8",
+    "M1K": "DCT8",
+    "M1L": "DCT8",
+    "M1M": "DCT8",
+    "M1N": "DCT8",
+    "MLP": "DCT8",
+    "M5N": "A8",
+    "M5U": "A8",
+    "MEK": "M7",
+    "MEL": "M7",
+    "MEP": "M7",
+    "MG9": "M6",
+    "MHA": "A8",
+    "MHO": "A10",
+    "MHS": "A10",
+    "MHU": "A10",
+    "MHW": "A10",
+    "MHX": "A10",
+    "MQC": "A10",
+    "MJK": "M6",
+    "MLH": "DCT8",
+    "MN6": "M6",
+    "MQ2": "A10",
+    "MQA": "A10",
+    "MX0": "A10",
+    "MF1": "None",
 }
 
-body_dict = {"CM9": "CONVERTIBLE", "CFC": "CONVERTIBLE"}
+body_dict = {
+    "CM8": "CONVERTIBLE",
+    "CM9": "CONVERTIBLE",
+    "CFC": "CONVERTIBLE",
+    "1SE": "SUV",
+    "1SF": "SUV",
+    "1SG": "SUV",
+}
