@@ -78,7 +78,7 @@ if model in ("CT4", "CT5"):
 elif model == "ESCALADE ESV":
     path = f"ESCALADE/{year}"
 
-with open(f"{path}/RETRY.txt", 'r') as file:
+with open(f"{path}/{model}_{year}.txt", 'r') as file:
     lines = [line.strip() for line in file.readlines()]
 
 totalVIN = len(lines)
