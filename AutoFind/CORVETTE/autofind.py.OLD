@@ -8,13 +8,13 @@ from datetime import datetime
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from variables.universal import *
-from variables.ct import *
+from variables.corvette import *
 
 model_configs = {
-    "CT4-CT5": {
+    "CORVETTE": {
         "body_dict": body_dict,
-        "color_dict": colors_dict_ct,
-        "trim_dict": trim_dict_ct
+        "color_dict": colors_dict_corvette,
+        "trim_dict": trim_dict_corvette
     }
 }
 
@@ -77,7 +77,7 @@ def processVin(session, db_conn, urlIdent, vinChanging, endVIN, yearDig, startVI
                     try:
                         json.loads(contents)
                     except json.decoder.JSONDecodeError:
-                        print(f"{updated_vin} ({totalIdent}/{urlList}) - FOUND")
+                        print(f"{updated_vin} - ({totalIdent}/{urlList}) - FOUND")
 
                         fullPath = os.path.join(path, f"{model.lower()}_{year}.txt")
                         with open(fullPath, "a") as f:
@@ -94,7 +94,7 @@ def processVin(session, db_conn, urlIdent, vinChanging, endVIN, yearDig, startVI
                             pdf_text = extractPDF(contentsByte)
                             pdf_info = extractInfo(pdf_text, updated_vin, model)
                             writeCSV(pdf_info, path, model, year)
-
+                            
                             if db_conn and db_conn.is_connected():
                                 insert_to_mysql(db_conn, pdf_info)
 
@@ -127,18 +127,12 @@ def parse_generic(text, updated_vin, config):
 
     info = {
         "vin": updated_vin,
-        "model": "CT4-CT5",
+        "model": "CORVETTE",
         "drivetrain": "RWD",
-        "body": "SEDAN",
+        "body": "COUPE",
     }
 
     for i, line in enumerate(lines):
-        if any(f"{year} {suffix}" in line for suffix in ["CT4 ", "CT5 "]):
-            model_info = ' '.join(line.strip().split())
-            model_info = model_info.replace("LUX HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE HAUT DE GAMME", "PREMIUM LUXURY").replace("LUXE", "LUXURY").replace("SERIE V", "V-SERIES").replace("SERIE-V", "V-SERIES")
-            modeltrim = model_info[4:].strip().split()
-            info["model"] = modeltrim[0]
-            info["trim"] = ' '.join(modeltrim[1:]).replace(" AWD", "").replace("3.6L ", "").replace("3,6L LUXURY A TI", "LUXURY")
         if "PRICE*" in line:
             info["msrp"] = lines[i + 1].replace("$", "").replace(",", "").replace(".00", "").strip()
         if "DELIVERED" in line:
@@ -154,7 +148,7 @@ def parse_generic(text, updated_vin, config):
                 "year": all_json.get("model_year"),
             })
 
-            all_json["mmc_code"] = all_json["mmc_code"].strip()
+            mmc_code = all_json["mmc_code"] = all_json["mmc_code"].strip()
             all_json["sitedealer_code"] = all_json["sitedealer_code"].strip()
 
             for item in info["all_rpos"]:
@@ -163,8 +157,10 @@ def parse_generic(text, updated_vin, config):
                 if item in engines_dict: info["engine"] = engines_dict[item]
                 if item in trans_dict: info["transmission"] = trans_dict[item]
                 if item in config["trim_dict"]: info["trim"] = config["trim_dict"][item]
-                if item in ["HP1", "F46", "C3F"]: 
+                if item in ["HP1", "F46", "C3F"] or mmc_code in ("1YG07", "1YG67", "1YS07", "1YS67"): 
                     info["drivetrain"] = "AWD"
+            if mmc_code in mmc_2020:
+                info["model"] = mmc_2020[mmc_code]
 
     if "json" in info and isinstance(info["json"], dict):
         info["json"] = json.dumps(info["json"])
@@ -179,7 +175,7 @@ def parse_generic(text, updated_vin, config):
             f.write(f"{updated_vin} - {','.join(missing_fields)}\n")
 
     return info_ordered
-
+    
 def insert_to_mysql(db_conn, info):
     try:
         cursor = db_conn.cursor()
@@ -214,10 +210,10 @@ def insert_to_mysql(db_conn, info):
 
 if __name__ == "__main__":
     import mysql.connector
-    model = "CT4-CT5"
+    model = "CORVETTE"
     script_dir = os.path.dirname(os.path.abspath(__file__))
     path = os.path.join(script_dir, f"{year}")
-    skip_file_path = os.path.join(path, 'skip_ct4-ct5.txt')
+    skip_file_path = os.path.join(path, 'skip_corvette.txt')
     found_sequences = []
 
     if os.path.exists(skip_file_path):
@@ -228,40 +224,43 @@ if __name__ == "__main__":
     print(f"\n{current_time}")
 
     # Explicit custom search range configurations mapping (100k digit prefix -> range)
-    sequence_bands = [
-        (100000, 130000, 100),  # CT4-CT5
-        (210000, 210050, 50),   # CT4-V Blackwing A10 OAR
-        (260000, 260050, 50),   # CT4-V Blackwing M6 OAR
-        (410000, 410500, 50),   # CT4-V Blackwing A10
-        (460000, 460500, 50),   # CT4-V Blackwing M6
-        (610000, 610100, 50),   # CT5-V Blackwing A10 OAR
-        (660000, 660050, 50),   # CT5-V Blackwing M6 OAR
-        (810000, 810800, 100),  # CT5-V Blackwing A10
-        (860000, 861200, 100)   # CT5-V Blackwing M6
-    ]
+    range_config = {
+        9: 50,   # 900k
+        8: 50,   # 800k
+        5: 50,   # 500k
+        6: 100,  # 600k
+        1: 200   # 100k
+    }
+    default_range = 100  # Fallback range if not specified
 
-    # Initialize each band tracking dictionary with its default fallback sequence
-    band_maxes = {band[0]: band[0] + 1 for band in sequence_bands}
+    # Gather all potential valid trim digit series based on current model year criteria
+    int_year = int(year)
+    active_digits = [0, 1]  # Default/base list allocations
+    if int_year >= 2023:
+        active_digits.extend([3, 6])  # Z06
+    if 2024 <= int_year <= 2026:
+        active_digits.extend([2, 5])  # E-Ray
+    if int_year >= 2025:
+        active_digits.extend([4, 8])  # ZR1
+    if int_year >= 2026:
+        active_digits.extend([7, 9])  # ZR1X
 
-    # Match existing historical sequences to their respective sub-bands
+    active_digits = sorted(list(set(active_digits)))
+
+    # Parse max sequence limits out of your skip file grouped by series digit
+    series_maxes = {}
     for seq in found_sequences:
-        for base, expected_max, _ in sequence_bands:
-            # Allow a small 5,000 unit buffer past expected max for late-production anomalies
-            if base < seq <= (expected_max + 5000):
-                if seq > band_maxes[base]:
-                    band_maxes[base] = seq
-                break  # Matched; move to the next sequence
+        series_key = seq // 100000
+        if series_key not in series_maxes or seq > series_maxes[series_key]:
+            series_maxes[series_key] = seq
 
-    # Construct execution targets dynamically mapped to the correct sub-band
+    # Build clear targets pairing the active series with their sequence max or base index fallback
     targets = []
-    for base, expected_max, current_range in sequence_bands:
-        last_known_seq = band_maxes[base]
-        
-        # Enforce hard structural boundaries so scans never bleed into adjacent sub-tracks
-        vinChanging = max(base + 1, last_known_seq - current_range)
-        endVIN = min(expected_max + current_range, last_known_seq + current_range)
-        
-        targets.append((base, vinChanging, endVIN, current_range))
+    for digit in active_digits:
+        if digit in series_maxes:
+            targets.append((digit, series_maxes[digit]))
+        else:
+            targets.append((digit, (digit * 100000) + 1))
 
     db_config = {
         'host': '192.168.1.126',
@@ -278,30 +277,35 @@ if __name__ == "__main__":
         session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'})
 
         # Loop completely isolated across each individual structural range target
-        for base, vinChanging, endVIN, current_range in targets:
+        for digit, last_known_seq in targets:
             if status == "stop":
                 break
 
-            print(f"--- Processing Sub-Band {base // 1000}k Series ({vinChanging:06d} to {endVIN:06d}) ---")
+            current_range = range_config.get(digit, default_range)
 
-            start_prefix = str(vinChanging).zfill(6)[:2]
+            # Boundaries securely constrained so ranges don't bleed into adjacent hundred-thousand blocks
+            vinChanging = max((digit * 100000) + 1, last_known_seq - current_range)
+            endVIN = min(((digit + 1) * 100000) - 1, last_known_seq + current_range)
 
-            if start_prefix in ("21", "41", "51"):
-                urlChosenList = urlIdent_blackwing_ct4_a10
-            elif start_prefix in ("26", "46", "56"):
-                urlChosenList = urlIdent_blackwing_ct4_m6
-            elif start_prefix in ("61", "81", "91"):
-                urlChosenList = urlIdent_blackwing_ct5_a10
-            elif start_prefix in ("66", "86", "96"):
-                urlChosenList = urlIdent_blackwing_ct5_m6
-            else: urlChosenList = urlIdent_list_ct45_2025
+            print(f"--- Processing Series Band {digit}00k ({vinChanging:06d} to {endVIN:06d}) | Search Range: {current_range} ---")
 
+            start_digit = str(vinChanging).zfill(6)[0]
+
+            if int_year >= 2026 and start_digit in ("7", "9"): urlChosenList = urlIdent_zr1x_list
+            elif int_year >= 2025 and start_digit in ("4", "8"): urlChosenList = urlIdent_zr1_list
+            elif 2024 <= int_year <= 2026 and start_digit in ("2", "5"): urlChosenList = urlIdent_eray_list
+            elif int_year >= 2023 and start_digit in ("3", "6"): urlChosenList = urlIdent_z06_list
+            else:
+                urlChosenList = urlIdent_list
+                if start_digit not in ("0", "1"):
+                    print(f"Warning: Sequence prefix '{start_digit}' unexpected. Falling back to base list.")
+                    
             urlList = len(urlChosenList)
             totalIdent = 1
 
             for urlIdent in urlChosenList:
                 print(f"Testing Prefix: {urlIdent} ({totalIdent}/{urlList})")
-
+                
                 status = processVin(session, db_conn, urlIdent, vinChanging, endVIN, yearDig, "1G1Y", "5", totalIdent, urlList)
                 if status == "stop":
                     print("Execution halted via KeyboardInterrupt.")
