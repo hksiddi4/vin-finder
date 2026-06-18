@@ -1,4 +1,4 @@
 #!/bin/bash
-cd /mnt/Inland/TestAutoFind/CORVETTE
+cd /mnt/Inland/TestAutoFind
 
-/mnt/Inland/TestAutoFind/venv/bin/python3 -u corvette.py >> /mnt/Inland/TestAutoFind/corvette_log.txt 2>&1
+/mnt/Inland/TestAutoFind/venv/bin/python3 -u main.py --model CORVETTE --year 2026 >> /mnt/Inland/TestAutoFind/logs/corvette_log.txt 2>&1

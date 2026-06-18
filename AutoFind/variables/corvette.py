@@ -46,6 +46,8 @@ mmc_2020 = {
     "1YC67": "CORVETTE STINGRAY",
     "1YE07": "CORVETTE GRAND SPORT",
     "1YE67": "CORVETTE GRAND SPORT",
+    "1YF07": "CORVETTE GRAND SPORT X",
+    "1YF67": "CORVETTE GRAND SPORT X",
     "1YG07": "CORVETTE E-RAY",
     "1YG67": "CORVETTE E-RAY",
     "1YH07": "CORVETTE Z06",
@@ -65,6 +67,15 @@ urlIdent_list = [
     "C3D4"
 ]
 
+urlIdent_list_2027 = [
+    "A2D5",
+    "A3D5",
+    "B2D5",
+    "B3D5",
+    "C2D5",
+    "C3D5"
+]
+
 urlIdent_eray_list = [
     "M2D4", # 3LZ Coupe
     "M3D4", # 3LZ Conv.
@@ -74,13 +85,22 @@ urlIdent_eray_list = [
     "K3D4", # 1LZ Conv.
 ]
 
-urlIdent_gsx_list = [ # Redo with GSX instead of ERay
-    "M2D4", # 3LZ Coupe
-    "M3D4", # 3LZ Conv.
-    "L2D4", # 2LZ Coupe
-    "L3D4", # 2LZ Conv.
-    "K2D4", # 1LZ Coupe
-    "K3D4", # 1LZ Conv.
+urlIdent_gs_list = [
+    "V2D5", # 3LT Coupe
+    "V3D5", # 3LT Conv.
+    "T2D5", # 2LT Coupe
+    "T3D5", # 2LT Conv.
+    "S2D5", # 1LT Coupe
+    "S3D5", # 1LT Conv.
+]
+
+urlIdent_gsx_list = [
+    "Y2D5", # 3LT Coupe
+    "Y3D5", # 3LT Conv.
+    "X2D5", # 2LT Coupe
+    "X3D5", # 2LT Conv.
+    "W2D5", # 1LT Coupe
+    "W3D5", # 1LT Conv.
 ]
 
 urlIdent_z06_list = [
