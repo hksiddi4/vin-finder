@@ -13,6 +13,7 @@ from variables.silverado_ev import *
 from variables.sierra_ev import *
 from variables.escalade import *
 from variables.escalade_iq import *
+from variables.celestiq import *
 
 def extractInfo(text, updated_vin, model):
     config = model_configs.get(model)
@@ -64,7 +65,6 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
             vinChanging += 1
         if skip_count > 0:
             print(f"\033[30mSkipped {skip_count} VIN{'s' if skip_count > 1 else ''}.\033[0m")
-            # After skipping block, continue with next iteration to process non-skipped VIN
             if vinChanging > endVIN:
                 break
         try:
@@ -403,6 +403,14 @@ model_configs = {
         "color_dict": colors_dict_corvette,
         "trim_dict": trim_dict_corvette,
     },
+    "CELESTIQ": {
+        "model_name": "CELESTIQ",
+        "default_drivetrain": "RWD",
+        "default_body": "SEDAN",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_celestiq,
+        "trim_dict": trim_dict_celestiq,
+    },
 }
 
 def get_six_digit_input(prompt):
@@ -557,6 +565,8 @@ while True: # urlChosenList
             continue
     elif model == "ESCALADE IQ":    
         urlChosenList = globals()["urlIdent_escalade_iq"]
+    elif model == "CELESTIQ":
+        urlChosenList = globals()["urlIdent_celestiq"]
     else:
         print("\033[91mPlease enter a valid model or check the year.\033[0m\n")
         continue

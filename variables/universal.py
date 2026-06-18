@@ -149,6 +149,7 @@ model_data = {
     "ESCALADE": {"start_vin": "1GYS", "plant": "R"},
     "ESCALADE ESV": {"start_vin": "1GYS", "plant": "R"},
     "ESCALADE IQ": {"start_vin": "1GYT", "plant": "U"},
+    "CELESTIQ": {"start_vin": "1G6M", "plant": "U"},
 }
 
 skip_files_map = {
@@ -183,6 +184,7 @@ skip_files_map = {
         f'SUBURBAN/{year}/skip_suburban.txt',
         f'YUKON/{year}/skip_yukon.txt',
     ],
+    "CELESTIQ": [f'CELESTIQ/{year}/skip_celestiq.txt'],
 }
 
 engines_dict = {
