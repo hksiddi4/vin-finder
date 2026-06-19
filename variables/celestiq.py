@@ -1,6 +1,7 @@
 colors_dict_celestiq = {
     "GB8": "STELLAR BLACK METALLIC",
-    "": "",
+    "GXA": "SEA WOLF TRICOAT",
+    "GKK": "WAVE METALLIC",
 }
 
 trim_dict_celestiq = {
@@ -8,5 +9,6 @@ trim_dict_celestiq = {
 }
 
 urlIdent_celestiq = {
+    "G5R1",
     "G5R2",
 }

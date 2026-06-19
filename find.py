@@ -77,6 +77,7 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
             max_retries = 3
             retries = 0
             delays = [3, 10, 30]
+            skip_to_next = False 
 
             while retries < max_retries:
                 try:
@@ -119,7 +120,11 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                             pdf_text = extractPDF(contentsByte, updated_vin, path)
                             pdf_info = extractInfo(pdf_text, updated_vin, model)
 
-                            actual_json_vin = pdf_info.get("json", {}).get("vin")
+                            try:
+                                json_data = json.loads(pdf_info.get("json", "{}"))
+                                actual_json_vin = json_data.get("vin")
+                            except Exception:
+                                actual_json_vin = None
 
                             if actual_json_vin and updated_vin != actual_json_vin:
                                 print(f"\033[91mDATA INTEGRITY ERROR: Requested {updated_vin}, sticker is {actual_json_vin}.\033[0m")
@@ -128,9 +133,7 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                                 with open(f"{path}/missing_info.txt", "a") as f:
                                     f.write(f"{updated_vin} - VIN MISMATCH (Metadata: {actual_json_vin})\n")
                                 
-                                # Increment and break the retry loop to skip this bad sticker
-                                vinChanging += 1
-                                testedVIN += 1
+                                skip_to_next = True
                                 break
                             
                             required_fields = ["trim", "engine", "transmission", "dealer"]
@@ -166,15 +169,15 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                                 print(f"\033[91mMuPDF error: {e}. Skipping this VIN.\033[0m")
                                 with open(f'{path}/RETRY.txt', "a") as f:
                                     f.write(f"{updated_vin}\n")
-                                continue
+                                skip_to_next = True
+                                break
 
-                    # Increment VIN by 1
+                    # Increment VIN cleanly and leave retry block
                     vinChanging += 1
                     testedVIN += 1
                     break
 
                 except requests.exceptions.ReadTimeout:
-                    # Retry request
                     print("\033[91mTimed out, retrying in 2 minutes...\033[0m")
                     retries += 1
                     time.sleep(120)
@@ -183,10 +186,15 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                     retries += 1
                     time.sleep(120)
 
+            # Check skip flag out here (aligned with the 'while retries' container block)
+            if skip_to_next:
+                vinChanging += 1
+                testedVIN += 1
+                continue
+
         except requests.exceptions.RequestException as e:
             if isinstance(e.__cause__, ConnectionResetError):
                 print(f"\033[91mConnectionResetError: {e}.\033[0m")
-                # Write VIN to RETRY.txt file
                 with open(f'{path}/RETRY.txt', "a") as f:
                     f.write(f"{updated_vin}\n")
                 vinChanging += 1
@@ -296,8 +304,6 @@ model_configs = {
         "default_drivetrain": "RWD",
         "default_body": "SUV",
         "body_dict": body_dict,
-        #"color_dict": colors_dict_tahoe,
-        #"trim_dict": trim_dict_tahoe,
     },
     "ESCALADE IQ": {
         "model_name": "ESCALADE IQ",
@@ -355,7 +361,7 @@ model_configs = {
         "color_dict": colors_dict_a_cts,
         "trim_dict": trim_dict_a_cts,
     },
-    "CTS": {
+    "TXT": {
         "model_name": "CTS",
         "default_drivetrain": "RWD",
         "default_body": "SEDAN",
@@ -421,7 +427,7 @@ def get_six_digit_input(prompt):
         print("\033[91mPlease enter a valid 6-digit number.\033[0m\n")
 
 urlChosenList = None
-while True: # urlChosenList
+while True: 
     vinChanging = get_six_digit_input('Enter last 6 numbers of the VIN to start at:\n')
     endVIN = get_six_digit_input('Enter last 6 numbers of the VIN to stop at:\n')
     
@@ -461,7 +467,7 @@ while True: # urlChosenList
         elif int(year) >= 2024 and int(year) <= 2026 and start_digit in ("2", "5"):
             urlChosenList = globals()["urlIdent_eray_list"]
         elif int(year) >= 2027 and start_digit in ("2", "5"):
-            urlChosenList = globals()["urlIdent_gsx_list"] # Modify to Grand Sport X
+            urlChosenList = globals()["urlIdent_gsx_list"]
         elif int(year) >= 2023 and start_digit in ("3", "6"):
             urlChosenList = globals()["urlIdent_z06_list"]
         elif start_digit in ("0", "1"):
@@ -471,7 +477,7 @@ while True: # urlChosenList
             continue
     elif model == "CAMARO" and 2019 <= int(year) <= 2024:
         urlChosenList = globals()[f"urlIdent_list_{year}"]
-    elif model in ("ATS", "CTS"): # Work on refactoring this to ATS/CTS
+    elif model in ("ATS", "CTS"):
         second_digit = str(vinChanging)[1]
         if int(year) >= 2022 and start_digit in ["2", "4", "5"]:
             if second_digit == "1":
@@ -610,7 +616,7 @@ with requests.Session() as session:
         for urlIdent in urlChosenList:
             if model == "SILVERADO EV" and urlIdent == "02EL":
                 startVIN = "1GC4"
-            if model == "SIERRA EV" and urlIdent == "0MED":
+            elif model == "SIERRA EV" and urlIdent == "0MED":
                 startVIN = "1GT1"
             else:
                 startVIN = config.get("start_vin", selected_start_vin)
