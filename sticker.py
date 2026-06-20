@@ -74,6 +74,7 @@ while True:
 
 path = f"{model}/{year}"
 if model in ("CT4", "CT5"):
+    model = "CT4-CT5"
     path = f"CT4-CT5/{year}"
 elif model == "ESCALADE ESV":
     path = f"ESCALADE/{year}"
