@@ -140,6 +140,7 @@ model_data = {
     "CT5": {"start_vin": "1G6D", "plant": "0"},
     "CT6": {"start_vin": "1G6K", "plant": "U"},
     "HUMMER EV": [
+        {"start_vin": "1GKT", "plant": "U"},
         {"start_vin": "1GKB", "plant": "U"},
         {"start_vin": "1GT4", "plant": "U"},
         {"start_vin": "1GT1", "plant": "U"},

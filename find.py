@@ -590,9 +590,13 @@ if not isinstance(model_entries, list):
     model_entries = [model_entries]
 
 startList = len(model_entries)
-urlList = len(urlChosenList)
 
-totalVIN = (((int(endVIN) + 1) - int(vinChanging)) * int(urlList)) * int(startList)
+if isinstance(urlChosenList, dict):
+    total_combinations = sum(len(urlChosenList.get(config.get("start_vin", selected_start_vin), [])) for config in model_entries)
+    totalVIN = ((int(endVIN) + 1) - int(vinChanging)) * total_combinations
+else:
+    urlList = len(urlChosenList)
+    totalVIN = (((int(endVIN) + 1) - int(vinChanging)) * int(urlList)) * int(startList)
 totalIdent = 1
 totalStart = 1
 foundVIN = 0
@@ -613,17 +617,31 @@ with requests.Session() as session:
     # Process request through all variations of trim/gears
     for config in model_entries:
         plant = config["plant"]
-        for urlIdent in urlChosenList:
+        startVIN = config.get("start_vin", selected_start_vin)
+
+        # Filter to specific urlIdents if using a dictionary mapping
+        if isinstance(urlChosenList, dict):
+            current_url_list = urlChosenList.get(startVIN, [])
+        else:
+            current_url_list = urlChosenList
+
+        urlList = len(current_url_list)
+        if urlList == 0:
+            totalStart += 1
+            continue # Skip if this startVIN has no matching urlIdents
+
+        for urlIdent in current_url_list:
+            # Leave your custom Silverado/Sierra overrides intact
             if model == "SILVERADO EV" and urlIdent == "02EL":
                 startVIN = "1GC4"
             elif model == "SIERRA EV" and urlIdent == "0MED":
                 startVIN = "1GT1"
-            else:
-                startVIN = config.get("start_vin", selected_start_vin)
+            
             print(f"Testing configuration ({totalIdent}/{urlList}): {urlIdent} | ({totalStart}/{startList}): {startVIN}")
             processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
             totalIdent += 1
             print("")
+            
         totalStart += 1
         totalIdent = 1
 
