@@ -156,6 +156,15 @@ urlIdent_list = [
     "C3D4"
 ]
 
+urlIdent_list_2027 = [
+    "A2D5",
+    "A3D5",
+    "B2D5",
+    "B3D5",
+    "C2D5",
+    "C3D5"
+]
+
 urlIdent_z06_list = [
     "F3D3", # 3LZ Conv.
     "F2D3", # 3LZ Coupe
@@ -172,6 +181,24 @@ urlIdent_eray_list = [ # Ordered by most-least production
     "L3D4", # 2LZ Conv.
     "K2D4", # 1LZ Coupe
     "K3D4", # 1LZ Conv.
+]
+
+urlIdent_gs_list = [
+    "V2D5", # 3LT Coupe
+    "V3D5", # 3LT Conv.
+    "T2D5", # 2LT Coupe
+    "T3D5", # 2LT Conv.
+    "S2D5", # 1LT Coupe
+    "S3D5", # 1LT Conv.
+]
+
+urlIdent_gsx_list = [
+    "Y2D5", # 3LT Coupe
+    "Y3D5", # 3LT Conv.
+    "X2D5", # 2LT Coupe
+    "X3D5", # 2LT Conv.
+    "W2D5", # 1LT Coupe
+    "W3D5", # 1LT Conv.
 ]
 
 urlIdent_zr1_list = [

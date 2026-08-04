@@ -472,11 +472,15 @@ while True:
             urlChosenList = globals()["urlIdent_zr1_list"]
         elif int(year) >= 2024 and int(year) <= 2026 and start_digit in ("2", "5"):
             urlChosenList = globals()["urlIdent_eray_list"]
+        elif int(year) >= 2027 and start_digit in ("3"):
+            urlChosenList = globals()["urlIdent_gs_list"]
         elif int(year) >= 2027 and start_digit in ("2", "5"):
             urlChosenList = globals()["urlIdent_gsx_list"]
-        elif int(year) >= 2023 and start_digit in ("3", "6"):
+        elif int(year) >= 2023 and start_digit in ("6"):
             urlChosenList = globals()["urlIdent_z06_list"]
-        elif start_digit in ("0", "1"):
+        elif int(year) >= 2027:
+            urlChosenList = globals()["urlIdent_list_2027"]
+        elif int(year) <= 2027 and start_digit in ("0", "1"):
             urlChosenList = urlIdent_list
         else:
             print("\033[91mInvalid sequence.\033[0m\n")
