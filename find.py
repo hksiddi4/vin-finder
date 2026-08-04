@@ -449,7 +449,13 @@ while True:
     else:
         selected_start_vin = model_entries[0]["start_vin"]
     if model == "CORVETTE":
-        mmc = mmc_2019 if int(year) == 2019 else mmc_2020
+        y = int(year)
+        if y >= 2027:
+            mmc = mmc_2027
+        elif y == 2019:
+            mmc = mmc_2019
+        else:
+            mmc = mmc_2020
         if int(year) == 2019:
             if start_digit in ("8", "7"):
                 urlChosenList = globals()["urlIdent_2019_zr1_list"]

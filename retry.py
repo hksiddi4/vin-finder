@@ -300,7 +300,13 @@ model_map = {
 while True:
     model = input('Enter model to use:\n').upper()
     if model == "CORVETTE":
-        mmc = mmc_2019 if int(year) == 2019 else mmc_2020
+        y = int(year)
+        if y >= 2027:
+            mmc = mmc_2027
+        elif y == 2019:
+            mmc = mmc_2019
+        else:
+            mmc = mmc_2020
         break
     elif model in model_map:
         model = model_map[model]
