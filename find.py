@@ -77,31 +77,29 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
             max_retries = 3
             retries = 0
             delays = [3, 10, 30]
-            skip_to_next = False 
 
             while retries < max_retries:
                 try:
-                    # Get Request
+                    # Get Request (stream=False is default, downloads payload into memory)
                     contentsGet = session.get(newUrl, timeout=10)
                     contentsByte = contentsGet.content
-                    contents = contentsGet.text
-                    time.sleep(1)
+                    
+                    # Standard respectful pacing
+                    time.sleep(1.5)
 
-                    # Retry if contents is empty
-                    if contents == "":
+                    # 1. Handle the Server Glitch (Empty Response)
+                    if not contentsByte:
                         print(f"\033[91mEmpty content. Retrying in {delays[retries]} seconds...\033[0m")
                         time.sleep(delays[retries])
                         contentsGet.close()
                         retries += 1
                         continue
 
-                    try:
-                        # If JSON content found = no window sticker
-                        jsonCont = json.loads(contents)
-                        print("\033[30m" + updated_vin + "\033[0m " + f"({totalIdent}/{urlList}): {urlIdent} | ({totalStart}/{startList}): {startVIN}")
-                    # If request returns not a JSON content = window sticker found
-                    except json.decoder.JSONDecodeError:
+                    # 2. Check for a valid PDF Window Sticker using Magic Bytes
+                    if contentsByte.startswith(b'%PDF-'):
                         print("\033[33m" + updated_vin + "\033[0m " + f"({totalIdent}/{urlList}): {urlIdent} | ({totalStart}/{startList}): {startVIN}")
+                        
+                        # --- Your existing PDF save and parse logic ---
                         if model in ("CT4", "CT5"):
                             fullPath = f"{path}/ct4-ct5_{year}.txt"
                         elif model in ("ATS", "CTS"):
@@ -110,16 +108,19 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                             fullPath = f"{path}/escalade_{year}.txt"
                         else:
                             fullPath = f"{path}/{model.lower()}_{year}.txt"
+                        
                         with open(fullPath, "a") as f:
                             f.write(f"{updated_vin}\n")
 
                         os.makedirs(sticker_folder, exist_ok=True)
                         with open(pdf_filename, "wb") as f:
                             f.write(contentsByte)
+                            
+                        # Extract and parse
                         try:
                             pdf_text = extractPDF(contentsByte, updated_vin, path)
                             pdf_info = extractInfo(pdf_text, updated_vin, model)
-
+                            
                             try:
                                 json_data = json.loads(pdf_info.get("json", "{}"))
                                 actual_json_vin = json_data.get("vin")
@@ -132,8 +133,6 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                                     f.write(f"{updated_vin}\n")
                                 with open(f"{path}/missing_info.txt", "a") as f:
                                     f.write(f"{updated_vin} - VIN MISMATCH (Metadata: {actual_json_vin})\n")
-                                
-                                skip_to_next = True
                                 break
                             
                             required_fields = ["trim", "engine", "transmission", "dealer"]
@@ -145,37 +144,45 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                                     f.write(f"{updated_vin}\n")
                             else:
                                 writeCSV(pdf_info, path, model)
-
-                            # Append only the last 6 digits of the VIN to the list and file
-                            skipping.append(int(updated_vin[-6:]))
-                            if model in ("CT4", "CT5"):
-                                fullPath = f"{path}/skip_ct4-ct5.txt"
-                            elif model in ("ATS", "CTS"):
-                                fullPath = f"{path}/skip_ats-cts.txt"
-                            elif model == "ESCALADE ESV":
-                                fullPath = f"{path}/skip_escalade.txt"
-                            else:
-                                fullPath = f"{path}/skip_{model.lower()}.txt"
-                            with open(fullPath, "a") as file:
-                                file.write(f"{updated_vin[-6:].zfill(6)}\n")
-
+                            
                         except Exception as e:
-                            if retries < max_retries - 1:
-                                print("\033[91mMuPDF error. Retrying in 3 seconds...\033[0m")
-                                retries += 1
-                                time.sleep(3)
-                                continue
-                            else:
-                                print(f"\033[91mMuPDF error: {e}. Skipping this VIN.\033[0m")
-                                with open(f'{path}/RETRY.txt', "a") as f:
-                                    f.write(f"{updated_vin}\n")
-                                skip_to_next = True
-                                break
+                            print(f"\033[91mMuPDF/Parse error: {e}. Skipping this VIN.\033[0m")
+                            with open(f'{path}/RETRY.txt', "a") as f:
+                                f.write(f"{updated_vin}\n")
+                            
+                        except Exception as e:
+                            print(f"\033[91mMuPDF/Parse error: {e}. Skipping this VIN.\033[0m")
+                            with open(f'{path}/RETRY.txt', "a") as f:
+                                f.write(f"{updated_vin}\n")
+                        
+                        # --- FIX: Only add to skip file if we successfully found a sticker ---
+                        skipping.append(int(updated_vin[-6:]))
+                        
+                        skip_file_name = f"skip_{model.lower()}.txt"
+                        if model in ("CT4", "CT5"): skip_file_name = "skip_ct4-ct5.txt"
+                        elif model in ("ATS", "CTS"): skip_file_name = "skip_ats-cts.txt"
+                        elif model == "ESCALADE ESV": skip_file_name = "skip_escalade.txt"
+                        
+                        with open(f"{path}/{skip_file_name}", "a") as file:
+                            file.write(f"{updated_vin[-6:].zfill(6)}\n")
+                        
+                        # We found a sticker, successfully broke out of the retry loop
+                        break
 
-                    # Increment VIN cleanly and leave retry block
-                    vinChanging += 1
-                    testedVIN += 1
-                    break
+                    # 3. Check for the known "No Window Sticker" JSON response
+                    elif contentsByte.startswith(b'{'):
+                        try:
+                            jsonCont = json.loads(contentsByte)
+                            if jsonCont.get("errorCode") == 1001:
+                                print("\033[30m" + updated_vin + "\033[0m " + f"({totalIdent}/{urlList}): {urlIdent} | ({totalStart}/{startList}): {startVIN}")
+                                break # Move to the next VIN cleanly
+                        except json.JSONDecodeError:
+                            pass
+                    
+                    # 4. Unknown state (Not a PDF, not empty, not the expected JSON)
+                    print(f"\033[91mUnexpected API response format. Retrying...\033[0m")
+                    time.sleep(delays[retries])
+                    retries += 1
 
                 except requests.exceptions.ReadTimeout:
                     print("\033[91mTimed out, retrying in 2 minutes...\033[0m")
@@ -186,11 +193,15 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
                     retries += 1
                     time.sleep(120)
 
-            # Check skip flag out here (aligned with the 'while retries' container block)
-            if skip_to_next:
-                vinChanging += 1
-                testedVIN += 1
-                continue
+            # --- Safety Catch: Exhausted all retries ---
+            if retries >= max_retries:
+                print(f"\033[91mFailed to get a valid response after 3 attempts. Logging {updated_vin} to RETRY.txt.\033[0m")
+                with open(f'{path}/RETRY.txt', "a") as f:
+                    f.write(f"{updated_vin}\n")
+                
+            # Increment VIN cleanly for the loop to continue
+            vinChanging += 1
+            testedVIN += 1
 
         except requests.exceptions.RequestException as e:
             if isinstance(e.__cause__, ConnectionResetError):
