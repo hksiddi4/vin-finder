@@ -11,6 +11,7 @@ from variables.silverado_ev import *
 from variables.sierra_ev import *
 from variables.escalade import *
 from variables.escalade_iq import *
+from variables.celestiq import *
 
 def extractInfo(text, updated_vin, model):
     config = model_configs.get(model)
@@ -285,6 +286,14 @@ model_configs = {
         "color_dict": colors_dict_corvette,
         "trim_dict": trim_dict_corvette,
     },
+    "CELESTIQ": {
+        "model_name": "CELESTIQ",
+        "default_drivetrain": "RWD",
+        "default_body": "SEDAN",
+        "body_dict": body_dict,
+        "color_dict": colors_dict_celestiq,
+        "trim_dict": trim_dict_celestiq,
+    },
 }
 
 model_map = {
@@ -295,6 +304,7 @@ model_map = {
     "SIERRA EV": "SIERRA EV",
     "ESCALADE IQ": "ESCALADE IQ",
     "ESCALADE": "ESCALADE", "ESCALADE ESV": "ESCALADE ESV",
+    "CELESTIQ": "CELESTIQ",
 }
 
 while True:

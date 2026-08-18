@@ -210,6 +210,8 @@ engines_dict = {
     "EWX": "Ultium - 14 module pack",
     "ETN": "Ultium - 24 module pack",
     "ETJ": "Ultium - 20 module pack",
+    "EXN": "Ultium - 16 module pack",
+    "EHT": "Ultium - 16 module pack, Config B",
 }
 
 trans_dict = {

@@ -26,6 +26,7 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
     global testedVIN, foundVIN
     mYear = int(year)
     sticker_folder = os.path.join(path, "Window Stickers")
+    os.makedirs(sticker_folder, exist_ok=True) 
 
     if model in ("CAMARO", "CT4", "CT5", "ATS", "CTS"):
         if model in ("CAMARO", "ATS", "CTS") and mYear == 2019:
@@ -51,8 +52,12 @@ def processVin(session, urlIdent, vinChanging, endVIN, yearDig, startVIN, plant)
 
     skipping = []
     for file_path in files_to_read:
-        with open(file_path, 'r') as file:
-            skipping.extend(int(line.strip()) for line in file if line.strip().isdigit())
+        try:
+            with open(file_path, 'r') as file:
+                skipping.extend(int(line.strip()) for line in file if line.strip().isdigit())
+        except FileNotFoundError:
+            # File doesn't exist yet, safely ignore. It will be created later if needed.
+            pass
 
     urlFirst = f"https://cws.gm.com/vs-cws/vehshop/v2/vehicle/windowsticker?vin={startVIN}"
 
